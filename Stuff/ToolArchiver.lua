@@ -18,8 +18,11 @@ ToolArchiver.new = function(player: Player): object
 	local result = setmetatable({}, ToolArchiver)
 	local states : object = result
 	states.player = player;
-	states.folder = Instance.new('Folder', player)
-	states.folder.Name = 'ToolArchive'
+	
+	local folder = player:FindFirstChild('ToolArchive') or Instance.new('Folder', player)
+	folder.Name = 'ToolArchive'
+	
+	states.folder = folder
 	return result
 end
 
