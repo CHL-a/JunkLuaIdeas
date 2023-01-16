@@ -50,10 +50,10 @@ local EventPackage = {}
 function EventPackage.new<a...>()
 	local object: eventPackage<a...>
 	local event: event<a...>
-	
+
 	-- object states
 	local queue: queue<a...> = {}
-	
+
 	-- methods
 	local function insert(ev: eventSubjectTypes, f: structFunc<a...>) 
 		table.insert(queue, {
@@ -62,7 +62,7 @@ function EventPackage.new<a...>()
 			id = object.id
 		})
 	end
-	
+
 	local function fire(...: a...)
 		local i = 1;
 
@@ -83,9 +83,9 @@ function EventPackage.new<a...>()
 			i += 1
 		end
 	end
-	
+
 	-- event
-	
+
 	-- event methods
 	local function createConnection(f, id)
 		local result: connection = {
@@ -96,41 +96,39 @@ function EventPackage.new<a...>()
 						return
 					end
 				end
-
-				error('disconnected already initiated')
 			end,
 		}
-		
+
 		return result
 	end
-	
+
 	local function getConnector(eventType: eventSubjectTypes)
 		return function(f: structFunc<a...>)
 			object.id += 1
 			insert(eventType, f)
-			
+
 			return createConnection(f,object.id)
 		end
 	end
-	
+
 	local function eWait(): a...
 		object.id += 1
-		
+
 		local thread = coroutine.running()
-		
+
 		object.insert('wait', function(...: a...)
 			coroutine.resume(thread, ...)
 		end)
 
 		return coroutine.yield(thread)
 	end
-	
+
 	event = {
 		connect = getConnector('connect');
 		once = getConnector('once');
 		wait = eWait;
 	}
-	
+
 	object = {
 		id = 0;
 		queue = queue;
