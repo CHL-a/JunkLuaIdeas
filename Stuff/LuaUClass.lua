@@ -12,10 +12,10 @@ function inherit<A>(t: A, methods): subclass<A>
 	-- metatable evaluation
 	local mt = getmetatable(result)
 	
-	if mt and methods then
+	if mt and methods  then
 		mt = table.clone(mt)
 		
-		local cloneIndex = table.clone(mt.__index)
+		local cloneIndex = mt.__index and table.clone(mt.__index) or {}
 		
 		mt.__index = cloneIndex
 		
