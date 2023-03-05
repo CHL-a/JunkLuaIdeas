@@ -2,11 +2,35 @@
 	Returns any cached values from input "func" with given arguments
 --]]
 
+-- SPEC
+export type object<retVal, params...> = {
+	cache: {[string]: {retVal}};
+	func: (params...) -> retVal;
+	get: (self: object<retVal, params...>, params...) -> retVal;
+	decache: (params...) -> retVal;
+}
+
+-- CLASS
 local ResponsiveCache = {}
 local availibleIndex = 0
+ResponsiveCache.__index = ResponsiveCache
 ResponsiveCache.nilRepresentitive = {} -- find something to replace this later
 -- ^ lua doesn't allow nil indexes but allows anything else
 ResponsiveCache.indexes = {}
+
+function ResponsiveCache.new<rVal, params...>(func: (params...) -> rVal)
+	-- pre
+	assert(type(func) == 'function')
+
+	-- main
+	local result = setmetatable({}, ResponsiveCache)
+	local result: object<rVal, params...> = result
+	
+	result.cache = {}
+	result.func = func
+	
+	return result
+end
 
 function ResponsiveCache.getIndex(v)
 	-- pre
@@ -34,55 +58,35 @@ function ResponsiveCache.getMegaIndex(...)
 	return result
 end
 
-export type object<retVal, params...> = {
-	cache: {[string]: {retVal}};
-	get: (params...) -> retVal;
-	decache: (params...) -> retVal;
-}
-
-function ResponsiveCache.new<rVal, params...>(func: (params...) -> rVal)
-	-- pre
-	assert(type(func) == 'function')
-
+--[[
+	Calls "func" with arguments and returns any cached values if the arguments are 
+	inputted twice
+]]
+ResponsiveCache.get = function<r, p...>(self: object<r,p...>, ...: p...)
 	-- main
-	local object: object<rVal, params...>
-		
-	object = {
-		cache = {};
-		--[[
-			Calls "func" with arguments and returns any cached values if the arguments are 
-			inputted twice
-		]]
-		get = function(...:params...): rVal
-			-- main
-			local result
-			local megaIndex = ResponsiveCache:getMegaIndex(...)
+	local result
+	local megaIndex = ResponsiveCache:getMegaIndex(...)
 
-			if not object.cache[megaIndex] then
-				object.cache[megaIndex] = { func(...) }
-			end
+	if not self.cache[megaIndex] then
+		self.cache[megaIndex] = {self.func(...)}
+	end
 
-			result = object.cache[megaIndex]
+	result = self.cache[megaIndex]
 
-			return unpack(result)
-		end,
+	return unpack(result)
+end
 
-		--[[
-			Decaches any entry to object.cachedResults based on the arguments, 
-			returns removed value
-		]]
-		decache = function(...:params...): rVal
-			-- main
-			local result = {object.get(...)}
+--[[
+	Decaches any entry to object.cachedResults based on the arguments, 
+	returns removed value
+]]
+ResponsiveCache.decache = function<r, p...>(self: object<r, p...>, ...: p...)
+	-- main
+	local result = {self:get(...)}
 
-			object.cache[ResponsiveCache:getMegaIndex(...)] = nil
+	self.cache[ResponsiveCache:getMegaIndex(...)] = nil
 
-			return unpack(result)
-		end
-	}
-
-
-	return object
+	return unpack(result)
 end
 
 return ResponsiveCache
