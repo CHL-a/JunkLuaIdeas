@@ -8,13 +8,13 @@ export type protocol = 'rbxassetid' |
 
 -- CLASS
 local Content = {}
-local ContentProvider = game.ContentProvider
+local ContentProvider = game:GetService('ContentProvider')
 
 Content.contentProvider = ContentProvider
 
 Content.getComponents = function(s: string) : (protocol?, string?)
 	local p, st = s:match('(.-)://(.*)')
-	
+
 	return p, st
 end
 
