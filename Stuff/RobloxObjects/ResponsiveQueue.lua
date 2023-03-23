@@ -1,51 +1,40 @@
--- SPEC
-export type object<params...> = {
-	iterationFunc: (params...) -> nil;
-	queue: {};
-	thread: thread;
-	enqueue: (self: object<params...>, params...) -> nil;
-}
-
--- CLASS
 local ResponsiveQueue = {}
-ResponsiveQueue.__index = ResponsiveQueue
 
-function new<params...>(f: (params...) -> nil): object<params...>
-	local result = setmetatable({}, ResponsiveQueue)
-	local result: object<params...> = result
+function ResponsiveQueue.new<rValues..., params...>(func: (params...) -> rValues...)
+	local object = {}
+	object.queue = {}
 	
-	result.queue = {}
-	result.iterationFunc = f
-	result.thread = coroutine.create(function()
+	local temp = func
+	
+	object.thread = coroutine.create(function()
 		while true do
-			if #result.queue == 0 then 
+			if #object.queue == 0 then 
 				coroutine.yield()
 			end
 
-			local val = table.remove(result.queue, 1)
-			local b = result.iterationFunc
-			
-			b(unpack(val))
+			local val = table.remove(object.queue, 1)
+
+			temp(unpack(val))
 		end
 	end)
 	
-	coroutine.resume(result.thread)
-	
-	return result
-end
-ResponsiveQueue.new = new
-ResponsiveQueue.enqueue = function<p...>(self: object<p...>, ...: p...)
-	local a = {}
-	
-	for b = 1, select('#', ...) do
-		a[b] = select(b, ...)
+	object.call = function(...: params...)
+		local temp = {}
+		
+		for i = 1, select('#', ...) do
+			temp[i] = select(i, ...)
+		end
+		
+		table.insert(object.queue, temp)
+		
+		if #object.queue == 1 then
+			coroutine.resume(object.thread)
+		end
 	end
 	
-	table.insert(self.queue, a)
 	
-	if #self.queue == 1 then
-		coroutine.resume(self.thread)
-	end
+	return object
 end
+
 
 return ResponsiveQueue
