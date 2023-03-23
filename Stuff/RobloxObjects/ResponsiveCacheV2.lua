@@ -25,10 +25,10 @@ function ResponsiveCache.new<rVal, params...>(func: (params...) -> rVal)
 	-- main
 	local result = setmetatable({}, ResponsiveCache)
 	local result: object<rVal, params...> = result
-	
+
 	result.cache = {}
 	result.func = func
-	
+
 	return result
 end
 
@@ -51,7 +51,7 @@ function ResponsiveCache.getMegaIndex(...)
 	local result = ''
 
 	-- construct megaindex
-	for i = 1, table.getn(args) do
+	for i = 1, #args do
 		result ..= ResponsiveCache.getIndex(args[i])
 	end
 
