@@ -7,7 +7,7 @@ export type object<retVal, params...> = {
 	cache: {[string]: {retVal}};
 	func: (params...) -> retVal;
 	get: (self: object<retVal, params...>, params...) -> retVal;
-	decache: (params...) -> retVal;
+	decache: (self: object<retVal, params...>,params...) -> retVal;
 }
 
 -- CLASS
@@ -74,6 +74,18 @@ ResponsiveCache.get = function<r, p...>(self: object<r,p...>, ...: p...)
 	result = self.cache[megaIndex]
 
 	return unpack(result)
+end
+
+ResponsiveCache.exists = function<r,p...> (self:object<r,p...>, ...:p...)
+	local mI = ResponsiveCache:getMegaIndex(...)
+	
+	local isExist = false
+	
+	if self.cache[mI] then
+		isExist = true
+	end
+	
+	return isExist, unpack(self.cache[mI] or {})
 end
 
 --[[
