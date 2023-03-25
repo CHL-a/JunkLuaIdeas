@@ -1,39 +1,52 @@
--- SPEC
-export type object = {
-	localScript: LocalScript;
+type __object = {
 	oldParent: Instance;
-	currentOwners: {Player};
-
-	undo: (self: object) -> nil;
-	giveLocalScript: (self: object, Player) -> nil
+	localScript: LocalScript;
+	currentOwners: {LocalScript};
+	
+	undo: (self: __object) -> nil;
 }
 
--- CLASS
+export type object = __object;
+
+--#########################################
+--#########################################
+--#########################################
+
 local LocalPlayerScriptLoader = {}
 LocalPlayerScriptLoader.__index = LocalPlayerScriptLoader
 
-function LocalPlayerScriptLoader.new(lS: LocalScript)
+function LocalPlayerScriptLoader.new(LocalScript)
 	-- pre
-	assert(typeof(ls) == 'Instance' and lS:IsA('LocalScript'))
-
-	-- main
-	local result = setmetatable({}, LocalPlayerScriptLoader)
-	local result: object = result;
+	assert(typeof(LocalScript) == 'Instance' and LocalScript:IsA('LocalScript'))
 	
-	result.oldParent = assert(lS.Parent)
-	result.localScript = lS
-	result.currentOwners = {}
-
+	-- main
+	local object = setmetatable({}, LocalPlayerScriptLoader)
+	
+	object.oldParent = LocalScript.Parent
+	object.localScript = LocalScript
+	object.currentOwners = {}
+	
 	for _, v in next, game:GetService('Players'):GetPlayers() do
-		result:giveLocalScript(v)
+		local playerGui = v:FindFirstChildWhichIsA('PlayerGui')
+		
+		if playerGui then
+			local sG = Instance.new('ScreenGui')
+			sG.ResetOnSpawn = false
+			
+			local clone = LocalScript:Clone()
+			
+			table.insert(object.currentOwners, clone)
+			clone.Parent = sG
+			sG.Parent = playerGui
+		end
 	end
-
-	lS.Parent = game.StarterPlayer.StarterPlayerScripts
-
-	return result
+	
+	LocalScript.Parent = game.StarterPlayer.StarterPlayerScripts
+	
+	return object
 end
 
-LocalPlayerScriptLoader.undo = function(self: object)
+function LocalPlayerScriptLoader.undo(self: __object)
 	self.localScript.Parent = self.oldParent
 
 	for _, v in next, self.currentOwners do
@@ -41,18 +54,6 @@ LocalPlayerScriptLoader.undo = function(self: object)
 			v:Destroy()
 		end
 	end
-end
-
-LocalPlayerScriptLoader.giveLocalScript = function(self: object, p: Player)
-	-- pre
-	local playerGui = p:FindFirstChildWhichIsA('PlayerGui')
-	if not playerGui then return end
-	
-	-- main
-	local clone = self.localScript:Clone()
-
-	clone.Parent = playerGui
-	table.insert(self.currentOwners, clone)
 end
 
 return LocalPlayerScriptLoader
