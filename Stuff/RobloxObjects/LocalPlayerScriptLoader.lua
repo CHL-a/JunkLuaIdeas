@@ -51,7 +51,7 @@ function LocalPlayerScriptLoader.undo(self: __object)
 
 	for _, v in next, self.currentOwners do
 		if typeof(v) == 'Instance' and v.Parent then
-			v:Destroy()
+			v.Parent:Destroy()
 		end
 	end
 end
