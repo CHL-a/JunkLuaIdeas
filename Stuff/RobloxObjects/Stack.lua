@@ -5,6 +5,7 @@ type __object<A> = {
 	push: (self: __object<A>, ...A) -> nil;
 	pop: (self:__object<A>) -> A;
 	peek: (self:__object<A>) -> A;
+	clear: (self:__object<A>) -> nil
 }
 
 export type object<A> = __object<A>
@@ -40,5 +41,6 @@ module.pop = function<A>(self: __object<A>)
 	return table.remove(self.content)
 end
 
+module.clear = function<A>(self: __object<A>)table.clear(self.content)end
 
 return module
