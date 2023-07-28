@@ -6,10 +6,9 @@ type __object = {
 	cameras: __camera;
 	controls: __controls;
 	
-	
 	GetCameras: (self:__object) -> __camera;
 	GetControls: (self:__object) -> __controls;
-	--GetClickToMoveController()
+	GetClickToMoveController: (self:__object) -> __clickToMoveController
 }
 export type object = __object
 
