@@ -1,3 +1,8 @@
+--[[
+	more modifications of such:
+	 * bug fixes
+]]
+
 type __subclass<super> = super & {
 	__supers: {super};
 	__super: super;
@@ -10,7 +15,9 @@ local Class = {}
 local disguise = function<A>(x): A return x end
 
 function getLatestFunction<A>(self: __subclass<A>, i: string)
-	assert(i ~= '__supers', 'self missing index __supers')
+	if i == '__supers' and not rawget(self,'__supers') then
+		return
+	end
 
 	for j = #self.__supers, 1, -1 do
 		local onIndex = disguise(self.__supers[j]) 
@@ -24,30 +31,41 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 		return method
 	end
 
-	print(self.__supers)
-	error(`Missing method: {i}`)
+	-- print(self.__supers)
+	-- error(`Missing method: {i}`)
 end
 
-function inherit<A>(t: A, methods): __subclass<A>
+local super_metatable = {__index = getLatestFunction}
+
+function inherit<A>(t: A, methods, is_debugging): __subclass<A>
 	local result: __subclass<A> = disguise(t)
-	result.__supers = result.__supers or {}
+	local supers = result.__supers or {}
+	result.__supers = supers
 
 	-- metatable evaluation
-	local metatable = getmetatable(disguise(result))
+	local old_metatable = getmetatable(disguise(result))
 
-	if methods and metatable then
-		if metatable.__index ~= getLatestFunction then
-			table.insert(result.__supers, metatable.__index)
-			metatable.__index = getLatestFunction
-		end
-
-		table.insert(result.__supers, methods)
-
-		setmetatable(disguise(result), metatable)
+	if old_metatable and
+		old_metatable.__index and
+		old_metatable.__index ~= getLatestFunction then
+		table.insert(supers, old_metatable.__index)
 	end
-	
-	result.__super = result.__supers[#result.__supers - 1]
 
+	if methods then
+		table.insert(supers, methods)
+	end
+
+	setmetatable(disguise(result), super_metatable) -- do something here later?
+
+	result.__super = supers[#supers - 1]
+	
+	--[[
+	if not result.__super then
+		print(result.__supers, methods, old_metatable)
+		error('missing inheritance function')
+	end
+	--]]
+	
 	return result
 end
 
