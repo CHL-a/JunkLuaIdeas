@@ -148,8 +148,6 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 	end
 end
 
---local super_metatable = {__index = getLatestFunction}
-
 function inherit<A>(t: A, methods, is_debugging): __subclass<A>
 	local result: __subclass<A> = disguise(t)
 	local supers = result.__supers or {}
@@ -185,5 +183,24 @@ function inherit<A>(t: A, methods, is_debugging): __subclass<A>
 end
 
 Class.inherit = inherit
+
+function isClass(obj, class)
+	local supers = obj.__supers
+	
+	if not supers then
+		return getmetatable(obj) == class
+	else
+		return supers[#supers] == class
+	end
+end
+
+Class.isClass = isClass
+
+function hasClass(obj, class)
+	return isClass(obj, class) or 
+		obj.__supers and not not table.find(obj.__supers, class)
+end
+
+Class.hasClass = hasClass
 
 return Class
