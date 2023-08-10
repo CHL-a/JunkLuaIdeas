@@ -11,9 +11,9 @@ local disguise = function<A>(x): A return x; end
 local module = {}
 module.__index = module
 module.__call = function<A...>(self: __object<A...>)
-	assert(self:canProceed(), 'unable to proceed')
-	
-	return self:proceed()
+	if self:canProceed() then
+		return self:proceed()
+	end
 end
 
 module.new = function<A...>()
