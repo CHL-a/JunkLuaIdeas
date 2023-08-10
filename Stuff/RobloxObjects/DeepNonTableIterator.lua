@@ -5,6 +5,7 @@ local Class = require(Objects.Class)
 local DeepValueIterator = require(Objects.DeepValueIterator)
 
 type __object<A> = {} & Class.subclass<DeepValueIterator.object<A>>
+export type object<A> = __object<A>
 
 -- implementation
 local DeepNonTableIterator = {}
