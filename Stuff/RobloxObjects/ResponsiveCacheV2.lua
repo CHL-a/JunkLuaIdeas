@@ -1,13 +1,14 @@
 --[[
 	Returns any cached values from input "func" with given arguments
+	v3
 --]]
 
 -- SPEC
-export type object<retVal, params...> = {
-	cache: {[string]: {retVal}};
-	func: (params...) -> retVal;
-	get: (self: object<retVal, params...>, params...) -> retVal;
-	decache: (self: object<retVal, params...>,params...) -> retVal;
+export type object<returns..., params...> = {
+	cache: {[string]: {any}};
+	func: (params...) -> returns...;
+	get: (self: object<returns..., params...>, params...) -> returns...;
+	decache: (self: object<returns..., params...>,params...) -> returns...;
 }
 
 -- CLASS
@@ -18,13 +19,14 @@ ResponsiveCache.nilRepresentitive = {} -- find something to replace this later
 -- ^ lua doesn't allow nil indexes but allows anything else
 ResponsiveCache.indexes = {}
 
-function ResponsiveCache.new<rVal, params...>(func: (params...) -> rVal)
+function ResponsiveCache.new<returns..., params...>(func: (params...) -> returns...):
+	object<returns...,params...>
 	-- pre
 	assert(type(func) == 'function')
 
 	-- main
 	local result = setmetatable({}, ResponsiveCache)
-	local result: object<rVal, params...> = result
+	local result: object<returns..., params...> = result
 
 	result.cache = {}
 	result.func = func
@@ -78,13 +80,13 @@ end
 
 ResponsiveCache.exists = function<r,p...> (self:object<r,p...>, ...:p...)
 	local mI = ResponsiveCache:getMegaIndex(...)
-	
+
 	local isExist = false
-	
+
 	if self.cache[mI] then
 		isExist = true
 	end
-	
+
 	return isExist, unpack(self.cache[mI] or {})
 end
 
@@ -92,7 +94,7 @@ end
 	Decaches any entry to object.cachedResults based on the arguments, 
 	returns removed value
 ]]
-ResponsiveCache.decache = function<r, p...>(self: object<r, p...>, ...: p...)
+ResponsiveCache.decache = function<r..., p...>(self: object<r..., p...>, ...: p...)
 	-- main
 	local result = {self:get(...)}
 
