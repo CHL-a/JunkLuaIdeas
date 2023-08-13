@@ -119,7 +119,7 @@ end
 
 Method.__index = Method
 Method.__call = function<A>(self: __method<A>,...)
-	return self.__func(self.__proxy, ...)
+	return self.__func(...)
 end
 
 Method.new = function<A>(object: A, func: __function)
@@ -186,7 +186,7 @@ Class.inherit = inherit
 
 function isClass(obj, class)
 	local supers = obj.__supers
-	
+
 	if not supers then
 		return getmetatable(obj) == class
 	else
