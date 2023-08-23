@@ -101,7 +101,7 @@ function module.table.getType(t)
 	local iterations = 0
 
 	for i in next, t do
-		iterations = iterations + 1
+		iterations += 1
 		local typeI = type(i)
 
 		if not stringIndexed and typeI == 'string'then
@@ -193,7 +193,7 @@ function module.table.toString(
 			separator = nil;
 		}
 
-		currentIteration = currentIteration + 1
+		currentIteration += 1
 
 		if not iterationRan then iterationRan = true end
 
@@ -247,11 +247,9 @@ function module.table.toString(
 
 		-- concat
 		--section = section .. printedValues .. 
-		ivStruct.separator = (
-			currentIteration == iterations and '' or
-				tableType == 'array' and ',' or 
-				';'
-		)
+		ivStruct.separator = 
+			tableType == 'array' and ',' or 
+			';'
 
 		--result = result .. section
 
@@ -267,13 +265,17 @@ function module.table.toString(
 		end
 		local sections = ''
 
-		for _, v in next, resultSections do
+		for i, v in next, resultSections do
 			sections ..= 
 				v.precedingWhitespace .. 
 				v.index .. 
 				(tableType ~= 'array' and ' = ' or '') .. 
-				v.value .. 
-				v.separator
+				v.value
+			
+			if i ~= #resultSections then
+				
+				sections ..= v.separator
+			end
 		end
 
 		result ..=
