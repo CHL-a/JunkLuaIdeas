@@ -155,7 +155,11 @@ function inherit<A>(t: A, methods, is_debugging): __subclass<A>
 
 	-- metatable evaluation
 	local old_metatable = getmetatable(disguise(result))
-
+	
+	if not old_metatable then
+		old_metatable = {__index=getLatestFunction}
+	end
+	
 	if old_metatable and
 		old_metatable.__index and
 		old_metatable.__index ~= getLatestFunction then
