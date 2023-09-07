@@ -52,18 +52,13 @@ Proxy.__index = function<A>(self: __proxy<A>, i: string)
 	-- needs super and method handling
 	-- self.__super
 	if i == '__super' then
-		local cached = rawget(self,'__super_cached')
-		if cached then
-			cached.__is_super = true
-			return cached
-		end
-
 		local __super_class = self:__get_super_class()
 		if not __super_class then return end;
 
-		local __super = disguise(Proxy).new(self.__object, __super_class)
-		rawset(self,'__super_cached', __super)
-
+		local __super: __proxy<A> = disguise(Proxy).new(self.__object, __super_class)
+		rawset(self,'__super', __super)
+		__super.__is_super = true
+		
 		return __super
 	end
 
@@ -124,7 +119,8 @@ end
 Proxy.__get_method = function<A>(self:__proxy<A>,name: string)
 	local supers = disguise(self.__object).__supers
 	local start = self.__is_super and self:__get_class_i() or #supers
-
+	
+	-- get method
 	local j
 	local m
 	for i = start, 1, -1 do
@@ -133,34 +129,20 @@ Proxy.__get_method = function<A>(self:__proxy<A>,name: string)
 		if type(v) ~= 'table' then continue end;
 
 		if v[name] then
-			j = i
+			j = v
 			m = v[name]
 			break
 		end
 	end
-
-	if not m then
-		-- error(`Proxy fail: no method: {name}`)
-		
-		return nil
-	end
-
-	local rep = self.__object
-
-	if j ~= #supers then
-		repeat
-			rep = rep.__super
-		until rep and type(rep.__class) == 'table' and rep.__class[name] == m
-	end
-
-	assert(rep, 'inaccessable')
-	--- print('a',rep)
-
-	return disguise(Method).new(
-	rep,
-	m,
-	rawget(rep,'__class')
-	)
+	
+	-- check method existance
+	if not m then return end
+	
+	-- return psuedo method
+	local clone = self:__clone()
+	clone.__class = j
+	
+	return disguise(Method).new(clone,m)
 end
 Proxy.__clone = function<A>(self:__proxy<A>)
 	return Proxy.new(self.__object, self.__class)
@@ -187,41 +169,23 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 	if i == '__supers' and not rawget(self,'__supers') then return end
 
 	local supers = self.__supers
-
-	if i == '__super' then
-		for i = #supers - 1, 1, -1 do
-			local class = supers[i]
-
-			if type(class) == 'table'then
-				local cached = Proxy.new(self, class)
-				disguise(self).__super_cached = cached
-				cached.__is_super = true
-				return cached
-			end
-		end
-
-		return;
-	end
-
-
 	local first = supers[#supers]
-
+	
+	-- first method always returned raw
 	if type(first) == 'table' and first[i] then
 		return first[i]
 	end
-
-	local current = self
-	local method
-
-	repeat
-		current = current.__super
-
-		if not current then return end;
-
-		method = current.__class[i]
-	until method
-
-	return Method.new(current, method, current.__class)
+	
+	-- upper class methods returned psuedo
+	for j = #supers - 1, 1, -1 do
+		local class = supers[j]
+		if not (typeof(class) == 'table' ) then continue;end
+		
+		local m = class[i]
+		if not m then continue end;
+		
+		return Method.new(Proxy.new(self, class), m)
+	end
 end
 
 function inherit<A>(t: A, methods, is_debugging): __subclass<A>
@@ -245,8 +209,19 @@ function inherit<A>(t: A, methods, is_debugging): __subclass<A>
 	end
 
 	setmetatable(disguise(result), old_metatable) -- do something here later?
-
-	local _ = result.__super
+	
+	-- set up self.__super
+	for i = #supers - 1, 1, -1 do
+		local class = supers[i]
+		
+		
+		if type(class) == 'table'then
+			local super = Proxy.new(result, class)
+			super.__is_super = true
+			result.__super = super
+			break;
+		end
+	end
 
 	return result
 end
