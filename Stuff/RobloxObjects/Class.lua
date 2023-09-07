@@ -57,13 +57,13 @@ Proxy.__index = function<A>(self: __proxy<A>, i: string)
 			cached.__is_super = true
 			return cached
 		end
-		
+
 		local __super_class = self:__get_super_class()
 		if not __super_class then return end;
 
 		local __super = disguise(Proxy).new(self.__object, __super_class)
 		rawset(self,'__super_cached', __super)
-		
+
 		return __super
 	end
 
@@ -124,40 +124,42 @@ end
 Proxy.__get_method = function<A>(self:__proxy<A>,name: string)
 	local supers = disguise(self.__object).__supers
 	local start = self.__is_super and self:__get_class_i() or #supers
-	
+
 	local j
 	local m
 	for i = start, 1, -1 do
 		local v = supers[i]
-		
+
 		if type(v) ~= 'table' then continue end;
-		
+
 		if v[name] then
 			j = i
 			m = v[name]
 			break
 		end
 	end
-	
+
 	if not m then
-		error(`Proxy fail: no method: {name}`)
+		-- error(`Proxy fail: no method: {name}`)
+		
+		return nil
 	end
-	
+
 	local rep = self.__object
-	
+
 	if j ~= #supers then
 		repeat
 			rep = rep.__super
 		until rep and type(rep.__class) == 'table' and rep.__class[name] == m
 	end
-	
+
 	assert(rep, 'inaccessable')
 	--- print('a',rep)
-	
+
 	return disguise(Method).new(
-		rep,
-		m,
-		rawget(rep,'__class')
+	rep,
+	m,
+	rawget(rep,'__class')
 	)
 end
 Proxy.__clone = function<A>(self:__proxy<A>)
@@ -177,15 +179,15 @@ Method.new = function<A>(object: A, func: __function, class:__class?)
 	self.__proxy = disguise(object);
 	self.__func = func
 	self.__class = class
-	
+
 	return self
 end
 
 function getLatestFunction<A>(self: __subclass<A>, i: string)
 	if i == '__supers' and not rawget(self,'__supers') then return end
-	
+
 	local supers = self.__supers
-	
+
 	if i == '__super' then
 		for i = #supers - 1, 1, -1 do
 			local class = supers[i]
@@ -197,28 +199,28 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 				return cached
 			end
 		end
-		
+
 		return;
 	end
-	
-	
+
+
 	local first = supers[#supers]
-	
+
 	if type(first) == 'table' and first[i] then
 		return first[i]
 	end
-	
+
 	local current = self
 	local method
-	
+
 	repeat
 		current = current.__super
-		
+
 		if not current then return end;
-		
+
 		method = current.__class[i]
 	until method
-	
+
 	return Method.new(current, method, current.__class)
 end
 
