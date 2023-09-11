@@ -33,4 +33,9 @@ type __spring<A> = {
 }
 
 export type spring<A> = __spring<A>
-return true
+
+local module = {}
+
+module.workspaceRuntime = function()return workspace.DistributedGameTime end
+
+return module
