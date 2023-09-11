@@ -34,8 +34,22 @@ type __spring<A> = {
 
 export type spring<A> = __spring<A>
 
+type __updatableSpring<A> = {
+	canUpdate: boolean;
+	shouldDisconnect: boolean;
+	update: (self:__updatableSpring<A>, delta: number) -> nil;
+}
+
 local module = {}
 
 module.workspaceRuntime = function()return workspace.DistributedGameTime end
+
+module.update = function<A>(self:__spring<A>, delta: number)self:TimeSkip(delta)end
+
+module.addUpdateMethod = function<A>(self: __spring<A>)
+	rawset(self, 'update', module.update)
+	rawset(self, 'canUpdate', true)
+	rawset(self, 'shouldDisconnect', false)
+end
 
 return module
