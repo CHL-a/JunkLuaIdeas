@@ -38,7 +38,7 @@ type __updatableSpring<A> = {
 	canUpdate: boolean;
 	shouldDisconnect: boolean;
 	update: (self:__updatableSpring<A>, delta: number) -> nil;
-}
+} & spring<A>
 
 local module = {}
 
