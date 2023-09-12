@@ -39,6 +39,7 @@ type __updatableSpring<A> = {
 	shouldDisconnect: boolean;
 	update: (self:__updatableSpring<A>, delta: number) -> nil;
 } & spring<A>
+export type updatableSpring<A> = __updatableSpring<A>
 
 local module = {}
 
@@ -50,6 +51,8 @@ module.addUpdateMethod = function<A>(self: __spring<A>)
 	rawset(self, 'update', module.update)
 	rawset(self, 'canUpdate', true)
 	rawset(self, 'shouldDisconnect', false)
+	
+	return self
 end
 
 return module
