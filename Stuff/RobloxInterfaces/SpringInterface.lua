@@ -13,15 +13,15 @@ type __spring<A> = {
 	v: A;
 	
 	-- target
-	target: A;
+	Target: A;
 	t: A;
 	
 	-- damper
-	damper: number;
+	Damper: number;
 	d: number;
 	
 	-- speed
-	speed: number;
+	Speed: number;
 	s: number;
 	
 	-- clock method
