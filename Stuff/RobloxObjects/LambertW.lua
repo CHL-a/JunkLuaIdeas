@@ -1,4 +1,4 @@
-type __module = (x: number, its: number) -> number;
+type __module = (x: number, its: number?) -> number;
 export type module = __module;
 
 function W_iteration(x, g)
