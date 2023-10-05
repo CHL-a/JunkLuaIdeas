@@ -27,6 +27,7 @@ type __method<A> = {
 	__proxy: __proxy<A>;
 	__func: __function;
 	__class: __class?;
+	__name: string?;
 }
 
 type __proxy<A> = {
@@ -58,7 +59,7 @@ Proxy.__index = function<A>(self: __proxy<A>, i: string)
 		local __super: __proxy<A> = disguise(Proxy).new(self.__object, __super_class)
 		rawset(self,'__super', __super)
 		__super.__is_super = true
-		
+
 		return __super
 	end
 
@@ -119,7 +120,7 @@ end
 Proxy.__get_method = function<A>(self:__proxy<A>,name: string)
 	local supers = disguise(self.__object).__supers
 	local start = self.__is_super and self:__get_class_i() or #supers
-	
+
 	-- get method
 	local j
 	local m
@@ -134,15 +135,15 @@ Proxy.__get_method = function<A>(self:__proxy<A>,name: string)
 			break
 		end
 	end
-	
+
 	-- check method existance
 	if not m then return end
-	
+
 	-- return psuedo method
 	local clone = self:__clone()
 	clone.__class = j
-	
-	return disguise(Method).new(clone,m)
+
+	return disguise(Method).new(clone,m,j,name)
 end
 Proxy.__clone = function<A>(self:__proxy<A>)
 	return Proxy.new(self.__object, self.__class)
@@ -150,17 +151,22 @@ end
 
 Method.__index = Method
 Method.__call = function<A>(self: __method<A>,_ ,...)
-	if self.__proxy.__is_super ~= nil then
-		self.__proxy.__is_super = false
+	--[[
+	local a, b = ...
+	if type(a) == 'number' and typeof(b) == 'Vector3' then
+		print('c',self)
 	end
+	--]]
+	
 	return self.__func(self.__proxy, ...)
 end
 
-Method.new = function<A>(object: A, func: __function, class:__class?)
+Method.new = function<A>(object: A, func: __function, class:__class?,name: string?)
 	local self: __method<A> = disguise(setmetatable({}, Method))
 	self.__proxy = disguise(object);
 	self.__func = func
 	self.__class = class
+	self.__name = name
 
 	return self
 end
@@ -170,28 +176,33 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 
 	local supers = self.__supers
 	local first = supers[#supers]
-	
+
 	-- first method always returned raw
 	if type(first) == 'table' and first[i] then
 		return first[i]
 	end
-	
+
 	-- upper class methods returned psuedo
 	for j = #supers - 1, 1, -1 do
 		local class = supers[j]
-		if not (typeof(class) == 'table' ) then continue;end
-		
+		if not (typeof(class) == 'table' ) then 
+			if type(class) == 'function' then
+				return class(self, i)
+			end
+			continue;
+		end
+
 		local m = class[i]
 		if not m then continue end;
-		
-		return Method.new(Proxy.new(self, class), m)
+
+		return Method.new(Proxy.new(self, class), m, class, i)
 	end
 end
 
 function inherit<A>(t: A, methods, is_debugging): __subclass<A>
 	local result: __subclass<A> = disguise(t)
-	local supers = result.__supers or {}
-	result.__supers = supers
+	local supers = rawget(result,'__supers') or {}
+	rawset(result,"__supers", supers)
 
 	-- metatable evaluation
 	local old_metatable = getmetatable(disguise(result))
@@ -209,16 +220,16 @@ function inherit<A>(t: A, methods, is_debugging): __subclass<A>
 	end
 
 	setmetatable(disguise(result), old_metatable) -- do something here later?
-	
+
 	-- set up self.__super
 	for i = #supers - 1, 1, -1 do
 		local class = supers[i]
-		
-		
+
+
 		if type(class) == 'table'then
 			local super = Proxy.new(result, class)
 			super.__is_super = true
-			result.__super = super
+			rawset(result, '__super', super)
 			break;
 		end
 	end
