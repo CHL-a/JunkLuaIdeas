@@ -13,4 +13,10 @@ function module.deepSoftIndex<A, B>(t: {[A]: any}, ...: A): B?
 	return disguise(t);
 end
 
+function module.safeSet(t: any, i: any, v: any)
+	pcall(function()
+		t[i] = v
+	end)
+end
+
 return module
