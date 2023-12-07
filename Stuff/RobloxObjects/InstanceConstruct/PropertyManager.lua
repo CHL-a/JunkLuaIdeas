@@ -30,7 +30,7 @@ type __module = {
 --// MAIN
 local disguise = LuaUTypes.disguise
 
-default = function(_, i, p, v)disguise(i)[p] = v; end :: __propertyFunction
+default = function(_, i, p, v)TableUtils.safeSet(i, p, v)end :: __propertyFunction
 instanceProperty = function(rStruct , inst, property, value)
 	table.insert(rStruct.postAppliedProperties, {
 		instance = inst;
@@ -43,11 +43,33 @@ end :: __propertyFunction
 local module = disguise{} :: __module
 
 --// POPULATION
-module.classes = {
-	Weld = {
-		Part0 = {
-			string = instanceProperty
-		}
+module.classes = {}
+
+module.classes.Weld = {Part0 = {string = instanceProperty};};
+
+module.classes.ModuleScript = {
+	Source = {
+		string = function(result, inst, p, v: string)
+			if Dash.startsWith(v, 'https://') then
+				module.classes.ModuleScript.Source.table(result, inst, p, {
+					vType = 'url';
+					url = v;
+				})
+			else
+				error(`got unknown v: {v}`)
+			end
+		end,
+		table = function(r, i, p, v)
+			if v.vType == 'url' then
+				local url = assert(v.url, 'Missing v.url')
+				disguise(i)[p] = game:GetService('HttpService'):GetAsync(url)
+			else
+				error(`invalid vType {v.vType}`)
+			end
+		end :: __propertyFunction,
+	};
+	Parent = {
+		string = instanceProperty;
 	}
 }
 
@@ -56,7 +78,6 @@ function module.get(inst: Instance, property: string, value: any) : __propertyFu
 	local set = TableUtils.deepSoftIndex(module.classes, inst.ClassName, property)
 	local vType = typeof(value)
 
-	print(set, inst.ClassName, vType, property)
 	local result: __propertyFunction = set and (set[vType] or set.default) or default
 	
 	return result
