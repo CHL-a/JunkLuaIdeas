@@ -10,13 +10,24 @@ export type resultStruct = __resultStruct
 
 type __postAppliedProperty = Types.postAppliedProperty
 
+type __inputStruct = Types.inputStruct
+export type inputStruct = __inputStruct
+
 --// MAIN
 local PropertyManager = require(script.PropertyManager)
+local DashInterface = require(script.Parent.DashInterface)
+local Dash = require(script.Parent.Dash) :: DashInterface.module
 local disguise = LuaUTypes.disguise
 local module = {}
 
 function compileStruct(resultStruct: __resultStruct, struct: __instance)
-	local structInstance = Instance.new(struct.className)
+	--// pre
+	local cN = assert(
+		struct.className,
+		`Attempting to construct nil class, expected: string, got: {
+		struct.className}, from: {struct}`
+	)
+	local structInstance = Instance.new(cN)
 	
 	--// set id
 	if struct.id then
@@ -46,16 +57,38 @@ function compileStruct(resultStruct: __resultStruct, struct: __instance)
 	return structInstance
 end
 
-function module.convertToInstance(...: __instance)
+function module.convertToInstance(iStruct: __inputStruct)
+	--// parse inputs
+	local icVersion: Types.inputCompileVersion = iStruct.inputCompileVersion or 'base'
+	
+	if icVersion == 'all_modules' then
+		for _, v in next, iStruct.root do
+			--// classname
+			v.className = 'ModuleScript'
+			
+			--// properties
+			local properties = {}
+			
+			for i, w in next, v do
+				properties[i] = w;
+			end
+			
+			v.properties = properties;
+		end
+	end
+	
 	local result = {} :: __resultStruct
 	result.instances = {}
 	result.root = {}
 	result.postAppliedProperties = {}
 	
 	--// compile
-	for i = 1, select('#', ...)do
-		local struct = select(i, ...)
-		table.insert(result.root, compileStruct(result, struct))
+	for _, v in next, iStruct.root do
+		local instance = compileStruct(result, v)
+		
+		if not v.properties.Parent then
+			table.insert(result.root, instance)
+		end
 	end
 	
 	--// set values for post applied
