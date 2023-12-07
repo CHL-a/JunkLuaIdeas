@@ -18,8 +18,16 @@ type __resultStruct = {
 	instances: {[string]: __instance};
 	root: {Instance};
 	postAppliedProperties: {__postAppliedProperty};
-
 }
 export type resultStruct = __resultStruct
+
+type __inputCompileVersion = 'base' | 'all_modules'
+export type inputCompileVersion = __inputCompileVersion
+
+type __inputStruct = {
+	root: {__instance};
+	inputCompileVersion: __inputCompileVersion?;
+}
+export type inputStruct = __inputStruct
 
 return true
