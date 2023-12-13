@@ -13,11 +13,11 @@ type __connection = {
 export type connection = __connection
 
 type __object<__out...> = {
-	Connect: (self:__object<__out...>, fn: (...any) -> (__out...)) -> __connection;
+	Connect: (self:__object<__out...>, fn: (__out...) -> any) -> __connection;
 	DisconnectAll: (self: __object<__out...>) -> nil;
 	Fire: (self:__object<__out...>, __out...) -> nil;
 	Wait: (self:__object<__out...>) -> (__out...);
-	Once: (self:__object<__out...>, fn: (...any) -> (__out...)) -> __connection;
+	Once: (self:__object<__out...>, fn: (__out...) -> any) -> __connection;
 }
 export type object<out...> = __object<out...>
 
