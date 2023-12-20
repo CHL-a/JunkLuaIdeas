@@ -1,5 +1,9 @@
 -- type
-local Class = require(script.Parent.Class)
+local Objects = script.Parent
+local Class = require(Objects.Class)
+local DashInterface = require(Objects.DashInterface)
+local Dash = require(Objects.Dash) :: DashInterface.module
+
 type __updatable = {
 	canUpdate: boolean;
 	shouldDisconnect: boolean;
@@ -12,7 +16,8 @@ type __object = {
 	commence: (self:__object) -> nil;
 	addObject: (self:__object, __updatable) -> nil;
 	removeObject: (self:__object, __updatable) -> nil;
-	update: (self:__object, delta: number) -> nil
+	update: (self:__object, delta: number) -> nil;
+	getUpdatables: (self:__object) -> {__updatable};
 }
 export type object = __object
 
@@ -30,6 +35,7 @@ end
 abstract.commence = Class.abstractMethod
 abstract.addObject = function(self:__object, u:__updatable)self.collection[u] = true; end
 abstract.removeObject = function(self:__object, u:__updatable)self.collection[u] = nil; end
+abstract.getUpdatables = function(self:__object)return Dash.keys(self.collection)end
 
 abstract.update = function(self:__object, delta: number)
 	for u in next, self.collection do
@@ -38,6 +44,7 @@ abstract.update = function(self:__object, delta: number)
 		u:update(delta)
 	end
 end
+
 
 local module = {}
 module.abstract = abstract
