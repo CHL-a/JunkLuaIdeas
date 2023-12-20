@@ -7,8 +7,10 @@ export type metatableIndices = __metatableIndices
 
 local module = {}
 
-function same(x)return x end
-function disguise<A>(x: any) : A return same(x) end
+function same<A...>(...: A...): A... return ... end
+function disguise<A...>(...: any) : A... return same(...) end
+
+local a: string = disguise()
 
 --// metatable type
 type __binaryOp<__self> = (<__in, __out>(__self, __in) -> __out)?;
@@ -55,7 +57,7 @@ export type __legacyObject<metamethods> = typeof(
 )
 
 --// methods
-module.assertify = function<A>(val: A?): A return same(val)end
+module.assertify = function<A>(val: A?): A return disguise(val)end
 module.disguise = disguise
 
 return module
