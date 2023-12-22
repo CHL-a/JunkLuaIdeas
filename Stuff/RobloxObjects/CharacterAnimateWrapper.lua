@@ -6,11 +6,11 @@ local Class = require(Objects.Class)
 type __object = {
 	script: LocalScript;
 	playEmoteRemote: BindableFunction;
-	
+
 	findSetting: (self:__object, string) -> ValueBase?;
 	getSetting: (self:__object, string) -> ValueBase;
 	playRemote: (self: __object, emoteName: string) -> (boolean?, AnimationTrack?) | 
-		(self: __object, custom: Animation) -> (boolean?, AnimationTrack?);
+	(self: __object, custom: Animation) -> (boolean?, AnimationTrack?);
 }
 export type object = __object
 
@@ -18,17 +18,17 @@ export type object = __object
 type __default = {
 	findSetting: (self:__object, __default_setting_index) -> ValueBase?;
 	getSetting: (self:__object, __default_setting_index) -> ValueBase;
-	
+
 	setScaleDampeningPercent: (self:__object, number) -> nil;
 	getScaleDampeningPercent: (self: __object) -> number;
-	
+
 	getAnimations: (self:__object, __animation_default_index) -> {Animation};
 	setAnimations: (self:__object, __animation_default_index, ...Animation | string ) -> nil;
 } & Class.subclass<__object>
 
 type __animation_default_index = 'cheer' | 'climb' | 'dance' | 
-	'dance2' | 'dance3' | 'fall' | 'idle' | 'jump' | 'laugh' | 'mood' | 'point' | 'run' |
-	'sit' | 'swim' | 'swimidle' | 'toollunge' | 'toolnone' | 'toolslash' | 'walk' | 'wave'
+'dance2' | 'dance3' | 'fall' | 'idle' | 'jump' | 'laugh' | 'mood' | 'point' | 'run' |
+'sit' | 'swim' | 'swimidle' | 'toollunge' | 'toolnone' | 'toolslash' | 'walk' | 'wave'
 
 type __default_setting_index = 'ScaleDampeningPercent' | __animation_default_index
 export type default_setting_index = __default_setting_index
@@ -37,16 +37,16 @@ export type default_setting_index = __default_setting_index
 type __strafe = {
 	findSetting: (self:__object, __strafe_setting_index) -> ValueBase?;
 	getSetting: (self:__object, __strafe_setting_index) -> ValueBase;
-	
+
 	getAnimations: (self:__object, __animation_strafe_settings) -> {Animation};
 	setAnimations: (self:__object, __animation_strafe_settings, ...Animation | string ) -> nil;
 } & __default
 
 type __animation_strafe_settings = __animation_default_index | 'runBack' | 
-	'runBackwardLeft' | 'runBackwardRight' | 'runForwardLeft' | 'runForwardRight' | 
-	'runLeft' | 'runLeft2' | 'runRight' | 'runRight2' | 'walkBack' | 'walkBackwardLeft' |
-	'walkBackwardRight' | 'walkForwardLeft' | 'walkForwardRight' | 'walkLeft' | 
-	'walkLeft2' | 'walkRight' | 'walkRight2'
+'runBackwardLeft' | 'runBackwardRight' | 'runForwardLeft' | 'runForwardRight' | 
+'runLeft' | 'runLeft2' | 'runRight' | 'runRight2' | 'walkBack' | 'walkBackwardLeft' |
+'walkBackwardRight' | 'walkForwardLeft' | 'walkForwardRight' | 'walkLeft' | 
+'walkLeft2' | 'walkRight' | 'walkRight2'
 export type animation_strafe_settings = __animation_strafe_settings
 
 type __strafe_setting_index = __default_setting_index | __animation_strafe_settings
@@ -62,10 +62,10 @@ base.__index = base
 
 function base.new(lS: LocalScript)
 	local self: __object = disguise(setmetatable({}, base))
-	
+
 	self.script = lS
 	self.playEmoteRemote = disguise(lS:WaitForChild('PlayEmote'))
-	
+
 	return self
 end
 
@@ -84,7 +84,7 @@ default.__index = default
 
 function default.new(lS: LocalScript)
 	local self: __default = disguise(Class.inherit(base.new(lS), default))
-	
+
 	return self
 end
 
@@ -105,17 +105,18 @@ default.setAnimations = function(
 	name:__default_setting_index, 
 	...: Animation | string)
 	local value = self:getSetting(name)
-	
+	value:ClearAllChildren()
+
 	for i = 1, select('#', ...) do
 		local anim: Animation = select(i, ...)
-		
+
 		if type(anim) == 'string' then
 			local tempAnimation = Instance.new('Animation')
 			tempAnimation.AnimationId = anim
-			
+
 			anim = tempAnimation
 		end
-		
+
 		anim.Parent = value
 	end
 end
