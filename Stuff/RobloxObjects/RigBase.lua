@@ -2,7 +2,7 @@
 type __object = {
 	character: Model;
 	humanoid: Humanoid;
-	__constructorArg: __constructorArgs;
+	__constructorArg: __constructorArgs?;
 	
 	findChild: <A>(self:__object, name: string) -> A?;
 	waitChild: <A>(self:__object, name: string) -> A;
@@ -24,10 +24,10 @@ Rig.__index = Rig
 function disguise<A...>(...: any): A...return...end
 --local disguise = require(sc)
 
-function Rig.new(char: Model, arg: __constructorArgs): __object
+function Rig.new(char: Model, arg: __constructorArgs?): __object
 	local self: __object = disguise(setmetatable({}, Rig))
 	self.character = char
-	self.__constructorArg = arg
+	self.__constructorArg = arg or {}
 	
 	-- mind this
 	self.humanoid = self:__getChildFromArg('Humanoid')
@@ -39,8 +39,10 @@ Rig.findChild = function(self:__object, n: string)return self.character:FindFirs
 Rig.waitChild = function(self:__object, n: string)return self.character:WaitForChild(n)end
 
 Rig.__getChildFromArg = function(self:__object, n: string)
+	local arg = self.__constructorArg
+	
 	return assert(
-		self:findChild(n) or self.__constructorArg.shouldYield and self:waitChild(n),
+		self:findChild(n) or arg and arg.shouldYield and self:waitChild(n),
 		`Missing child: {n}`
 	)
 end
