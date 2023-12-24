@@ -14,9 +14,18 @@ function module.deepSoftIndex<A, B>(t: {[A]: any}, ...: A): B?
 end
 
 function module.safeSet(t: any, i: any, v: any)
-	pcall(function()
+	return pcall(function()
 		t[i] = v
 	end)
+end
+
+function module.imprint(t: any, t2: {[any]: any}, shouldWarn: boolean?)
+	for i, v in next, t2 do
+		local s, e = module.safeSet(t, i, v)
+		if shouldWarn and s then
+			warn(e)
+		end
+	end
 end
 
 return module
