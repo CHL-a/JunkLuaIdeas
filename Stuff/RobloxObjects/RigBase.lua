@@ -7,6 +7,7 @@ type __object = {
 	findDescendant: <A>(self:__object, ...string) -> A?;
 	waitDescendant: <A>(self:__object, ...string) -> A;
 	__getDescendantFromArg: <A>(self:__object, ...string) -> A;
+	__setLimbFromConstruction: <A>(self:__object, ... string) -> A;
 }
 export type object = __object
 
@@ -30,7 +31,7 @@ function Rig.new(char: Model, arg: __constructorArgs?): __object
 	self.__constructorArg = arg or {}
 	
 	-- mind this
-	self.humanoid = self:__getDescendantFromArg('Humanoid')
+	self:__setLimbFromConstruction('Humanoid')
 	
 	return self
 end
@@ -46,6 +47,7 @@ Rig.findDescendant = function(self:__object, ...: string)
 	
 	return result
 end
+
 Rig.waitDescendant = function(self:__object, ...: string)
 	local result = self.character
 	
@@ -58,7 +60,7 @@ Rig.waitDescendant = function(self:__object, ...: string)
 	return result
 end
 
-Rig.__getChildFromArg = function(self:__object, ...: string)
+Rig.__getDescendantFromArg = function(self:__object, ...: string)
 	local arg = self.__constructorArg
 	
 	return assert(
@@ -67,6 +69,14 @@ Rig.__getChildFromArg = function(self:__object, ...: string)
 			self:waitDescendant(...),
 		`Missing descendant: {table.concat({...}, '.')}`
 	)
+end
+
+Rig.__setLimbFromConstruction = function(self:__object, ...: string)
+	local n = select(select('#', ...),...)
+	local obj = self:__getDescendantFromArg(...)
+	disguise(self)[n:sub(1,1):lower() .. n:sub(2)] = obj
+
+	return obj
 end
 
 
