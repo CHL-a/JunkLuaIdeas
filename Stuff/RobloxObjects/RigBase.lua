@@ -4,9 +4,9 @@ type __object = {
 	humanoid: Humanoid;
 	__constructorArg: __constructorArgs?;
 	
-	findChild: <A>(self:__object, name: string) -> A?;
-	waitChild: <A>(self:__object, name: string) -> A;
-	__getChildFromArg: <A>(self:__object, name: string) -> A;
+	findDescendant: <A>(self:__object, ...string) -> A?;
+	waitDescendant: <A>(self:__object, ...string) -> A;
+	__getDescendantFromArg: <A>(self:__object, ...string) -> A;
 }
 export type object = __object
 
@@ -30,20 +30,42 @@ function Rig.new(char: Model, arg: __constructorArgs?): __object
 	self.__constructorArg = arg or {}
 	
 	-- mind this
-	self.humanoid = self:__getChildFromArg('Humanoid')
+	self.humanoid = self:__getDescendantFromArg('Humanoid')
 	
 	return self
 end
 
-Rig.findChild = function(self:__object, n: string)return self.character:FindFirstChild(n)end
-Rig.waitChild = function(self:__object, n: string)return self.character:WaitForChild(n)end
+Rig.findDescendant = function(self:__object, ...: string)
+	local result = self.character
+	
+	for i = 1, select('#', ...) do
+		local n = select(i, ...)
+		result = result:FindFirstChild(n)
+		if not result then return end
+	end
+	
+	return result
+end
+Rig.waitDescendant = function(self:__object, ...: string)
+	local result = self.character
+	
+	for i = 1, select('#', ...) do
+		local n = select(i, ...)
+		result = result:WaitForChild(n)
+		if not result then return end;
+	end
+	
+	return result
+end
 
-Rig.__getChildFromArg = function(self:__object, n: string)
+Rig.__getChildFromArg = function(self:__object, ...: string)
 	local arg = self.__constructorArg
 	
 	return assert(
-		self:findChild(n) or arg and arg.shouldYield and self:waitChild(n),
-		`Missing child: {n}`
+		self:findDescendant(...) or 
+			arg and arg.shouldYield and 
+			self:waitDescendant(...),
+		`Missing descendant: {table.concat({...}, '.')}`
 	)
 end
 
