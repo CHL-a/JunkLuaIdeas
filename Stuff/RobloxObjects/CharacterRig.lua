@@ -21,8 +21,8 @@ CharacterRig.__index = CharacterRig
 CharacterRig.new = function(char:Model, arg: __constructorArgs?): object
 	local self: __object = disguise(Class.inherit(RigBase.new(char, arg), CharacterRig))
 	
-	self.head = self:__getDescendantFromArg('Head')
-	self.humanoidRootPart = self:__getDescendantFromArg('HumanoidRootPart')
+	self:__setLimbFromConstruction('Head')
+	self:__setLimbFromConstruction('HumanoidRootPart')
 	
 	return self
 end
