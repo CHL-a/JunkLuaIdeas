@@ -80,12 +80,12 @@ local sections = {'Upper','Lower'}
 function Rig15.new(char:Model, arg: __constructorArgs?): object
 	local self: __object = disguise(Class.inherit(CharacterRig.new(char, arg), Rig15))
 
-	self.motor6Ds = {}
 	-- torso
 	
 	self.limbs = TableUtils.push({}, 
 		self:__setLimbFromConstruction'UpperTorso',
-		self:__setLimbFromConstruction'LowerTorso'
+		self:__setLimbFromConstruction'LowerTorso',
+		self.head
 	)
 	
 	self.motor6Ds = TableUtils.push({},
@@ -104,17 +104,17 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 			end
 		end
 		
-		-- legs
-		table.insert(self.limbs, self:__setLimbFromConstruction(`{a}Foot`))
+		-- limbs
+		TableUtils.push(self.limbs,
+			self:__setLimbFromConstruction(`{a}Foot`),
+			self:__setLimbFromConstruction(`{a}Hand`)
+		)
+		
+		-- m6ds
 		TableUtils.push(self.motor6Ds,
 			self:__setLimbFromConstruction(`{a}Foot`,`{a}Ankle`),
 			self:__setLimbFromConstruction(`{a}LowerLeg`,`{a}Knee`),
-			self:__setLimbFromConstruction(`{a}UpperLeg`,`{a}Hip`)
-		)
-		
-		-- arms
-		table.insert(self.limbs, self:__setLimbFromConstruction(`{a}Hand`))
-		TableUtils.push(self.motor6Ds,
+			self:__setLimbFromConstruction(`{a}UpperLeg`,`{a}Hip`),
 			self:__setLimbFromConstruction(`{a}Hand`,`{a}Wrist`),
 			self:__setLimbFromConstruction(`{a}LowerArm`,`{a}Elbow`),
 			self:__setLimbFromConstruction(`{a}UpperArm`,`{a}Shoulder`)
