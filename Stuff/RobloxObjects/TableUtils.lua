@@ -6,10 +6,10 @@ function module.deepSoftIndex<A, B>(t: {[A]: any}, ...: A): B?
 	for i = 1, select('#', ...) do
 		local index = select(i, ...)
 		t = t[index]
-		
+
 		if not t then return end
 	end
-	
+
 	return disguise(t);
 end
 
@@ -22,11 +22,11 @@ end
 function module.imprint<A>(t: A, t2: {[any]: any}, shouldWarn: boolean?): A
 	for i, v in next, t2 do
 		local s, e = module.safeSet(t, i, v)
-		if shouldWarn and s then
+		if shouldWarn and not s then
 			warn(e)
 		end
 	end
-	
+
 	return t
 end
 
@@ -50,7 +50,7 @@ function module.clearNils<A>(t: A): A
 
 		i += 1
 	end
-	
+
 	return t
 end
 
