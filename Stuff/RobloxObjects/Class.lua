@@ -125,13 +125,15 @@ Proxy.__get_method = function<A>(self:__proxy<A>,name: string)
 	local j
 	local m
 	for i = start, 1, -1 do
-		local v = supers[i]
+		local superclass = supers[i]
 
-		if type(v) ~= 'table' then continue end;
-
-		if v[name] then
-			j = v
-			m = v[name]
+		if type(superclass) ~= 'table' then continue end;
+		
+		local fn = superclass[name]
+		
+		if type(fn) == 'function' then
+			j = superclass
+			m = fn
 			break
 		end
 	end
