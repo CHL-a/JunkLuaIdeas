@@ -73,7 +73,7 @@ base.findSetting = function(self:__object, s: string)
 	return self.script:FindFirstChild(s)
 end
 
-base.getSetting = function(self:__object, s: string)return assert(self:getSetting(s))end
+base.getSetting = function(self:__object, s: string)return assert(self:findSetting(s))end
 base.playRemote = function(self:__object, arg)return self.playEmoteRemote:Invoke(arg)end
 
 module.base = base
