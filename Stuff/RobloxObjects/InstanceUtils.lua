@@ -7,6 +7,9 @@ type __module = {
 		name: string, 
 		class: __className, 
 		properties: __properties<A>?) -> A;
+	findFirstDescendant: <A>(parent: Instance, ...string) -> A?;
+	waitForDescendant: <A>(parent: Instance, ...string) -> A;
+	yieldUntilPresent: <A>(parent: A) -> A;
 }
 export type module = __module
 
@@ -20,6 +23,8 @@ local Objects = script.Parent
 
 local disguise = require(Objects.LuaUTypes).disguise
 local TableUtils = require(Objects['@CHL/TableUtils'])
+local DashI = require(Objects.DashInterface)
+local Dash = require(Objects.Dash) :: DashI.module
 
 --// MAIN
 local module: __module = disguise{}
@@ -44,7 +49,6 @@ function getOrCreate<A>(
 	class:__className, 
 	properties: __properties<A>?)
 
-	
 	local result = parent:FindFirstChild(name)
 	
 	if not result then
@@ -59,5 +63,36 @@ function getOrCreate<A>(
 end
 
 module.getOrCreate = getOrCreate
+
+function findFirstDescendant<A>(parent: Instance, ...: string): A?
+	Dash.forEachArgs(function(a)
+		if not parent then return end;
+		parent = parent:FindFirstChild(a)
+	end, ...)
+	
+	return disguise(parent)
+end
+
+module.findFirstDescendant = findFirstDescendant
+
+function waitForDescendant<A>(parent: Instance, ...: string): A
+	Dash.forEachArgs(function(a)
+		parent = parent:WaitForChild(a)
+	end, ...)
+	
+	return disguise(parent)
+end
+
+module.waitForDescendant = waitForDescendant
+
+function yieldUntilPresent<A>(parent: A): A
+	local p = disguise(parent)
+	
+	while not p:IsDescendantOf(game) do p.AncestryChanged:Wait()end
+	
+	return parent
+end
+
+module.yieldUntilPresent = yieldUntilPresent
 
 return module
