@@ -31,10 +31,8 @@ local module: __module = disguise{}
 
 function create<A>(className: __className, props: __properties<A>?)
 	if not props then
-		local inst = Instance.new(className)
-		
 		return function(props2: {[string]: any}?)
-			return TableUtils.imprint(inst, disguise(props2), true)
+			return TableUtils.imprint(Instance.new(className), disguise(props2), true)
 		end
 	end
 	
