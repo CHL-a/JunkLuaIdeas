@@ -1,9 +1,13 @@
 --// TYPE
+type __endEffector = BasePart | Motor6D | Attachment | Bone
+export type EndEffector = __endEffector
+
 type __object = {
 	collection: {IKControl};
 	
 	enable: (self: __object, isEnabled: boolean) -> nil;
 	add: (self:__object, ...IKControl) -> nil;
+	getIKControlFromEnd: (self: __object, __endEffector) -> IKControl?;
 }
 export type object = __object
 
@@ -30,6 +34,14 @@ end
 
 module.add = function(self: __object, ...: IKControl)
 	TableUtils.push(self.collection, ...)
+end
+
+module.getIKControlFromEnd = function(self: __object, e: __endEffector)
+	for _, v in next, self.collection do
+		if v.EndEffector == e then
+			return v;
+		end
+	end
 end
 
 return module
