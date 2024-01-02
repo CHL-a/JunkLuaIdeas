@@ -2,6 +2,7 @@
 local Objects = script.Parent
 local CharacterRig = require(Objects.CharacterRig)
 local Class = require(Objects.Class)
+local IKCollection = require(Objects.IKCollection)
 
 type __object = {
 	-- States
@@ -53,6 +54,13 @@ type __object = {
 	motor6Ds: {Motor6D};
 	limbs: {BasePart};
 	
+	-- ik
+	ikCollection: IKCollection.object;
+	rightFootTarget: Attachment;
+	leftFootTarget: Attachment;
+	leftHandTarget: Attachment;
+	rightHandTarget: Attachment;
+	
 	-- Methods
 	getMotor6Ds: (self:__object) -> {Motor6D};
 	getLimbs: (self:__object) -> {BasePart};
@@ -70,6 +78,9 @@ local disguise = require(Objects.LuaUTypes).disguise
 local TableUtils = require(Objects["@CHL/TableUtils"])
 local DashInterface = require(Objects.DashInterface)
 local Dash = require(Objects.Dash) :: DashInterface.module
+local InstanceUtils = require(Objects["@CHL/InstanceUtils"])
+
+local create = InstanceUtils.create
 
 Rig15.__index = Rig15
 
@@ -81,7 +92,6 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 	local self: __object = disguise(Class.inherit(CharacterRig.new(char, arg), Rig15))
 
 	-- torso
-	
 	self.limbs = TableUtils.push({}, 
 		self:__setLimbFromConstruction'UpperTorso',
 		self:__setLimbFromConstruction'LowerTorso',
@@ -93,9 +103,13 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 		self:__setLimbFromConstruction('UpperTorso','Waist'),
 		self:__setLimbFromConstruction('LowerTorso', 'Root')
 	)
+
+	--ik control
+	self.ikCollection = IKCollection.new()
 	
-	-- others
+	-- other states
 	local __self = disguise(self)
+	local hrp = self.humanoidRootPart
 	
 	for _, a in next, sides do -- per side
 		for _, b in next, sections do -- sections
@@ -119,7 +133,114 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 			self:__setLimbFromConstruction(`{a}LowerArm`,`{a}Elbow`),
 			self:__setLimbFromConstruction(`{a}UpperArm`,`{a}Shoulder`)
 		)
+		
+		-- inv kin
+		local b = a:sub(1,1):lower() .. a:sub(2)
+		
+		local footName = `{b}Foot`
+		local foot = __self[footName]
+		
+		local footIKC = Instance.new('IKControl') 
+		footIKC.Enabled = false;
+		footIKC.ChainRoot = __self[`{b}UpperLeg`];
+		footIKC.EndEffector = foot;
+		footIKC.Name = footName
+		footIKC.Parent = self.humanoid
+		
+		local handName = `{b}Hand`
+		local hand = __self[handName]
+		
+		local handIKC = footIKC:Clone()
+		handIKC.ChainRoot = __self[`{b}UpperArm`];
+		handIKC.EndEffector = __self[handName];
+		handIKC.Name = handName;
+		handIKC.Parent = self.humanoid
+		
+		self.ikCollection:add(footIKC, handIKC)
+		
+		-- foot target
+		local lowerLeg = __self[`{b}LowerLeg`]
+		
+		local footTarget =  Instance.new('Attachment')
+		footTarget.Position = Vector3.new(
+			(a == 'Right' and 1 or -1)  * .8,
+			-hrp.Size.Y/2 - self.humanoid.HipHeight
+		)
+		footTarget.Name = `__{b}FootTarget`
+		footTarget.Parent = hrp
+		footIKC.Target = footTarget;
+		__self[`{footName}Target`] = footTarget
+		
+		local kneeHinge = Instance.new('HingeConstraint')
+		kneeHinge.Name = '__knee'
+		kneeHinge.Attachment0 = __self[`{b}UpperLeg`][`{a}KneeRigAttachment`]
+		kneeHinge.Attachment1 = lowerLeg[`{a}KneeRigAttachment`]
+		kneeHinge.LimitsEnabled = true
+		kneeHinge.LowerAngle = -135
+		-- upper angle subjected to limitations
+		kneeHinge.Parent = footIKC
+		
+		local ankleAt1: Attachment = foot[`{a}AnkleRigAttachment`]:Clone()
+		ankleAt1.Orientation = Vector3.new(0,0,90)
+		ankleAt1.Name = 'AnkleAttachment1'
+		ankleAt1.Parent = foot;
+		
+		local ankleAt0: Attachment = lowerLeg[`{a}AnkleRigAttachment`]:Clone()
+		ankleAt0.WorldOrientation = ankleAt1.WorldOrientation
+		ankleAt0.Name = 'AnkleAttachment0'
+		ankleAt0.Parent = lowerLeg;
+		
+		local ankleBS = Instance.new('BallSocketConstraint')
+		ankleBS.Name = '__ankle'
+		ankleBS.Attachment1 = ankleAt1
+		ankleBS.Attachment0 = ankleAt0
+		ankleBS.LimitsEnabled = true
+		ankleBS.UpperAngle = 100
+		ankleBS.Parent = footIKC
+		
+		-- hand target
+		local lowerArm = __self[`{b}LowerArm`]
+		local handTarget = Instance.new('Attachment')
+		handTarget.Position = Vector3.new(
+			(a == 'Right' and 1 or -1) * 1,
+			0,
+			-1
+		)
+		handTarget.Orientation = Vector3.new(90)
+		handTarget.Name = `__{b}HandTarget`
+		handTarget.Parent = hrp
+		handIKC.Target = handTarget;
+		__self[`{handName}Target`] = handTarget
+		
+		local elbowHinge = Instance.new('HingeConstraint')
+		elbowHinge.Name = '__elbow'
+		elbowHinge.Attachment0 = __self[`{b}UpperArm`][`{a}ElbowRigAttachment`]
+		elbowHinge.Attachment1 = lowerArm[`{a}ElbowRigAttachment`]
+		elbowHinge.LimitsEnabled = true
+		elbowHinge.UpperAngle = 135
+		-- upper angle subjected to limitations
+		elbowHinge.Parent = handIKC
+
+		local wristAt1: Attachment = hand[`{a}WristRigAttachment`]:Clone()
+		wristAt1.Orientation = Vector3.new(0,0,90)
+		wristAt1.Name = 'WristAttachment1'
+		wristAt1.Parent = hand;
+
+		local wristAt0: Attachment = lowerArm[`{a}WristRigAttachment`]:Clone()
+		wristAt0.WorldOrientation = wristAt1.WorldOrientation
+		wristAt0.Name = 'WristAttachment0'
+		wristAt0.Parent = lowerArm;
+
+		local wristBS = Instance.new('BallSocketConstraint')
+		wristBS.Name = '__wrist'
+		wristBS.Attachment1 = wristAt1
+		wristBS.Attachment0 = wristAt0
+		wristBS.LimitsEnabled = true
+		wristBS.UpperAngle = 100
+		wristBS.Parent = handIKC
 	end
+	
+	self.ikCollection:enable(false)
 	
 	return self
 end
