@@ -2,7 +2,7 @@
 local Objects = script.Parent
 local CharacterRig = require(Objects.CharacterRig)
 local Class = require(Objects.Class)
-local IKCollection = require(Objects.IKCollection)
+local IKCollection = require(Objects['@CHL/IKCollection'])
 
 type __object = {
 	-- States
@@ -78,7 +78,7 @@ local disguise = require(Objects.LuaUTypes).disguise
 local TableUtils = require(Objects["@CHL/TableUtils"])
 local DashInterface = require(Objects.DashInterface)
 local Dash = require(Objects.Dash) :: DashInterface.module
-local InstanceUtils = require(Objects["@CHL/InstanceUtils"])
+local InstanceUtils = require(Objects["@CHL/InstanceUtils"]) 
 
 local create = InstanceUtils.create
 
