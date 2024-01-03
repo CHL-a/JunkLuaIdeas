@@ -41,6 +41,9 @@ type __updatableSpring<A> = {
 } & spring<A>
 export type updatableSpring<A> = __updatableSpring<A>
 
+type __runtimeFunction = (...any) -> number;
+export type runtimeFunction = __runtimeFunction;
+
 local disguise = require(script.Parent.LuaUTypes).disguise
 local W = require(script.Parent.LambertW)
 local module = {}
