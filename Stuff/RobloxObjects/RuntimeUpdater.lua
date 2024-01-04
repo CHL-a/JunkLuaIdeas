@@ -1,8 +1,7 @@
 -- type
 local Objects = script.Parent
 local Class = require(Objects.Class)
-local DashInterface = require(Objects.DashInterface)
-local Dash = require(Objects.Dash) :: DashInterface.module
+local Dash = require(Objects["@CHL/DashSingular"])
 
 type __updatable = {
 	canUpdate: boolean;
@@ -70,7 +69,7 @@ abstract.removeObject = function(self:__object, u:__updatable)
 	map[u] = nil;
 end
 abstract.getUpdatables = function(self:__object)
-	return Dash.keys(Dash.flat(self.collection))
+	return Dash.keys(Dash.flat(disguise(self.collection)))
 end
 
 abstract.update = function(self:__object, delta: number)
