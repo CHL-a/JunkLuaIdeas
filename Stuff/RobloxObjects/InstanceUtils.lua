@@ -23,8 +23,7 @@ local Objects = script.Parent
 
 local disguise = require(Objects.LuaUTypes).disguise
 local TableUtils = require(Objects['@CHL/TableUtils'])
-local DashI = require(Objects.DashInterface)
-local Dash = require(Objects.Dash) :: DashI.module
+local Dash = require(Objects["@CHL/DashSingular"])
 
 --// MAIN
 local module: __module = disguise{}
