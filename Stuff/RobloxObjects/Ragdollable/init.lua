@@ -23,16 +23,12 @@ export type object = __object
 
 -- CLASS
 local Ragdollable = {}
-local DashInterface = require(Objects.DashInterface)
-local Dash = require(Objects.Dash) :: DashInterface.module
+local InstanceUtils = require(Objects["@CHL/InstanceUtils"])
 local TableUtils = require(Objects["@CHL/TableUtils"])
 local disguise = require(Objects.LuaUTypes).disguise
 
 local imprint = TableUtils.imprint
-local create = Dash.compose(
-	function(a, b)return Instance.new(a), b end,
-	imprint
-) :: <A>(string, {[string]: any}) -> A
+local create = InstanceUtils.create
 
 local RagdollJointInfo = require(script.RagdollJointInfo)
 local PhysicsService = game:GetService('PhysicsService')
