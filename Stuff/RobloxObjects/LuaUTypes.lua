@@ -9,6 +9,7 @@ local module = {}
 
 function same<A...>(...: A...): A... return ... end
 function disguise<A...>(...: any) : A... return same(...) end
+function empty()end
 
 local a: string = disguise()
 
@@ -60,5 +61,6 @@ export type __legacyObject<metamethods> = typeof(
 module.assertify = function<A>(val: A?): A return disguise(val)end
 module.disguise = disguise
 module.same = same
+module.empty = empty
 
 return module
