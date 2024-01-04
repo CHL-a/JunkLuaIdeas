@@ -15,8 +15,6 @@ export type inputStruct = __inputStruct
 
 --// MAIN
 local PropertyManager = require(script.PropertyManager)
-local DashInterface = require(script.Parent.DashInterface)
-local Dash = require(script.Parent.Dash) :: DashInterface.module
 local disguise = LuaUTypes.disguise
 local module = {}
 
