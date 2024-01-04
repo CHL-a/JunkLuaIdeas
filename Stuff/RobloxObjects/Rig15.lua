@@ -40,7 +40,7 @@ type __object = {
 
 	rightWrist: Motor6D;
 	rightElbow: Motor6D;
-	rightShoulder: Motor6D;
+	rightShoulder: Motor6D; 
 
 	-- left arm
 	leftUpperArm: BasePart;
@@ -76,8 +76,7 @@ export type constructorArgs = __constructorArgs
 local Rig15 = {}
 local disguise = require(Objects.LuaUTypes).disguise
 local TableUtils = require(Objects["@CHL/TableUtils"])
-local DashInterface = require(Objects.DashInterface)
-local Dash = require(Objects.Dash) :: DashInterface.module
+local Dash = require(Objects["@CHL/DashSingular"])
 local InstanceUtils = require(Objects["@CHL/InstanceUtils"]) 
 
 local create = InstanceUtils.create
@@ -256,13 +255,13 @@ end
 Rig15.getMotor6Ds = Dash.compose(
 	function(self: __object)return self.motor6Ds end,
 	table.clone,
-	TableUtils.clearNils
+	disguise(TableUtils).clearNils
 )
 
 Rig15.getLimbs = Dash.compose(
 	function(self: __object)return self.limbs end,
 	table.clone,
-	TableUtils.clearNils
+	disguise(TableUtils).clearNils
 )
 
 
