@@ -2,9 +2,8 @@
 local Shared = script.Parent.Parent
 local Types = require(script.Parent.Types)
 local LuaUTypes = require(Shared.LuaUTypes)
-local DashInterface = require(Shared.DashInterface)
-local Dash = require(Shared.Dash) :: DashInterface.module
-local TableUtils = require(Shared.TableUtils)
+local Dash = require(Shared["@CHL/DashSingular"])
+local TableUtils = require(Shared["@CHL/TableUtils"])
 
 --[[
 type __propertyManager = {
