@@ -519,12 +519,13 @@ function iterator<I, V>(input: __iterable<I, V>): AnyFunction
 		if #input > 0 then
 			return ipairs(disguise(input))
 		end
-		
+
 		return pairs(input)
 	end
-	
+
 	return disguise()
 end
+
 
 function map<I, V, v>(input: __iterable<I, V>, handler: __itHandler<I, V, v>): Map<I, V>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.map with argument #1 of type {left:?} not {right:?}]])
@@ -581,10 +582,7 @@ end
 function keys<A>(input: __iterable<A, any?>): Array<A>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.keys with argument #1 of type {left:?} not {right:?}]])
 	local result = {}
-	print(input, iterator(input))
-	for key in iterator(input) do 
-		insert(result, key)
-	end
+	for key in iterator(input) do insert(result, key)end
 	return result
 end
 
@@ -668,8 +666,8 @@ function slice<A>(input: Array<A>, left: number?, right: number?): Array<A>
 	-- Default values
 	local l = left or 1
 	local r = right or #input
-	assertEqual(typeof(left), "number", [[Attempted to call Dash.slice with argument #2 of type {left:?} not {right:?}]])
-	assertEqual(typeof(right), "number", [[Attempted to call Dash.slice with argument #3 of type {left:?} not {right:?}]])
+	assertEqual(typeof(l), "number", [[Attempted to call Dash.slice with argument #2 of type {left:?} not {right:?}]])
+	assertEqual(typeof(r), "number", [[Attempted to call Dash.slice with argument #3 of type {left:?} not {right:?}]])
 
 	if l < 0 then l += #input end
 	if r and r < 0 then r += #input end
