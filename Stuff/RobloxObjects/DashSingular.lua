@@ -513,13 +513,17 @@ function assertEqual(left: any, right: any, formattedErrorMessage: string?)
 end
 
 function iterator<I, V>(input: __iterable<I, V>): AnyFunction
-	return if typeof(input) == "function" then input
-		elseif typeof(input) == "table" then
-			(if #input > 0 then
-				ipairs(disguise(input))
-			else
-				pairs(input))
-		else disguise()
+	if typeof(input) == 'function' then
+		return input
+	elseif typeof(input) == 'table' then
+		if #input > 0 then
+			return ipairs(disguise(input))
+		end
+		
+		return pairs(input)
+	end
+	
+	return disguise()
 end
 
 function map<I, V, v>(input: __iterable<I, V>, handler: __itHandler<I, V, v>): Map<I, V>
@@ -577,7 +581,10 @@ end
 function keys<A>(input: __iterable<A, any?>): Array<A>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.keys with argument #1 of type {left:?} not {right:?}]])
 	local result = {}
-	for key in iterator(input) do insert(result, key)end
+	print(input, iterator(input))
+	for key in iterator(input) do 
+		insert(result, key)
+	end
 	return result
 end
 
