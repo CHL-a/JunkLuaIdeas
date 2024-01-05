@@ -168,6 +168,7 @@ type __module = {
 	noop: () -> nil;
 	omit: <I,V>(input: Map<I,V>, keys: Array<V>) -> Map<I,V>;
 	pick: <I,V>(input: __iterable<I,V>, handler: (V,I) -> any?) -> Map<I,V>;
+	prettyLines: (object: any, prettyOp: PrettyOptions?) -> Array<string>;
 	pretty: (object: any, options: PrettyOptions?) -> string;
 	reduce: <A,B>(arr: Array<A>, handler: (last: B, current: A, i: number) -> B, init: B) -> B;
 	reverse: <A>(t: Array<A>) -> Array<A>;
@@ -676,7 +677,7 @@ function slice<A>(input: Array<A>, left: number?, right: number?): Array<A>
 	return output
 end
 
-local function prettyLines(object: any, options: any): Array<string>
+function prettyLines(object: any, options: any): Array<string>
 	options = options or {}
 	if type(object) == "table" then
 		-- A table needs to be serialized recusively
@@ -1410,6 +1411,7 @@ DashSingular.mapOne = mapOne
 DashSingular.noop = LuaUTypes.empty
 DashSingular.omit = omit
 DashSingular.pick = pick
+DashSingular.prettyLines = prettyLines
 DashSingular.pretty = pretty
 DashSingular.reduce = reduce
 DashSingular.reverse = reverse
