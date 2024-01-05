@@ -1,4 +1,5 @@
-local Class = require(game.ReplicatedStorage.Objects.Class)
+--// TYPES
+local Class = require(script.Parent.Class)
 
 type __object<A...> = {
 	proceed: (self:__object<A...>) -> A...;
@@ -6,10 +7,12 @@ type __object<A...> = {
 }
 export type object<A...> = __object<A...>
 
-local disguise = function<A>(x): A return x; end
-
+--// MAIN
 local module = {}
+local disguise = require(script.Parent.LuaUTypes).disguise
+
 module.__index = module
+
 module.__call = function<A...>(self: __object<A...>)
 	if self:canProceed() then
 		return self:proceed()
@@ -20,12 +23,7 @@ module.new = function<A...>()
 	return disguise(setmetatable({}, module)) :: __object<A...>
 end
 
-module.proceed = function<A...>(self:__object<A...>)
-	error('Attempting to use an abstract method')
-end
-
-module.canProceed = function<A...>(self:__object<A...>)
-	error('Attempting to use an abstract method')
-end
+module.proceed = Class.abstractMethod
+module.canProceed = Class.abstractMethod
 
 return module
