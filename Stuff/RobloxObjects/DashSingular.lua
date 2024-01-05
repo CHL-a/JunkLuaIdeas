@@ -130,7 +130,10 @@ type __module = {
 	collect: <I,V, i,v>(t: __iterable<I,V>, handler: (I,V) -> (i,v) ) -> Map<i,v>;
 	collectArray: <I,V, v>(t: __iterable<I,V>, handler: (I,V) -> v) -> Array<v>;
 	collectSet: <I,V, v>(t: __iterable<I,V>, handler: (I,V) -> v) -> Set<v>;
-	compose: <params...,returns...>(...AnyFunction) -> (params...) -> returns...;
+	--// Current issue: find generic compatible version of compose
+	-- compose: <params...,returns...>(...AnyFunction) -> (params...) -> returns...;
+	compose: <params...,returns...>(...any) -> (params...) -> returns...;
+	
 	copy: <I,V>(__iterable<I,V>)->Map<I,V>;
 	cycles: (t: Table, depth:number?, initcycles: Cycles?) -> Cycles?;
 	endsWith: (input: string, suffix: string) -> boolean;
