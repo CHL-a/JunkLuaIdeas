@@ -110,6 +110,13 @@ export type PrettyOptions = {
 -- handlers
 type __itHandler<V, I, v> = (V, I) -> v;
 
+-- iterable
+type __itFunction<A...> = (...any) -> (A...)
+export type itFunction<A...> = __itFunction<A...>
+
+type __iterable<I, V> = Map<I, V> | __itFunction<I, V>
+export type iterable<I, V> = __iterable<I, V>
+
 -- main module
 type __module = {
 	class: classReturn;
@@ -117,21 +124,21 @@ type __module = {
 	Symbol: SymbolClass;
 	None: __object;
 
-	append: <A>(Array<A>, ...A) -> Array<A>;
+	append: <A>(Array<A>, ...__iterable<any, A>) -> Array<A>;
 	assertEqual: (left: any, right: any, msg: string?) -> nil;
-	assign: (t: Table, ...Table) -> Table;
-	collect: <I,V, i,v>(t: Map<I,V>, handler: (I,V) -> (i,v) ) -> Map<i,v>;
-	collectArray: <I,V, v>(t: Map<I,V>, handler: (I,V) -> v) -> Array<v>;
-	collectSet: <I,V, v>(t: Map<I,V>, handler: (I,V) -> v) -> Set<v>;
+	assign: <I, V>(t: Map<I, V>, ...__iterable<I, V>) -> Map<I, V>;
+	collect: <I,V, i,v>(t: __iterable<I,V>, handler: (I,V) -> (i,v) ) -> Map<i,v>;
+	collectArray: <I,V, v>(t: __iterable<I,V>, handler: (I,V) -> v) -> Array<v>;
+	collectSet: <I,V, v>(t: __iterable<I,V>, handler: (I,V) -> v) -> Set<v>;
 	compose: <params...,returns...>(...AnyFunction) -> (params...) -> returns...;
-	copy: <I,V>(Map<I,V>)->Map<I,V>;
+	copy: <I,V>(__iterable<I,V>)->Map<I,V>;
 	cycles: (t: Table, depth:number?, initcycles: Cycles?) -> Cycles?;
 	endsWith: (input: string, suffix: string) -> boolean;
-	filter: <I,V>(t: Map<I,V>, filterFunc: (V,I)->any?) -> Array<V>;
-	find: <I,V>(t: Map<I,V>,findFunc: (V,I)->any?) -> V?;
+	filter: <I,V>(t: __iterable<I,V>, filterFunc: (V,I)->any?) -> Array<V>;
+	find: <I,V>(t: __iterable<I,V>,findFunc: (V,I)->any?) -> V?;
 	findIndex: <V>(t: Array<V>,findFunc: (V,number)->any?) -> number?;
 	flat: <A>(t: Array<Array<A>>) -> Array<A>;
-	forEach: <I,V>(t: Map<I,V>, handler: (V,I) -> any) -> nil;
+	forEach: <I, V>(t: __iterable<I,V>, handler: __itHandler<V, I, any?>) -> nil;
 	forEachArgs: <A>(handler: (a: A) -> nil, ...A) -> nil;
 	format: (template: string, ...string) -> nil;
 	formatValue: (val: any, display: string) -> string;
@@ -144,20 +151,20 @@ type __module = {
 	isLowerCase: (a: string) -> boolean;
 	isUpperCase: (a: string) -> boolean;
 	iterable: <I,V>(a: Map<I,V>) -> () -> (I,V);
-	iterator: <A...>(a: Table | AnyFunction) -> () -> A...;
+	iterator: <I, V>(a: __iterable<I, V>) -> __itFunction<I, V>;
 	join: <I,V>(...Map<I,V>) -> Map<I,V>;
 	joinDeep: <I,V>(source: Map<I,V>, delta: Map<I,V>) -> Map<I,V>;
-	keyBy: <I,V, i>(t: Map<I,V>, getKey: (V,I) -> i) -> Map<i, V>;
-	keys: <I>(t: Map<I,any>) -> Array<I>;
+	keyBy: <I,V, i>(t: __iterable<I,V>, getKey: (V,I) -> i) -> Map<i, V>;
+	keys: <I>(t: iterable<I, any>) -> Array<I>;
 	last: <A>(t: Array<A>, handler: ((A, number) -> true?)?) -> A;
 	leftPad: (input: string, length: number, prefix: string?) -> string;
-	map: <V, v>(t: Array<V>, handler: (V,number) -> v) -> Array<v>;
+	map: <I, V, v>(t: __iterable<I, V>, handler: __itHandler<V, I, v>) -> Map<I, v>;
 	mapFirst: <V, v>(t: Array<V>, handler: (V, number) -> v?) -> v?;
 	mapLast: <V, v>(t: Array<V>, handler: (V, number) -> v?) -> v?;
 	mapOne: <I, V, v>(t: Map<I, V>, handler: ((V, I) -> v?)?) -> v?;
 	noop: () -> nil;
 	omit: <I,V>(input: Map<I,V>, keys: Array<V>) -> Map<I,V>;
-	pick: <I,V>(input: Map<I,V>, handler: (V,I) -> any?) -> Map<I,V>;
+	pick: <I,V>(input: __iterable<I,V>, handler: (V,I) -> any?) -> Map<I,V>;
 	pretty: (object: any, options: PrettyOptions?) -> string;
 	reduce: <A,B>(arr: Array<A>, handler: (last: B, current: A, i: number) -> B, init: B) -> B;
 	reverse: <A>(t: Array<A>) -> Array<A>;
@@ -168,7 +175,7 @@ type __module = {
 	splitOn: (from: string, patt: string) -> Array<string>;
 	startsWith: (from: string, prefix: string) -> boolean;
 	trim: (input: string) -> string;
-	values: <V>(t: Map<any,V>) -> Array<V>;
+	values: <V>(t: __iterable<any,V>) -> Array<V>;
 }
 
 export type Array<Value> = {Value}
@@ -502,21 +509,17 @@ function assertEqual(left: any, right: any, formattedErrorMessage: string?)
 	})
 end
 
-function iterator(input: Table | AnyFunction): AnyFunction
-	if typeof(input) == "function" then
-		return input
-	elseif typeof(input) == "table" then
-		if #input > 0 then
-			return ipairs(input)
-		else
-			return pairs(input)
-		end
-	else
-		return disguise()
-	end
+function iterator<I, V>(input: __iterable<I, V>): AnyFunction
+	return if typeof(input) == "function" then input
+		elseif typeof(input) == "table" then
+			(if #input > 0 then
+				ipairs(disguise(input))
+			else
+				pairs(input))
+		else disguise()
 end
 
-function map<A, a>(input: Array<A>, handler: __itHandler<A, number, a>): Array<a>
+function map<I, V, v>(input: __iterable<I, V>, handler: __itHandler<I, V, v>): Map<I, V>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.map with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(typeof(handler), "function", [[Attempted to call Dash.map with argument #2 of type {left:?} not {right:?}]])
 	local result = {}
@@ -534,22 +537,18 @@ local function indentLines(lines: Array<string>, indent: string)
 	end)
 end
 
-function forEach<I, V>(input: Map<I, V>, handler: __itHandler<V, I, any?>)
+function forEach<I, V>(input: __iterable<I, V>, handler: __itHandler<V, I, any?>)
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.forEach with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(typeof(handler), "function", [[Attempted to call Dash.forEach with argument #2 of type {left:?} not {right:?}]])
-	for key, value in iterator(input) do
-		handler(value, key)
-	end
+	for key, value in iterator(input) do handler(value, key)end
 end
 
 function forEachArgs<A>(handler: __itHandler<A, number, any?>, ...: A)
 	assertEqual(typeof(handler), "function", [[Attempted to call Dash.forEachArgs with argument #1 of type {left:?} not {right:?}]])
-	for index = 1, select('#', ...) do
-		handler(select(index, ...), index)
-	end
+	for index = 1, select('#', ...) do handler(select(index, ...), index)end
 end
 
-function assign(target: Table, ...: Table): Table
+function assign<I, V>(target: Map<I, V>, ...: __iterable<I,V>): Map<I, V>
 	assertEqual(typeof(target), "table", [[Attempted to call Dash.assign with argument #1 of type {left:?} not {right:?}]])
 	-- Iterate through the varags in order
 	forEachArgs(function(input: Table?)
@@ -557,11 +556,7 @@ function assign(target: Table, ...: Table): Table
 		if input == nil or input == None then return end
 		-- Iterate through each key of the input and assign to target at the same key
 		forEach(input, function(value, key)
-			if value == None then
-				target[key] = nil
-			else
-				target[key] = value
-			end
+			target[key] = if value == None then nil else value
 		end)
 	end, ...)
 	return target
@@ -576,12 +571,10 @@ local function getDefaultCycles(): Cycles
 	}
 end
 
-function keys<A>(input: Map<A, any>): Array<A>
+function keys<A>(input: __iterable<A, any?>): Array<A>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.keys with argument #1 of type {left:?} not {right:?}]])
 	local result = {}
-	for key in iterator(input) do
-		insert(result, key)
-	end
+	for key in iterator(input) do insert(result, key)end
 	return result
 end
 
@@ -589,9 +582,7 @@ function includes<I, V>(input: Map<I, V>, item: V): boolean
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.includes with argument #1 of type {left:?} not {right:?}]])
 	if item == nil then return false end
 	for _, child in pairs(input) do
-		if child == item then
-			return true
-		end
+		if child == item then return true end
 	end
 	return false
 end
@@ -649,7 +640,7 @@ function cycles(input: any, depth: number?, initialCycles: any): Cycles?
 	return childCycles
 end
 
-function append<A>(target: Array<A>, ...: A): Array<A>
+function append<A>(target: Array<A>, ...: __iterable<any, A>): Array<A>
 	assertEqual(typeof(target), "table", [[Attempted to call Dash.append with argument #1 of type {left:?} not {right:?}]])
 	forEachArgs(function(list: Table?)
 		if list == None or list == nil then return end
@@ -672,9 +663,7 @@ function slice<A>(input: Array<A>, left: number?, right: number?): Array<A>
 
 	if l < 0 then l += #input end
 	if r and r < 0 then r += #input end
-	for i = l, r do
-		insert(output, input[i])
-	end
+	for i = l, r do insert(output, input[i])end
 	
 	return output
 end
@@ -926,7 +915,7 @@ end
 function join<I, V>(...: Map<I,V>): Map<I, V>return assign({}, ...)end
 
 -- other functions
-function collect<I,V, i,v>(input: Map<I,V>, handler: (I,V) -> (i,v)): Map<i, v>
+function collect<I,V, i,v>(input: __iterable<I,V>, handler: (I,V) -> (i,v)): Map<i, v>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.collect with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(typeof(handler), "function", [[Attempted to call Dash.collect with argument #2 of type {left:?} not {right:?}]])
 	local result = {}
@@ -939,7 +928,7 @@ function collect<I,V, i,v>(input: Map<I,V>, handler: (I,V) -> (i,v)): Map<i, v>
 	return result
 end
 
-function collectArray<I,V, v>(input: Map<I,V>, handler: (I,V) -> v): Array<v>
+function collectArray<I,V, v>(input: __iterable<I,V>, handler: (I,V) -> v): Array<v>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.collectArray with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(typeof(handler), "function", [[Attempted to call Dash.collectArray with argument #2 of type {left:?} not {right:?}]])
 	local result = {}
@@ -952,7 +941,7 @@ function collectArray<I,V, v>(input: Map<I,V>, handler: (I,V) -> v): Array<v>
 	return result
 end
 
-function collectSet<I,V, v>(input: Map<I,V>, handler: ((I,V) -> v)?): Set<v>
+function collectSet<I,V, v>(input: __iterable<I,V>, handler: ((I,V) -> v)?): Set<v>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.collectSet with argument #1 of type {left:?} not {right:?}]])
 	local result = {}
 	for key, child in iterator(input) do
@@ -981,7 +970,7 @@ function compose<params...,returns...>(...: AnyFunction): ((params...) -> return
 	end
 end
 
-function copy<I,V>(input: Map<I,V>): Map<I,V>
+function copy<I,V>(input: __iterable<I,V>): Map<I,V>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.copy with argument #1 of type {left:?} not {right:?}]])
 	return join(input)
 end
@@ -992,25 +981,21 @@ function endsWith(input: string, suffix: string)
 	return input:sub(-suffix:len()) == suffix
 end
 
-function filter<I,V>(input: Map<I,V>, handler: (V,I)->any?): Array<V>
+function filter<I,V>(input: __iterable<I,V>, handler: (V,I)->any?): Array<V>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.filter with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(typeof(handler), "function", [[Attempted to call Dash.filter with argument #2 of type {left:?} not {right:?}]])
 	local result = {}
 	for index, child in iterator(input) do
-		if handler(child, index) then
-			table.insert(result, child)
-		end
+		if handler(child, index) then insert(result, child)end
 	end
 	return result
 end
 
-function find<I,V>(input: Map<I,V>, handler: (V,I)->any?): V?
+function find<I,V>(input: __iterable<I,V>, handler: (V,I)->any?): V?
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.find with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(typeof(handler), "function", [[Attempted to call Dash.find with argument #2 of type {left:?} not {right:?}]])
 	for key, child in iterator(input) do
-		if handler(child, key) then
-			return child
-		end
+		if handler(child, key) then return child end
 	end
 	
 	return nil
@@ -1031,9 +1016,7 @@ end
 function flat<A>(input: Array<Array<A>>): Array<A>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.flat with argument #1 of type {left:?} not {right:?}]])
 	local result = {}
-	forEach(input, function(childArray: Array<A>)
-		append(result, childArray)
-	end)
+	forEach(input, function(childArray: Array<A>)append(result, childArray)end)
 	return result
 end
 
@@ -1088,9 +1071,7 @@ function getOrSet<I,V>(input: Map<I,V>, key: I, getValue: (Map<I,V>, I) -> V): V
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.getOrSet with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(key == nil, false, [[Attempted to call Dash.getOrSet with a nil key argument]])
 	assertEqual(typeof(getValue), "function", [[Attempted to call Dash.getOrSet with argument #3 of type {left:?} not {right:?}]])
-	if input[key] == nil then
-		input[key] = getValue(input, key)
-	end
+	if input[key] == nil then input[key] = getValue(input, key)end
 	return input[key]
 end
 
@@ -1186,7 +1167,7 @@ function joinDeep<I,V>(source: Map<I,V>, delta: Map<I,V>): Map<I,V>
 	return result
 end
 
-function keyBy<I,V, i>(input: Map<I,V>, getKey: ((V,I) -> i)): Map<i, V>
+function keyBy<I,V, i>(input: __iterable<I,V>, getKey: ((V,I) -> i)): Map<i, V>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.keyBy with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(getKey == nil, false, [[Attempted to call Dash.keyBy with a nil getKey argument]])
 
@@ -1276,14 +1257,12 @@ function omit<I, V>(input: Map<I,V>, keys: Array<V>): Map<I,V>
 	local keySet = collectSet(keys)
 	-- TYPED: forEach(input, function(child: Value, key: Key)
 	forEach(input, function(child, key)
-		if not keySet[key] then
-			output[key] = input[key]
-		end
+		if not keySet[key] then output[key] = input[key]end
 	end)
 	return output
 end
 
-function pick<I,V>(input: Map<I,V>, handler: __itHandler<V, I, any?>): Map<I,V>
+function pick<I,V>(input: iterable<I,V>, handler: __itHandler<V, I, any?>): Map<I,V>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.pick with argument #1 of type {left:?} not {right:?}]])
 	assertEqual(typeof(handler), "function", [[Attempted to call Dash.pick with argument #2 of type {left:?} not {right:?}]])
 	local result = {}
@@ -1309,9 +1288,7 @@ end
 function reverse<A>(input: Array<A>): Array<A>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.reverse with argument #1 of type {left:?} not {right:?}]])
 	local output = {}
-	for i = #input, 1, -1 do
-		insert(output, input[i])
-	end
+	for i = #input, 1, -1 do insert(output, input[i])end
 	return output
 end
 
@@ -1367,7 +1344,7 @@ function trim(input: string): string
 	return disguise(input:match("^%s*(.-)%s*$"))
 end
 
-function values<V>(input: Map<any,V>): Array<V>
+function values<V>(input: iterable<any,V>): Array<V>
 	assertEqual(typeof(input), "table", [[Attempted to call Dash.values with argument #1 of type {left:?} not {right:?}]])
 	local result = {}
 	for _, value in iterator(input) do
