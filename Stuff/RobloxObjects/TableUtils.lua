@@ -68,11 +68,7 @@ function fill<A>(ground: A, concrete: A): A
 end
 
 function defaultify<A>(a: A?, default: A): A
-	if not a then return default end
-	
-	fill(a, default)
-	
-	return a
+	return not a and default or fill(a, default)
 end
 
 module.deepSoftIndex = deepSoftIndex
