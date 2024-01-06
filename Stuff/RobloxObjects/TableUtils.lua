@@ -81,5 +81,6 @@ module.imprint = imprint
 module.push = push
 module.clearNils = clearNils
 module.fill = fill
+module.defaultify = defaultify
 
 return module
