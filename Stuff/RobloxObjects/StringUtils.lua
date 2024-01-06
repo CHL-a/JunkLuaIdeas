@@ -3,6 +3,7 @@ type __multilineType = 'single' | 'multiline'
 export type multilineType = __multilineType
 
 type __singleLineTokens = '"' | "'"
+export type singleLineTokens = __singleLineTokens
 
 type __luaSArgs = {
 	multilineType: __multilineType;
@@ -11,6 +12,7 @@ type __luaSArgs = {
 	prefix: string?;
 	suffix: string?;
 }
+export type luaSArgs = __luaSArgs
 
 --// MAIN
 local module = {}
@@ -18,6 +20,8 @@ local Objects = script.Parent
 local disguise = require(Objects.LuaUTypes).disguise
 
 insert = table.insert
+
+function isSugarIndex(i: string)return not not i:match('^[%a_][%w_]*$')end
 
 function compareStrings(strA: string, strB: string): boolean
 	-- pre
@@ -100,8 +104,16 @@ function luaStringify(str: string, args: __luaSArgs?)
 	return table.concat(luaStringTokenize(str, a))
 end
 
+function sugarfy(i: string, args: __luaSArgs?)
+	if isSugarIndex(i) then return i;end
+	i = luaStringify(i, args)
+	return `[{i}]`
+end
+
 module.compareStrings = compareStrings
 module.luaStringify = luaStringify
 module.luaStringTokenize = luaStringTokenize
+module.isSugarIndex = isSugarIndex
+module.sugarfy = sugarfy
 
 return module
