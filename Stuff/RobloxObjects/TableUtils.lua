@@ -2,7 +2,7 @@ local module = {}
 local LuaUTypes = require(script.Parent.LuaUTypes)
 local disguise = LuaUTypes.disguise
 
-
+function isEmpty(a: {[any]: any}): boolean return next(a) == nil end
 
 function deepSoftIndex<A, B>(t: {[A]: any}, ...: A): B?
 	for i = 1, select('#', ...) do
@@ -71,6 +71,10 @@ function defaultify<A>(a: A?, default: A): A
 	return not a and default or fill(a, default)
 end
 
+function isProperArray(a: {[any]: any}): boolean
+	return type(disguise(next(a))) == 'number' and next(a, #a) == nil
+end
+
 module.deepSoftIndex = deepSoftIndex
 module.safeSet = safeSet
 module.imprint = imprint
@@ -78,5 +82,7 @@ module.push = push
 module.clearNils = clearNils
 module.fill = fill
 module.defaultify = defaultify
+module.isProperArray = isProperArray
+module.isEmpty = isEmpty
 
 return module
