@@ -50,7 +50,7 @@ function compareStrings(strA: string, strB: string): boolean
 end
 
 function luaStringTokenize(str: string, args: __luaSArgs): {string}
-	local result = string.split(str)
+	local result = str:split''
 	insert(result, 1, args.prefix)
 	
 	local i = 2
@@ -106,7 +106,9 @@ end
 
 function sugarfy(i: string, args: __luaSArgs?)
 	if isSugarIndex(i) then return i;end
-	i = luaStringify(i, args)
+	if typeof(i) == 'string' then
+		i = luaStringify(i, args)
+	end
 	return `[{i}]`
 end
 
