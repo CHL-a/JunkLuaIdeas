@@ -8,6 +8,7 @@ type __object = {
 	flicked: EventPackage.event<boolean>;
 	__flicked:  EventPackage.package<boolean>
 }
+export type object = __object
 
 --// MAIN
 local module = {}
