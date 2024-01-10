@@ -55,6 +55,8 @@ type __object = {
 	limbs: {BasePart};
 	
 	-- ik
+	leftSole: Attachment;
+	rightSole: Attachment;
 	ikCollection: IKCollection.object;
 	rightFootTarget: Attachment;
 	leftFootTarget: Attachment;
@@ -86,6 +88,7 @@ Rig15.__index = Rig15
 local sides = {'Left', 'Right'}
 local limbs = {'Arm', 'Leg'}
 local sections = {'Upper','Lower'}
+local isClient = game:GetService('RunService'):IsClient()
 
 function Rig15.new(char:Model, arg: __constructorArgs?): object
 	local self: __object = disguise(Class.inherit(CharacterRig.new(char, arg), Rig15))
@@ -118,8 +121,10 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 		end
 		
 		-- limbs
+		local highFootName = `{a}Foot`
+		
 		TableUtils.push(self.limbs,
-			self:__setLimbFromConstruction(`{a}Foot`),
+			self:__setLimbFromConstruction(highFootName),
 			self:__setLimbFromConstruction(`{a}Hand`)
 		)
 		
@@ -133,110 +138,128 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 			self:__setLimbFromConstruction(`{a}UpperArm`,`{a}Shoulder`)
 		)
 		
-		-- inv kin
+		-- sole + inv kin + foot target + hand target
 		local b = a:sub(1,1):lower() .. a:sub(2)
-		
 		local footName = `{b}Foot`
 		local foot = __self[footName]
-		
-		local footIKC = Instance.new('IKControl') 
-		footIKC.Enabled = false;
-		footIKC.ChainRoot = __self[`{b}UpperLeg`];
-		footIKC.EndEffector = foot;
-		footIKC.Name = footName
-		footIKC.Parent = self.humanoid
-		
+		local soleName = `{b}Sole`
 		local handName = `{b}Hand`
 		local hand = __self[handName]
-		
-		local handIKC = footIKC:Clone()
-		handIKC.ChainRoot = __self[`{b}UpperArm`];
-		handIKC.EndEffector = __self[handName];
-		handIKC.Name = handName;
-		handIKC.Parent = self.humanoid
-		
-		self.ikCollection:add(footIKC, handIKC)
-		
-		-- foot target
 		local lowerLeg = __self[`{b}LowerLeg`]
-		
-		local footTarget =  Instance.new('Attachment')
-		footTarget.Position = Vector3.new(
-			(a == 'Right' and 1 or -1)  * .8,
-			-hrp.Size.Y/2 - self.humanoid.HipHeight
-		)
-		footTarget.Name = `__{b}FootTarget`
-		footTarget.Parent = hrp
-		footIKC.Target = footTarget;
-		__self[`{footName}Target`] = footTarget
-		
-		local kneeHinge = Instance.new('HingeConstraint')
-		kneeHinge.Name = '__knee'
-		kneeHinge.Attachment0 = __self[`{b}UpperLeg`][`{a}KneeRigAttachment`]
-		kneeHinge.Attachment1 = lowerLeg[`{a}KneeRigAttachment`]
-		kneeHinge.LimitsEnabled = true
-		kneeHinge.LowerAngle = -135
-		-- upper angle subjected to limitations
-		kneeHinge.Parent = footIKC
-		
-		local ankleAt1: Attachment = foot[`{a}AnkleRigAttachment`]:Clone()
-		ankleAt1.Orientation = Vector3.new(0,0,90)
-		ankleAt1.Name = 'AnkleAttachment1'
-		ankleAt1.Parent = foot;
-		
-		local ankleAt0: Attachment = lowerLeg[`{a}AnkleRigAttachment`]:Clone()
-		ankleAt0.WorldOrientation = ankleAt1.WorldOrientation
-		ankleAt0.Name = 'AnkleAttachment0'
-		ankleAt0.Parent = lowerLeg;
-		
-		local ankleBS = Instance.new('BallSocketConstraint')
-		ankleBS.Name = '__ankle'
-		ankleBS.Attachment1 = ankleAt1
-		ankleBS.Attachment0 = ankleAt0
-		ankleBS.LimitsEnabled = true
-		ankleBS.UpperAngle = 100
-		ankleBS.Parent = footIKC
-		
-		-- hand target
 		local lowerArm = __self[`{b}LowerArm`]
-		local handTarget = Instance.new('Attachment')
-		handTarget.Position = Vector3.new(
-			(a == 'Right' and 1 or -1) * 1,
-			0,
-			-1
-		)
-		handTarget.Orientation = Vector3.new(90)
-		handTarget.Name = `__{b}HandTarget`
-		handTarget.Parent = hrp
-		handIKC.Target = handTarget;
-		__self[`{handName}Target`] = handTarget
 		
-		local elbowHinge = Instance.new('HingeConstraint')
-		elbowHinge.Name = '__elbow'
-		elbowHinge.Attachment0 = __self[`{b}UpperArm`][`{a}ElbowRigAttachment`]
-		elbowHinge.Attachment1 = lowerArm[`{a}ElbowRigAttachment`]
-		elbowHinge.LimitsEnabled = true
-		elbowHinge.UpperAngle = 135
-		-- upper angle subjected to limitations
-		elbowHinge.Parent = handIKC
+		local sole: Attachment,
+			footIKC,
+			handIKC,
+			footTarget,
+			handTarget = disguise()
+		
+		if isClient then
+			sole = self:__getDescendantFromArg(highFootName, soleName)
+			footIKC = self:__getDescendantFromArg('Humanoid', footName)
+			handIKC = self:__getDescendantFromArg('Humanoid', handName)
+			footTarget = self:__getDescendantFromArg('HumanoidRootPart', `__{b}FootTarget`)
+			handTarget = self:__getDescendantFromArg('HumanoidRootPart', `__{b}HandTarget`)
+		else
+			sole = Instance.new('Attachment', foot)
+			sole.Position = Vector3.new(0,-foot.Size.Y / 2)
+			sole.Name = soleName
+			
+			footIKC = Instance.new('IKControl') 
+			footIKC.Enabled = false;
+			footIKC.ChainRoot = __self[`{b}UpperLeg`];
+			footIKC.EndEffector = sole;
+			footIKC.Name = footName
+			footIKC.Parent = self.humanoid
+			
+			handIKC = footIKC:Clone()
+			handIKC.ChainRoot = __self[`{b}UpperArm`];
+			handIKC.EndEffector = hand;
+			handIKC.Name = handName;
+			handIKC.Parent = self.humanoid
+			
+			footTarget = Instance.new('Attachment')
+			footTarget.Position = Vector3.new(
+				(a == 'Right' and 1 or -1)  * .8,
+				-hrp.Size.Y/2 - self.humanoid.HipHeight
+			)
+			footTarget.Name = `__{b}FootTarget`
+			footTarget.Parent = hrp
+			footIKC.Target = footTarget;
+			
+			local kneeHinge = Instance.new('HingeConstraint')
+			kneeHinge.Name = '__knee'
+			kneeHinge.Attachment0 = __self[`{b}UpperLeg`][`{a}KneeRigAttachment`]
+			kneeHinge.Attachment1 = lowerLeg[`{a}KneeRigAttachment`]
+			kneeHinge.LimitsEnabled = true
+			kneeHinge.LowerAngle = -135
+			-- upper angle subjected to limitations
+			kneeHinge.Parent = footIKC
 
-		local wristAt1: Attachment = hand[`{a}WristRigAttachment`]:Clone()
-		wristAt1.Orientation = Vector3.new(0,0,90)
-		wristAt1.Name = 'WristAttachment1'
-		wristAt1.Parent = hand;
+			local ankleAt1: Attachment = foot[`{a}AnkleRigAttachment`]:Clone()
+			ankleAt1.Orientation = Vector3.new(0,0,90)
+			ankleAt1.Name = 'AnkleAttachment1'
+			ankleAt1.Parent = foot;
 
-		local wristAt0: Attachment = lowerArm[`{a}WristRigAttachment`]:Clone()
-		wristAt0.WorldOrientation = wristAt1.WorldOrientation
-		wristAt0.Name = 'WristAttachment0'
-		wristAt0.Parent = lowerArm;
+			local ankleAt0: Attachment = lowerLeg[`{a}AnkleRigAttachment`]:Clone()
+			ankleAt0.WorldOrientation = ankleAt1.WorldOrientation
+			ankleAt0.Name = 'AnkleAttachment0'
+			ankleAt0.Parent = lowerLeg;
 
-		local wristBS = Instance.new('BallSocketConstraint')
-		wristBS.Name = '__wrist'
-		wristBS.Attachment1 = wristAt1
-		wristBS.Attachment0 = wristAt0
-		wristBS.LimitsEnabled = true
-		wristBS.UpperAngle = 100
-		wristBS.Parent = handIKC
+			local ankleBS = Instance.new('BallSocketConstraint')
+			ankleBS.Name = '__ankle'
+			ankleBS.Attachment1 = ankleAt1
+			ankleBS.Attachment0 = ankleAt0
+			ankleBS.LimitsEnabled = true
+			ankleBS.UpperAngle = 70
+			ankleBS.TwistLimitsEnabled = true
+			ankleBS.TwistLowerAngle = -45
+			ankleBS.TwistUpperAngle = 45
+			ankleBS.Parent = footIKC
+			
+			handTarget = Instance.new('Attachment')
+			handTarget.Position = Vector3.new(
+				(a == 'Right' and 1 or -1) * 1,
+				0,
+				-1
+			)
+			handTarget.Orientation = Vector3.new(90)
+			handTarget.Name = `__{b}HandTarget`
+			handTarget.Parent = hrp
+			handIKC.Target = handTarget;
+			
+			local elbowHinge = Instance.new('HingeConstraint')
+			elbowHinge.Name = '__elbow'
+			elbowHinge.Attachment0 = __self[`{b}UpperArm`][`{a}ElbowRigAttachment`]
+			elbowHinge.Attachment1 = lowerArm[`{a}ElbowRigAttachment`]
+			elbowHinge.LimitsEnabled = true
+			elbowHinge.UpperAngle = 135
+			-- upper angle subjected to limitations
+			elbowHinge.Parent = handIKC
+
+			local wristAt1: Attachment = hand[`{a}WristRigAttachment`]:Clone()
+			wristAt1.Orientation = Vector3.new(0,0,90)
+			wristAt1.Name = 'WristAttachment1'
+			wristAt1.Parent = hand;
+
+			local wristAt0: Attachment = lowerArm[`{a}WristRigAttachment`]:Clone()
+			wristAt0.WorldOrientation = wristAt1.WorldOrientation
+			wristAt0.Name = 'WristAttachment0'
+			wristAt0.Parent = lowerArm;
+
+			local wristBS = Instance.new('BallSocketConstraint')
+			wristBS.Name = '__wrist'
+			wristBS.Attachment1 = wristAt1
+			wristBS.Attachment0 = wristAt0
+			wristBS.LimitsEnabled = true
+			wristBS.UpperAngle = 100
+			wristBS.Parent = handIKC
+		end
+		
+		__self[soleName] = sole
+		self.ikCollection:add(footIKC, handIKC)
+		__self[`{footName}Target`] = footTarget
+		__self[`{handName}Target`] = handTarget
 	end
 	
 	self.ikCollection:enable(false)
