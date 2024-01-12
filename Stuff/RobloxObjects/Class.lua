@@ -4,7 +4,7 @@
 	 * __super strictly checks methods from self and up within method contexting
 	 * __proxy<a> and __method<a>
 ]]
-
+--// TYPES
 type __subclass<super> = super & {
 	__supers: {super};
 	__super: super;
@@ -43,6 +43,7 @@ type __proxy<A> = {
 	__clone: (self:__proxy<A>) -> __proxy<A>
 }
 
+--// MAIN
 local Class = {}
 local disguise = function<A>(x): A return x end
 
@@ -201,7 +202,7 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 	end
 end
 
-function inherit<A>(t: A, methods, is_debugging): __subclass<A>
+function inherit<A, B>(t: A, methods, is_debugging): B-- __subclass<A>
 	local result: __subclass<A> = disguise(t)
 	local supers = rawget(result,'__supers') or {}
 	rawset(result,"__supers", supers)
@@ -236,30 +237,29 @@ function inherit<A>(t: A, methods, is_debugging): __subclass<A>
 		end
 	end
 
-	return result
+	return disguise(result)
 end
-
-Class.inherit = inherit
 
 function isClass(obj, class)
 	local supers = obj.__supers
 
 	if not supers then
 		return getmetatable(obj) == class
-	else
-		return supers[#supers] == class
 	end
-end
 
-Class.isClass = isClass
+	return supers[#supers] == class
+end
 
 function hasClass(obj, class)
 	return isClass(obj, class) or 
 		obj.__supers and not not table.find(obj.__supers, class)
 end
 
-Class.hasClass = hasClass
+function abstractMethod()error('Attempting to use abstract method')end
 
-Class.abstractMethod = function()error('Attempting to use abstract method')end
+Class.inherit = inherit
+Class.isClass = isClass
+Class.hasClass = hasClass
+Class.abstractMethod = abstractMethod
 
 return Class
