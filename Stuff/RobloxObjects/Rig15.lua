@@ -3,9 +3,27 @@ local Objects = script.Parent
 local CharacterRig = require(Objects.CharacterRig)
 local Class = require(Objects.Class)
 local IKCollection = require(Objects['@CHL/IKCollection'])
+local ProceduralLeg = require(Objects["@CHL/ProceduralLeg"])
+local RuntimeUpdater = require(Objects.RuntimeUpdater)
+local Spring = require(Objects["@CHL/Spring"])
+
+type __walkState = 'idle' | 'forward' | 'backward' | 'left' | 'right'
+
+type __walker = {
+	leftLeg: ProceduralLeg.object;
+	rightLeg: ProceduralLeg.object;
+	isUsingLeft: boolean;
+	rightStep: Vector3;
+	leftStep: Vector3;
+	rig: __object;
+	walkingState: __walkState;
+} & RuntimeUpdater.updatable
+
+type __side = 'Left' | 'Right'
 
 type __object = {
 	-- States
+	__constructorArg: __constructorArgs;
 
 	-- right leg
 	rightUpperLeg: BasePart;
@@ -62,36 +80,216 @@ type __object = {
 	leftFootTarget: Attachment;
 	leftHandTarget: Attachment;
 	rightHandTarget: Attachment;
+	walker: __walker;
 	
 	-- Methods
 	getMotor6Ds: (self:__object) -> {Motor6D};
 	getLimbs: (self:__object) -> {BasePart};
 	__setLimbFromConstruction: <A>(self:__object, ... string) -> A;
-	
+	isAtFront: (self:__object, world: Vector3) -> boolean;
+	getRelativeVelocity: (self: __object) -> Vector3;
+	getAngleRelativeToFloor: (self: __object, epsilon: number) -> (number, boolean);
+	getFrontReference: (self:__object) -> Vector3;
+	getBackReference: (self:__object) -> Vector3;
+	getLeftReference: (self:__object) -> Vector3;
+	getRightReference: (self: __object) -> Vector3;
+	isAtRight: (self:__object, world: Vector3) -> Vector3;
 } & Class.subclass<CharacterRig.object>
 export type object = __object
 
-type __constructorArgs = CharacterRig.constructorArgs
+type __constructorArgs = {
+	loadWalker: boolean?;
+} & CharacterRig.constructorArgs
 export type constructorArgs = __constructorArgs
 
 -- CLASS
 local Rig15 = {}
-local disguise = require(Objects.LuaUTypes).disguise
+local LuaUTypes = require(Objects.LuaUTypes)
 local TableUtils = require(Objects["@CHL/TableUtils"])
 local Dash = require(Objects["@CHL/DashSingular"])
-local InstanceUtils = require(Objects["@CHL/InstanceUtils"]) 
+local InstanceUtils = require(Objects["@CHL/InstanceUtils"])
+local Vector3Utils = require(Objects.Vector3Utils)
 
-local create = InstanceUtils.create
+disguise = LuaUTypes.disguise
+compose = Dash.compose
+imprint = TableUtils.imprint
+create = InstanceUtils.create
+
+sides = {'Left', 'Right'}
+limbs = {'Arm', 'Leg'}
+sections = {'Upper','Lower'}
+isClient = game:GetService('RunService'):IsClient()
+pi = math.pi
+vFloor = Vector3.new(1,0,1)
+
+--[[
+###########################################################################################
+###########################################################################################
+###########################################################################################
+--]]
+
+local Walker = {}
+
+Walker.__index = Walker
+Walker.hoverPositions = {
+	idle     = {left = Vector3.new(-.5)     ;right = Vector3.new(.5)     };
+	forward  = {left = Vector3.new(-.5,0,-1);right = Vector3.new(.5,0,-1)};
+	backward = {left = Vector3.new(-.5,0,1) ;right = Vector3.new(.5,0,1)};
+	right    = {left = Vector3.new(1,0,-.75);right = Vector3.new(1.25)};
+	left     = {left = Vector3.new(-1.25)   ;right = Vector3.new(-1,0,-.75)}
+}
+
+function Walker.new(rig: __object): __walker
+	local self: __walker = disguise(setmetatable({}, Walker))
+	local __self, __rig = disguise(self, rig)
+	
+	self.canUpdate = true
+	self.rig = rig
+	self.walkingState = 'idle'
+	
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = {rig.character}
+	
+	local hrp = rig.humanoidRootPart
+	local halfYSize = hrp.Size.Y / 2
+	
+	for _, a in next, sides do
+		local b = a:sub(1,1):lower() .. a:sub(2)
+		local upperLeg = __rig[`{b}UpperLeg`]
+		local foot = __rig[`{b}Foot`]
+		local right1 = a == 'Right' and 1 or -1
+		
+		local foundTargetHover = hrp:FindFirstChild(`__{b}TargetHover`)
+		local arg = {
+			legJoints = {
+				upperLeg[`{a}HipRigAttachment`],
+				upperLeg[`{a}KneeRigAttachment`],
+				foot[`{a}AnkleRigAttachment`],
+				__rig[`{b}Sole`]
+			};
+			footTarget = __rig[`{b}FootTarget`];
+			rayParams = params;
+			targetHover = foundTargetHover
+		} :: ProceduralLeg.constructorArgs
+		local pLeg = ProceduralLeg.new(arg)
+		
+		if not foundTargetHover then
+			local targetHover = pLeg.targetHover
+			targetHover.Position = Vector3.new(.5 * right1, -halfYSize, -1)
+			targetHover.Name = `__{b}TargetHover`
+			targetHover.Parent = hrp
+		end
+		
+		__self[`{b}Leg`] = pLeg
+		disguise(rig.ikCollection:getIKControlFromEnd(__rig[`{b}Sole`])).SmoothTime = 0
+	end
+	
+	return self
+end
+
+function convertHoverPosition(s: string, y: number)
+	local set = Walker.hoverPositions[s]
+	return set.left + Vector3.new(0, y), set.right + Vector3.new(0, y)
+end
+
+Walker.update = function(self: __walker, dt: number)
+	local rightLeg = self.rightLeg
+	local leftLeg = self.leftLeg
+	local rig = self.rig::__object
+	local angle, isWalking = rig:getAngleRelativeToFloor(1)
+	
+	angle *= 180 / pi
+	
+	local cf = rig.humanoidRootPart.CFrame
+
+	local leftPosSpring = leftLeg.positionSpring
+	local rightPosSpring = rightLeg.positionSpring
+	local leftSpringP = leftPosSpring.p
+	local rightSpringP = rightPosSpring.p
+	local leftT = leftPosSpring.t
+	local rightT = rightPosSpring.t
+	
+	-- state change
+	local walkingState: __walkState = nil
+	if not isWalking then walkingState = 'idle'
+	elseif angle > -60 and angle < 60 then walkingState = 'forward'
+	elseif angle >= 60 and angle < 120 then walkingState = 'left'
+	elseif angle > -120 and angle <= -60 then walkingState = "right"
+	else walkingState = 'backward'
+	end
+	
+	--print(walkingState)
+	
+	self.walkingState = walkingState
+	
+	-- reflect state change
+	local y = rightLeg.targetHover.Position.Y
+	
+	if workspace.updateHover.Value then
+		leftLeg.targetHover.Position, rightLeg.targetHover.Position = 
+			convertHoverPosition(walkingState, y)
+	end
+	
+	-- update springs
+	rightLeg:update(dt)
+	leftLeg:update(dt)
+	
+	-- check step sides
+	if 
+		workspace.updateHover.Value and
+		
+		leftSpringP:FuzzyEq(leftT, .01) and rightSpringP:FuzzyEq(rightT, .01) then
+		local referral: Vector3 = nil
+		
+		-- get reference for compare
+		if walkingState == 'left' or walkingState == 'right' then
+			local leftLegX = rig:isAtRight(leftT)
+			local isOnSameX = leftLegX == rig:isAtRight(rightT)
+			
+			if isOnSameX and leftLegX == (walkingState == 'right') then
+				if leftLegX then
+					referral = rig:getRightReference()
+				else
+					referral = rig:getLeftReference()
+				end
+			end
+		else
+			local leftLegZ = rig:isAtFront(leftT)
+			local isOnSameZ = leftLegZ == rig:isAtFront(rightT)
+			
+			if isOnSameZ and (not leftLegZ) == (walkingState ~= 'backward') then
+				if not leftLegZ then
+					referral = rig:getBackReference()
+				else
+					referral = rig:getFrontReference()
+				end
+			end
+		end
+		
+		-- update the step that is the closest
+		if referral then
+			if Vector3Utils.getCloserVector3(
+				referral, leftT, rightT) == leftT then
+				leftLeg:updateStep()
+			else
+				leftLeg:updateStep()
+			end
+		end
+	end
+end
+
+--[[
+###########################################################################################
+###########################################################################################
+###########################################################################################
+--]]
 
 Rig15.__index = Rig15
 
-local sides = {'Left', 'Right'}
-local limbs = {'Arm', 'Leg'}
-local sections = {'Upper','Lower'}
-local isClient = game:GetService('RunService'):IsClient()
-
 function Rig15.new(char:Model, arg: __constructorArgs?): object
 	local self: __object = disguise(Class.inherit(CharacterRig.new(char, arg), Rig15))
+	local __arg = self.__constructorArg :: __constructorArgs
 
 	-- torso
 	self.limbs = TableUtils.push({}, 
@@ -147,6 +345,7 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 		local hand = __self[handName]
 		local lowerLeg = __self[`{b}LowerLeg`]
 		local lowerArm = __self[`{b}LowerArm`]
+		local upperLeg = __self[`{b}UpperLeg`]
 		
 		local sole: Attachment,
 			footIKC,
@@ -161,97 +360,130 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 			footTarget = self:__getDescendantFromArg('HumanoidRootPart', `__{b}FootTarget`)
 			handTarget = self:__getDescendantFromArg('HumanoidRootPart', `__{b}HandTarget`)
 		else
-			sole = Instance.new('Attachment', foot)
-			sole.Position = Vector3.new(0,-foot.Size.Y / 2)
-			sole.Name = soleName
+			-- feet
+			sole = imprint(Instance.new('Attachment'), {
+				Name = soleName;
+				Position = Vector3.new(0,-foot.Size.Y / 2)
+			})
+			sole.Parent = foot
 			
-			footIKC = Instance.new('IKControl') 
-			footIKC.Enabled = false;
-			footIKC.ChainRoot = __self[`{b}UpperLeg`];
-			footIKC.EndEffector = sole;
-			footIKC.Name = footName
+			footIKC = imprint(Instance.new('IKControl'), {
+				Enabled = false;
+				ChainRoot = upperLeg;
+				EndEffector = sole;
+				Name = footName
+			})
 			footIKC.Parent = self.humanoid
 			
-			handIKC = footIKC:Clone()
-			handIKC.ChainRoot = __self[`{b}UpperArm`];
-			handIKC.EndEffector = hand;
-			handIKC.Name = handName;
-			handIKC.Parent = self.humanoid
-			
-			footTarget = Instance.new('Attachment')
-			footTarget.Position = Vector3.new(
-				(a == 'Right' and 1 or -1)  * .8,
-				-hrp.Size.Y/2 - self.humanoid.HipHeight
-			)
-			footTarget.Name = `__{b}FootTarget`
+			footTarget = imprint(Instance.new('Attachment'),{
+				Position = Vector3.new(
+					(a == 'Right' and 1 or -1)  * .8,
+					-hrp.Size.Y/2 - self.humanoid.HipHeight
+				);
+				Name = `__{b}FootTarget`
+			})
 			footTarget.Parent = hrp
 			footIKC.Target = footTarget;
 			
-			local kneeHinge = Instance.new('HingeConstraint')
-			kneeHinge.Name = '__knee'
-			kneeHinge.Attachment0 = __self[`{b}UpperLeg`][`{a}KneeRigAttachment`]
-			kneeHinge.Attachment1 = lowerLeg[`{a}KneeRigAttachment`]
-			kneeHinge.LimitsEnabled = true
+			local kneeHinge = imprint(Instance.new('HingeConstraint'),{
+				Name = '__knee';
+				Attachment0 = upperLeg[`{a}KneeRigAttachment`];
+				Attachment1 = lowerLeg[`{a}KneeRigAttachment`];
+				LimitsEnabled = true;
+			})
 			kneeHinge.LowerAngle = -135
+			kneeHinge.UpperAngle = 0
 			-- upper angle subjected to limitations
 			kneeHinge.Parent = footIKC
 
-			local ankleAt1: Attachment = foot[`{a}AnkleRigAttachment`]:Clone()
-			ankleAt1.Orientation = Vector3.new(0,0,90)
-			ankleAt1.Name = 'AnkleAttachment1'
+			local ankleAt1: Attachment = imprint(foot[`{a}AnkleRigAttachment`]:Clone(),{
+				Orientation = Vector3.new(0,0,90);
+				Name = 'AnkleAttachment1'
+			})
 			ankleAt1.Parent = foot;
 
-			local ankleAt0: Attachment = lowerLeg[`{a}AnkleRigAttachment`]:Clone()
-			ankleAt0.WorldOrientation = ankleAt1.WorldOrientation
-			ankleAt0.Name = 'AnkleAttachment0'
+			local ankleAt0: Attachment = imprint(lowerLeg[`{a}AnkleRigAttachment`]:Clone(),{
+				WorldOrientation = ankleAt1.WorldOrientation;
+				Name = 'AnkleAttachment0'
+			})
 			ankleAt0.Parent = lowerLeg;
 
-			local ankleBS = Instance.new('BallSocketConstraint')
-			ankleBS.Name = '__ankle'
-			ankleBS.Attachment1 = ankleAt1
-			ankleBS.Attachment0 = ankleAt0
-			ankleBS.LimitsEnabled = true
-			ankleBS.UpperAngle = 70
-			ankleBS.TwistLimitsEnabled = true
-			ankleBS.TwistLowerAngle = -45
-			ankleBS.TwistUpperAngle = 45
+			local ankleBS = imprint(Instance.new('BallSocketConstraint'), {
+				Name = '__ankle';
+				Attachment1 = ankleAt1;
+				Attachment0 = ankleAt0;
+				LimitsEnabled = true;
+			})
+			imprint(ankleBS, {UpperAngle = 70;TwistLimitsEnabled = true;})
+			imprint(ankleBS, {TwistLowerAngle = -45;TwistUpperAngle = 45})
 			ankleBS.Parent = footIKC
 			
-			handTarget = Instance.new('Attachment')
-			handTarget.Position = Vector3.new(
-				(a == 'Right' and 1 or -1) * 1,
-				0,
-				-1
-			)
-			handTarget.Orientation = Vector3.new(90)
-			handTarget.Name = `__{b}HandTarget`
+			local hipAt1: Attachment = imprint(upperLeg[`{a}HipRigAttachment`]:Clone(), {
+				Orientation = Vector3.new(0,0,90);
+				Name = 'HipAttachment1'
+			})
+			hipAt1.Parent = upperLeg;
+
+			local hipAt0:Attachment=imprint(__self.lowerTorso[`{a}HipRigAttachment`]:Clone(),{
+				WorldOrientation = hipAt1.WorldOrientation;
+				Name = 'HipAttachment0'
+			})
+			hipAt0.Parent = self.lowerTorso;
+			
+			local hipBS = imprint(Instance.new('BallSocketConstraint'), {
+				Name = '__hip';
+				LimitsEnabled = true;
+				Attachment1 = hipAt1;
+				Attachment0 = hipAt0;
+			})
+			imprint(hipBS, {TwistLimitsEnabled = true;UpperAngle = 90})
+			imprint(hipBS, {TwistLowerAngle = -45;TwistUpperAngle = 45})
+			hipBS.Parent = footIKC;
+			
+			-- hands
+			handIKC = imprint(footIKC:Clone(),{
+				ChainRoot = __self[`{b}UpperArm`];
+				EndEffector = hand;
+				Name = handName;
+			})
+			handIKC.Parent = self.humanoid
+			
+			handTarget = imprint(Instance.new('Attachment'), {
+				Position = Vector3.new((a == 'Right' and 1 or -1) * 1, 0, -1);
+				Orientation = Vector3.new(90);
+				Name = `__{b}HandTarget`
+			})
 			handTarget.Parent = hrp
 			handIKC.Target = handTarget;
 			
-			local elbowHinge = Instance.new('HingeConstraint')
-			elbowHinge.Name = '__elbow'
-			elbowHinge.Attachment0 = __self[`{b}UpperArm`][`{a}ElbowRigAttachment`]
-			elbowHinge.Attachment1 = lowerArm[`{a}ElbowRigAttachment`]
-			elbowHinge.LimitsEnabled = true
+			local elbowHinge = imprint(Instance.new('HingeConstraint'), {
+				Name = '__elbow';
+				Attachment0 = __self[`{b}UpperArm`][`{a}ElbowRigAttachment`];
+				Attachment1 = lowerArm[`{a}ElbowRigAttachment`];
+				LimitsEnabled = true
+			})
 			elbowHinge.UpperAngle = 135
 			-- upper angle subjected to limitations
 			elbowHinge.Parent = handIKC
 
-			local wristAt1: Attachment = hand[`{a}WristRigAttachment`]:Clone()
-			wristAt1.Orientation = Vector3.new(0,0,90)
-			wristAt1.Name = 'WristAttachment1'
+			local wristAt1: Attachment = imprint(hand[`{a}WristRigAttachment`]:Clone(), {
+				Orientation = Vector3.new(0,0,90);
+				Name = 'WristAttachment1'
+			})
 			wristAt1.Parent = hand;
 
-			local wristAt0: Attachment = lowerArm[`{a}WristRigAttachment`]:Clone()
-			wristAt0.WorldOrientation = wristAt1.WorldOrientation
-			wristAt0.Name = 'WristAttachment0'
+			local wristAt0: Attachment = imprint(lowerArm[`{a}WristRigAttachment`]:Clone(),{
+				WorldOrientation = wristAt1.WorldOrientation;
+				Name = 'WristAttachment0'
+			})
 			wristAt0.Parent = lowerArm;
 
-			local wristBS = Instance.new('BallSocketConstraint')
-			wristBS.Name = '__wrist'
-			wristBS.Attachment1 = wristAt1
-			wristBS.Attachment0 = wristAt0
-			wristBS.LimitsEnabled = true
+			local wristBS = imprint(Instance.new('BallSocketConstraint'), {
+				Name = '__wrist';
+				Attachment1 = wristAt1;
+				Attachment0 = wristAt0;
+				LimitsEnabled = true
+			})
 			wristBS.UpperAngle = 100
 			wristBS.Parent = handIKC
 		end
@@ -264,6 +496,10 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 	
 	self.ikCollection:enable(false)
 	
+	if __arg.loadWalker then
+		self.walker = Walker.new(self)
+	end
+	
 	return self
 end
 
@@ -275,18 +511,39 @@ Rig15.__setLimbFromConstruction = function(self:__object, ...: string)
 	return obj
 end
 
-Rig15.getMotor6Ds = Dash.compose(
-	function(self: __object)return self.motor6Ds end,
-	table.clone,
-	disguise(TableUtils).clearNils
-)
+getNillessArray = compose(table.clone,TableUtils.clearNils)
+getHumanoidRootPart = function(self:__object)return self.humanoidRootPart;end
+getPositionAndVelocity = function(p: Part)return p.CFrame, p.AssemblyLinearVelocity;end
+getHrpPNV = compose(getHumanoidRootPart,getPositionAndVelocity)
+plusVector=function(s,m)return function(cf:CFrame)return cf.Position+disguise(cf)[s]*m;end;end
 
-Rig15.getLimbs = Dash.compose(
-	function(self: __object)return self.limbs end,
-	table.clone,
-	disguise(TableUtils).clearNils
-)
+Rig15.getMotor6Ds = function(self: __object)return getNillessArray(self.motor6Ds)end
+Rig15.getLimbs=function(self:__object)return getNillessArray(disguise(self).limbs)end
+Rig15.getRelativeVelocity = compose(getHrpPNV,Vector3Utils.getRelativeVector)
+Rig15.getFrontReference = compose(getHrpPNV,plusVector('LookVector',1))
+Rig15.getBackReference = compose(getHrpPNV,plusVector('LookVector',-1))
+Rig15.getRightReference = compose(getHrpPNV,plusVector('RightVector',1))
+Rig15.getLeftReference = compose(getHrpPNV,plusVector('RightVector',-1))
 
+Rig15.getAngleRelativeToFloor = function(self: __object, epsilon: number)
+	local h = self.humanoidRootPart
+	local v = h.AssemblyLinearVelocity * vFloor
+	local c = h.CFrame
+	
+	return (c.LookVector * vFloor):Angle(v, Vector3.yAxis),
+		v.Magnitude > epsilon
+end
 
+Rig15.isAtFront = function(self: __object, world: Vector3):boolean
+	local front = self:getFrontReference()
+
+	return Vector3Utils.getCloserVector3(world, front, self:getBackReference()) == front
+end
+
+Rig15.isAtRight = function(self: __object, world: Vector3):boolean
+	local right = self:getRightReference()
+	
+	return Vector3Utils.getCloserVector3(world, right, self:getLeftReference()) == right
+end
 
 return Rig15
