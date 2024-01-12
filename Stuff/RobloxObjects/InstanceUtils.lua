@@ -38,8 +38,6 @@ function create<A>(className: __className, props: __properties<A>?)
 	return create(className)(props)
 end
 
-module.create = create;
-
 function getOrCreate<A>(
 	parent: Instance, 
 	name: string, 
@@ -47,49 +45,47 @@ function getOrCreate<A>(
 	properties: __properties<A>?)
 
 	local result = parent:FindFirstChild(name)
-	
+
 	if not result then
 		local p = properties or {}
 		p.Parent = parent;
 		p.Name = name
-		
+
 		result = create(class, p)
 	end
-	
+
 	return result
 end
-
-module.getOrCreate = getOrCreate
 
 function findFirstDescendant<A>(parent: Instance, ...: string): A?
 	Dash.forEachArgs(function(a)
 		if not parent then return end;
 		parent = parent:FindFirstChild(a)
 	end, ...)
-	
+
 	return disguise(parent)
 end
-
-module.findFirstDescendant = findFirstDescendant
 
 function waitForDescendant<A>(parent: Instance, ...: string): A
 	Dash.forEachArgs(function(a)
 		parent = parent:WaitForChild(a)
 	end, ...)
-	
+
 	return disguise(parent)
 end
 
-module.waitForDescendant = waitForDescendant
-
 function yieldUntilPresent<A>(parent: A): A
 	local p = disguise(parent)
-	
+
 	while not p:IsDescendantOf(game) do p.AncestryChanged:Wait()end
-	
+
 	return parent
 end
 
+module.create = create;
+module.getOrCreate = getOrCreate
+module.findFirstDescendant = findFirstDescendant
+module.waitForDescendant = waitForDescendant
 module.yieldUntilPresent = yieldUntilPresent
 
 return module
