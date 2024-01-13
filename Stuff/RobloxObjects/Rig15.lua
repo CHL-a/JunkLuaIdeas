@@ -17,6 +17,8 @@ type __walker = {
 	leftStep: Vector3;
 	rig: __object;
 	walkingState: __walkState;
+	enabled: boolean;
+	enable: (self: __walker, boolean) -> nil;
 } & RuntimeUpdater.updatable
 
 type __side = 'Left' | 'Right'
@@ -170,9 +172,12 @@ function Walker.new(rig: __object): __walker
 			};
 			footTarget = __rig[`{b}FootTarget`];
 			rayParams = params;
-			targetHover = foundTargetHover
+			targetHover = foundTargetHover;
+			iKControl = rig.ikCollection:getIKControlFromEnd(__rig[`{b}Sole`])
 		} :: ProceduralLeg.constructorArgs
 		local pLeg = ProceduralLeg.new(arg)
+		
+		print(arg)
 		
 		if not foundTargetHover then
 			local targetHover = pLeg.targetHover
@@ -191,6 +196,15 @@ end
 function convertHoverPosition(s: string, y: number)
 	local set = Walker.hoverPositions[s]
 	return set.left + Vector3.new(0, y), set.right + Vector3.new(0, y)
+end
+
+Walker.enable = function(self:__walker, b: boolean)
+	local rig = self.rig :: __object
+	
+	self.enabled = b;
+	
+	rig.ikCollection:getIKControlFromEnd(self.rightLeg.foot).Enabled = b;
+	rig.ikCollection:getIKControlFromEnd(self.leftLeg.foot).Enabled = b;
 end
 
 Walker.update = function(self: __walker, dt: number)
