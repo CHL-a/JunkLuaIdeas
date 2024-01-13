@@ -96,6 +96,7 @@ type __object = {
 	getLeftReference: (self:__object) -> Vector3;
 	getRightReference: (self: __object) -> Vector3;
 	isAtRight: (self:__object, world: Vector3) -> Vector3;
+	getWorldPosFromRelative: (self:__object, Vector3) -> Vector3;
 } & Class.subclass<CharacterRig.object>
 export type object = __object
 
@@ -177,7 +178,6 @@ function Walker.new(rig: __object): __walker
 		} :: ProceduralLeg.constructorArgs
 		local pLeg = ProceduralLeg.new(arg)
 		
-		
 		if not foundTargetHover then
 			local targetHover = pLeg.targetHover
 			targetHover.Position = Vector3.new(.5 * right1, -halfYSize, -1)
@@ -199,11 +199,11 @@ end
 
 Walker.enable = function(self:__walker, b: boolean)
 	local rig = self.rig :: __object
-	
+
 	self.enabled = b;
-	
-	rig.ikCollection:getIKControlFromEnd(self.rightLeg.foot).Enabled = b;
-	rig.ikCollection:getIKControlFromEnd(self.leftLeg.foot).Enabled = b;
+
+	self.rightLeg.iKControl.Enabled = b
+	self.leftLeg.iKControl.Enabled = b
 end
 
 Walker.update = function(self: __walker, dt: number)
@@ -239,10 +239,10 @@ Walker.update = function(self: __walker, dt: number)
 	-- reflect state change
 	local y = rightLeg.targetHover.Position.Y
 	
-	if workspace.updateHover.Value then
+	--if workspace.updateHover.Value then
 		leftLeg.targetHover.Position, rightLeg.targetHover.Position = 
 			convertHoverPosition(walkingState, y)
-	end
+	--end
 	
 	-- update springs
 	rightLeg:update(dt)
@@ -250,18 +250,21 @@ Walker.update = function(self: __walker, dt: number)
 	
 	-- check step sides
 	if 
-		workspace.updateHover.Value and
-		
+		-- workspace.updateHover.Value and
 		leftSpringP:FuzzyEq(leftT, .01) and rightSpringP:FuzzyEq(rightT, .01) then
 		local referral: Vector3 = nil
 		
 		-- get reference for compare
 		if walkingState == 'left' or walkingState == 'right' then
-			local leftLegX = rig:isAtRight(leftT)
-			local isOnSameX = leftLegX == rig:isAtRight(rightT)
+			local hrpP = rig:getWorldPosFromRelative(Vector3.zero)
+			local far = rig:getWorldPosFromRelative(
+				Vector3.xAxis * (walkingState ~= 'right' and 1 or -1))
 			
-			if isOnSameX and leftLegX == (walkingState == 'right') then
-				if leftLegX then
+			local leftLegAtFar = Vector3Utils.getCloserVector3(leftT, hrpP, far) == far
+			local rightLegAtFar = Vector3Utils.getCloserVector3(rightT, hrpP, far) == far
+			
+			if not leftLegAtFar and not rightLegAtFar then
+				if walkingState == 'right' then
 					referral = rig:getRightReference()
 				else
 					referral = rig:getLeftReference()
@@ -286,7 +289,7 @@ Walker.update = function(self: __walker, dt: number)
 				referral, leftT, rightT) == leftT then
 				leftLeg:updateStep()
 			else
-				leftLeg:updateStep()
+				rightLeg:updateStep()
 			end
 		end
 	end
@@ -300,10 +303,15 @@ end
 
 Rig15.__index = Rig15
 
-function Rig15.new(char:Model, arg: __constructorArgs?): object
-	local self: __object = disguise(Class.inherit(CharacterRig.new(char, arg), Rig15))
-	local __arg = self.__constructorArg :: __constructorArgs
+MAIN = disguise() :: __object
 
+function Rig15.new(char:Model, arg: __constructorArgs?): object
+	local self: __object = (Class.inherit(CharacterRig.new(char, arg), Rig15))
+	local __arg = self.__constructorArg :: __constructorArgs
+	
+	MAIN = self
+	
+	
 	-- torso
 	self.limbs = TableUtils.push({}, 
 		self:__setLimbFromConstruction'UpperTorso',
@@ -525,18 +533,27 @@ Rig15.__setLimbFromConstruction = function(self:__object, ...: string)
 end
 
 getNillessArray = compose(table.clone,TableUtils.clearNils)
-getHumanoidRootPart = function(self:__object)return self.humanoidRootPart;end
-getPositionAndVelocity = function(p: Part)return p.CFrame, p.AssemblyLinearVelocity;end
+getHumanoidRootPart = function(self:__object,...)return self.humanoidRootPart,...;end
+getPositionAndVelocity=function(p: Part,...)return p.CFrame,p.AssemblyLinearVelocity,...end
 getHrpPNV = compose(getHumanoidRootPart,getPositionAndVelocity)
-plusVector=function(s,m)return function(cf:CFrame)return cf.Position+disguise(cf)[s]*m;end;end
+
+getWorldVectorFromRel = function(cf:CFrame,_,rel: Vector3, ...)
+	return cf.Position+Vector3Utils.getRelativeVector(cf, rel)
+end
+
+plusDefaultVect = function(a)
+	return function(self: __object)return self:getWorldPosFromRelative(a)end
+end
 
 Rig15.getMotor6Ds = function(self: __object)return getNillessArray(self.motor6Ds)end
 Rig15.getLimbs=function(self:__object)return getNillessArray(disguise(self).limbs)end
 Rig15.getRelativeVelocity = compose(getHrpPNV,Vector3Utils.getRelativeVector)
-Rig15.getFrontReference = compose(getHrpPNV,plusVector('LookVector',1))
-Rig15.getBackReference = compose(getHrpPNV,plusVector('LookVector',-1))
-Rig15.getRightReference = compose(getHrpPNV,plusVector('RightVector',1))
-Rig15.getLeftReference = compose(getHrpPNV,plusVector('RightVector',-1))
+Rig15.getWorldPosFromRelative = compose(getHrpPNV,getWorldVectorFromRel)
+
+Rig15.getFrontReference = plusDefaultVect(Vector3.zAxis)
+Rig15.getBackReference = plusDefaultVect(-Vector3.zAxis)
+Rig15.getRightReference = plusDefaultVect(Vector3.xAxis)
+Rig15.getLeftReference = plusDefaultVect(-Vector3.xAxis)
 
 Rig15.getAngleRelativeToFloor = function(self: __object, epsilon: number)
 	local h = self.humanoidRootPart
