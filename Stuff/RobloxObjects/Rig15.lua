@@ -177,7 +177,6 @@ function Walker.new(rig: __object): __walker
 		} :: ProceduralLeg.constructorArgs
 		local pLeg = ProceduralLeg.new(arg)
 		
-		print(arg)
 		
 		if not foundTargetHover then
 			local targetHover = pLeg.targetHover
