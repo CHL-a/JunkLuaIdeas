@@ -53,6 +53,7 @@ function module.new(arg: __constructorArgs): __object
 	self.footTarget = arg.footTarget
 	self.rayParams = arg.rayParams
 	self.shouldStep = true
+	self.iKControl = arg.iKControl
 	-- self.step = self.foot.WorldPosition
 	
 	local pSpring = Spring.new(self.foot.WorldPosition)
