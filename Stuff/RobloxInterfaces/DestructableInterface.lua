@@ -3,6 +3,7 @@ type __object = {
 	destroy: (self: __object) -> nil;
 	assertDestruction: (self: __object) -> nil;
 }
+export type object = __object
 
 local module = {}
 
