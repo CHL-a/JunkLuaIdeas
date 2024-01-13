@@ -8,7 +8,8 @@ type __constructorArgs = {
 	foot: Attachment?;
 	footTarget: Attachment;
 	rayParams: RaycastParams;
-	targetHover: Attachment?
+	targetHover: Attachment?;
+	iKControl: IKControl;
 }
 export type constructorArgs = __constructorArgs
 
@@ -20,8 +21,8 @@ type __object = {
 	legJoints: {Attachment};
 	bigL: number;
 	rayParams : RaycastParams;
-	-- step: Vector3;
 	targetHover: Attachment;
+	iKControl: IKControl;
 	positionSpring: Spring.object<Vector3>;
 	normalSpring: Spring.object<Vector3>;
 	
