@@ -5,7 +5,7 @@ local Dash = require(Objects["@CHL/DashSingular"])
 
 pi = math.pi
 
-function getRelativeVector(cf: CFrame, world: Vector3)
+function getRelativeVector(cf: CFrame, world: Vector3): Vector3
 	return cf.RightVector * world.X + 
 		cf.UpVector * world.Y + 
 		cf.LookVector * world.Z
