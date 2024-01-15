@@ -209,15 +209,19 @@ function inherit<A, B>(t: A, methods, is_debugging): B-- __subclass<A>
 
 	-- metatable evaluation
 	local old_metatable = getmetatable(disguise(result))
-
-	if old_metatable and
-		old_metatable.__index and
+	
+	if not old_metatable then old_metatable = {}
+	else old_metatable = table.clone(old_metatable)
+	end
+	
+	if not old_metatable.__index or
 		old_metatable.__index ~= getLatestFunction then
-		table.insert(supers, old_metatable.__index)
-		old_metatable = table.clone(old_metatable)
+		if old_metatable.__index then
+			table.insert(supers, old_metatable.__index)
+		end
 		old_metatable.__index = getLatestFunction
 	end
-
+	
 	if methods then
 		table.insert(supers, methods)
 	end
