@@ -1,7 +1,7 @@
 --// TYPES
 type __object = {
 	folder: Folder;
-	getSound: (self: __object) -> Sound;
+	getSound: (self: __object, name: string) -> Sound;
 }
 export type object = __object
 
@@ -14,7 +14,7 @@ disguise = LuaUTypes.disguise
 
 module.__index = module
 
-function module.new(folder: Folder)
+function module.new(folder: Folder): __object
 	local self: __object = disguise(setmetatable({}, module))
 	
 	self.folder = folder
