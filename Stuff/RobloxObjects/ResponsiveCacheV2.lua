@@ -13,7 +13,12 @@ export type object<returns..., params...> = {
 
 -- CLASS
 local ResponsiveCache = {}
+
+local Objects = script.Parent
+local disguise = require(Objects.LuaUTypes).disguise
+
 local availibleIndex = 0
+
 ResponsiveCache.__index = ResponsiveCache
 ResponsiveCache.nilRepresentitive = {} -- find something to replace this later
 -- ^ lua doesn't allow nil indexes but allows anything else
@@ -25,8 +30,8 @@ function ResponsiveCache.new<returns..., params...>(func: (params...) -> returns
 	assert(type(func) == 'function')
 
 	-- main
-	local result = setmetatable({}, ResponsiveCache)
-	local result: object<returns..., params...> = result
+	local result: object<returns..., params...> = 
+		disguise(setmetatable({}, ResponsiveCache))
 
 	result.cache = {}
 	result.func = func
@@ -34,7 +39,7 @@ function ResponsiveCache.new<returns..., params...>(func: (params...) -> returns
 	return result
 end
 
-function ResponsiveCache.getIndex(v)
+function getIndex(v)
 	-- pre
 	v = v == nil and ResponsiveCache.nilRepresentitive or v
 
@@ -48,17 +53,20 @@ function ResponsiveCache.getIndex(v)
 	return ResponsiveCache.indexes[v]
 end
 
-function ResponsiveCache.getMegaIndex(...)
+function getMegaIndex(...)
 	local args = {...}
 	local result = ''
 
 	-- construct megaindex
 	for i = 1, #args do
-		result ..= ResponsiveCache.getIndex(args[i])
+		result ..= getIndex(args[i])
 	end
 
 	return result
 end
+
+ResponsiveCache.getIndex = getIndex
+ResponsiveCache.getMegaIndex = getMegaIndex
 
 --[[
 	Calls "func" with arguments and returns any cached values if the arguments are 
@@ -79,13 +87,11 @@ ResponsiveCache.get = function<r, p...>(self: object<r,p...>, ...: p...)
 end
 
 ResponsiveCache.exists = function<r,p...> (self:object<r,p...>, ...:p...)
-	local mI = ResponsiveCache:getMegaIndex(...)
+	local mI = getMegaIndex(...)
 
 	local isExist = false
 
-	if self.cache[mI] then
-		isExist = true
-	end
+	if self.cache[mI] then isExist = true end
 
 	return isExist, unpack(self.cache[mI] or {})
 end
@@ -98,7 +104,7 @@ ResponsiveCache.decache = function<r..., p...>(self: object<r..., p...>, ...: p.
 	-- main
 	local result = {self:get(...)}
 
-	self.cache[ResponsiveCache:getMegaIndex(...)] = nil
+	self.cache[getMegaIndex(...)] = nil
 
 	return unpack(result)
 end
