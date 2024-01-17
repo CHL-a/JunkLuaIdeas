@@ -5,8 +5,7 @@ local Destructable = require(Objects["@CHL/Destructable"])
 type __object<A> = {
 	active: boolean;
 	host: A;
-	enact: (self: __object<A>) -> nil;
-	deact: (self: __object<A>) -> nil;
+	toggle: (self: __object<A>, isActive: boolean) -> nil;
 } & Destructable.object
 export type object<A> = __object<A>
 
@@ -27,8 +26,7 @@ function module.new<A>(host: A)
 	return self
 end
 
-module.enact = Class.abstractMethod
-module.deact = Class.abstractMethod
+module.toggle = Class.abstractMethod
 module.destroy = Destructable.destroy
 module.assertDestruction = Destructable.assertDestruction
 
