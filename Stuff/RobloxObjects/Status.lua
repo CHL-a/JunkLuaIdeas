@@ -27,7 +27,13 @@ function module.new<A>(host: A)
 end
 
 module.toggle = Class.abstractMethod
-module.destroy = Destructable.destroy
+module.destroy = function<A>(self: __object<A>)
+	self:assertDestruction()
+	
+	self:toggle(false)
+	
+	self.isDestroyed = true
+end
 module.assertDestruction = Destructable.assertDestruction
 
 return module
