@@ -5,7 +5,7 @@ local Destructable = require(Objects["@CHL/Destructable"])
 type __object<A> = {
 	active: boolean;
 	host: A;
-	toggle: (self: __object<A>, isActive: boolean) -> nil;
+	toggle: (self: __object<A>, isActive: boolean?) -> nil;
 } & Destructable.object
 export type object<A> = __object<A>
 
