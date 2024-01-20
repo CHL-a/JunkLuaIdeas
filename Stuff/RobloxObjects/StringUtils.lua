@@ -22,6 +22,7 @@ local disguise = require(Objects.LuaUTypes).disguise
 insert = table.insert
 
 function isSugarIndex(i: string)return not not i:match('^[%a_][%w_]*$')end
+function camelCaseify(s: string)return s:sub(1,1):lower() .. s:sub(2)end
 
 function compareStrings(strA: string, strB: string): boolean
 	-- pre
@@ -112,6 +113,7 @@ function sugarfy(i: string, args: __luaSArgs?)
 	return `[{i}]`
 end
 
+module.camelCaseify = camelCaseify
 module.compareStrings = compareStrings
 module.luaStringify = luaStringify
 module.luaStringTokenize = luaStringTokenize
