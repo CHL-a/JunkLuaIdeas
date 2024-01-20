@@ -75,6 +75,27 @@ function isProperArray(a: {[any]: any}): boolean
 	return type(disguise(next(a))) == 'number' and next(a, #a) == nil
 end
 
+--[[do not use cyclic tables]]
+function deepClone<A>(t: A): A
+	local a = table.clone(disguise(t))
+	
+	local list = {a}
+	
+	while #list > 0 do
+		local b = table.remove(list, 1)
+		
+		for i, v in next, b do
+			if type(v) == 'table' then
+				v = table.clone(v)
+				
+				table.insert(list, v)
+			end
+		end
+	end
+	
+	return a
+end
+
 module.deepSoftIndex = deepSoftIndex
 module.safeSet = safeSet
 module.imprint = imprint
@@ -84,5 +105,6 @@ module.fill = fill
 module.defaultify = defaultify
 module.isProperArray = isProperArray
 module.isEmpty = isEmpty
+module.deepClone = deepClone
 
 return module
