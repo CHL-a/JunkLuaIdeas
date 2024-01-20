@@ -132,7 +132,7 @@ event.Once = event.once
 local package = {}
 package.__index = package
 
-package.new = function<a...>()
+package.new = function<a...>(): __package<a...>
 	local object: __package<a...> = LuaUTypes.disguise(setmetatable({}, package))
 	local event: __event<a...> = event.new()
 	
