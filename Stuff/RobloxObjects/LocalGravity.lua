@@ -18,7 +18,7 @@ local Dash = require(Objects["@CHL/DashSingular"])
 disguise = LuaUTypes.disguise
 module.__index = module
 
-function module.new(parent: BasePart, at: Attachment)
+function module.new(parent: BasePart, at: Attachment): __object
 	local self: __object = disguise(setmetatable({}, module))
 	
 	self.parent = parent
