@@ -55,8 +55,11 @@ function clearNils<A>(t: A): A
 	return t
 end
 
-function fill<A>(ground: A, concrete: A): A
+function fill<A>(ground: A?, concrete: A): A
 	local a, b = disguise(ground, concrete)
+	if not a then
+		return disguise(table.clone(b))
+	end
 	
 	for i, v in next, b do
 		if a[i] == nil then
@@ -64,7 +67,7 @@ function fill<A>(ground: A, concrete: A): A
 		end
 	end
 	
-	return ground
+	return disguise(ground)
 end
 
 function defaultify<A>(a: A?, default: A): A
@@ -96,6 +99,17 @@ function deepClone<A>(t: A): A
 	return a
 end
 
+function valueSet<I, V>(t: {[I]: V}): {[V]: true}
+	local result = {}
+	
+	for _, v in next, t do 
+		result[v] = true
+	end
+	
+	return result
+end
+
+
 module.deepSoftIndex = deepSoftIndex
 module.safeSet = safeSet
 module.imprint = imprint
@@ -106,5 +120,6 @@ module.defaultify = defaultify
 module.isProperArray = isProperArray
 module.isEmpty = isEmpty
 module.deepClone = deepClone
+module.valueSet = valueSet
 
 return module
