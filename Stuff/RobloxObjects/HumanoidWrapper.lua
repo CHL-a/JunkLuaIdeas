@@ -5,6 +5,7 @@ type __object = {
 	humanoid: Humanoid;
 	isWalking: (self: __object) -> boolean;
 }
+export type object = __object
 
 --// MAIN
 local module = {}
