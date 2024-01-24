@@ -6,7 +6,7 @@ type __module = {
 		parent: Instance, 
 		name: string, 
 		class: __className, 
-		properties: __properties<A>?) -> A;
+		properties: __properties<A>?) -> (A, boolean);
 	findFirstDescendant: <A>(parent: Instance, ...string) -> A?;
 	waitForDescendant: <A>(parent: Instance, ...string) -> A;
 	yieldUntilPresent: <A>(parent: A) -> A;
@@ -45,6 +45,7 @@ function getOrCreate<A>(
 	properties: __properties<A>?)
 
 	local result = parent:FindFirstChild(name)
+	local isNewlyCreated = false
 
 	if not result then
 		local p = properties or {}
@@ -52,9 +53,10 @@ function getOrCreate<A>(
 		p.Name = name
 
 		result = create(class, p)
+		isNewlyCreated = true
 	end
 
-	return result
+	return result, isNewlyCreated
 end
 
 function findFirstDescendant<A>(parent: Instance, ...: string): A?
