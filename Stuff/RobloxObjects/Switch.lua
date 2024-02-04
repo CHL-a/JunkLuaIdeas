@@ -4,7 +4,7 @@ local EventPackage = require(Objects.EventPackage)
 
 type __object = {
 	isOn: boolean;
-	flick: (self:__object, toBool: boolean) -> nil;
+	flick: (self:__object, toBool: boolean?) -> nil;
 	flicked: EventPackage.event<boolean>;
 	__flicked:  EventPackage.package<boolean>
 }
