@@ -2,7 +2,7 @@
 local Dash = require(script.Parent["@CHL/DashSingular"])
 local LuaUTypes = require(script.Parent.LuaUTypes)
 
-export type simpleSet<I> = Dash.Set<I>
+export type simple<I> = Dash.Set<I>
 
 --// MAIN
 simple = {}
@@ -12,19 +12,19 @@ perArg = Dash.forEachArgs
 compose = Dash.compose
 forEach = Dash.forEach
 
-function imprintWithArgs<A>(self: simpleSet<A>, ...: A): simpleSet<A>
+function imprintWithArgs<A>(self: simple<A>, ...: A): simple<A>
 	perArg(function(a)self[a] = true;end, ...)
 
 	return self
 end
 
-function imprintWithArrays<A>(self: simpleSet<A>, a: {A}, ...: {A}): simpleSet<A>
+function imprintWithArrays<A>(self: simple<A>, a: {A}, ...: {A}): simple<A>
 	perArg(function(a)forEach(a, function(v)self[v] = true;end)end, a, ...)
 
 	return self
 end
 
-function imprintWithChars<A>(self: simpleSet<A | string>, a: string): simpleSet<A | string>
+function imprintWithChars<A>(self: simple<A | string>, a: string): simple<A | string>
 	for i = 1, #a do
 		local c = a:sub(i, i)
 		self[c] = true
@@ -34,15 +34,15 @@ function imprintWithChars<A>(self: simpleSet<A | string>, a: string): simpleSet<
 end
 
 function imprintWithStrings<A>(
-	self:simpleSet<A | string>, 
+	self:simple<A | string>, 
 	a: string, 
-	sep: (string | ',')?) : simpleSet<A | string>
+	sep: (string | ',')?) : simple<A | string>
 	local sepa = sep or ','
 	
 	return imprintWithArrays(self, a:split(sepa))
 end
 
-function imprintWithSets<A>(self: simpleSet<A>, ...: simpleSet<A>)
+function imprintWithSets<A>(self: simple<A>, ...: simple<A>)
 	perArg(function(a)
 		forEach(a, function(_, a1: A)
 			self[a1] = true
@@ -52,8 +52,8 @@ function imprintWithSets<A>(self: simpleSet<A>, ...: simpleSet<A>)
 	return self
 end
 
-function imprintWithCharRanges<A>(self: simpleSet<A | string>,
-	...: string): simpleSet<A | string>
+function imprintWithCharRanges<A>(self: simple<A | string>,
+	...: string): simple<A | string>
 	perArg(function(a: string)
 		local c1 = a:byte(1)
 		local c2 = a:byte(2)
@@ -93,12 +93,12 @@ export type module = {
 			charRanges: typeof(imprintWithCharRanges);
 		};
 		from: {
-			args: <A>(a: A, ...A) -> simpleSet<A>;
-			arrays: <A>(a: {A}, ...{A}) -> simpleSet<A>;
-			chars: <A>(a: string) -> simpleSet<A | string>;
-			strings: <A>(a: string, sep: string?) -> simpleSet<A | string>;
-			sets: <A>(a: simpleSet<A>, ...simpleSet<A>) -> simpleSet<A>;
-			charRanges: <A>(...string) -> simpleSet<A | string>
+			args: <A>(a: A, ...A) -> simple<A>;
+			arrays: <A>(a: {A}, ...{A}) -> simple<A>;
+			chars: <A>(a: string) -> simple<A | string>;
+			strings: <A>(a: string, sep: string?) -> simple<A | string>;
+			sets: <A>(a: simple<A>, ...simple<A>) -> simple<A>;
+			charRanges: <A>(...string) -> simple<A | string>
 		}
 	}
 }
