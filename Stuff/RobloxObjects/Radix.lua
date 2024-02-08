@@ -1,6 +1,6 @@
 --// TYPES
 local Objects = script.Parent
-local Map = require(Objects["@CHL/Map"])
+local Map = require(Objects["@CHL/Map"]) 
 
 export type digitsMap<A> = Map.simple<A, number>
 
@@ -77,7 +77,7 @@ module.toDecimal = function<A>(self: object<A>, sequence: {A})
 	local m = #sequence
 	
 	for i, v in next, sequence do
-		local mult = map[v]
+		local mult = assert(map[v], `Attempting to use a non-digit: {v}`)
 		result += mult * base ^ (m - i)
 	end
 	
@@ -105,7 +105,7 @@ end
 --######################################################################################
 --######################################################################################
 
-local Class = require(Objects.Class)
+local Class = require(Objects.Class) 
 
 export type charRadix = {
 	toDecimal: (self: charRadix, seq: string) -> number;
