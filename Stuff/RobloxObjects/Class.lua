@@ -259,11 +259,12 @@ function hasClass(obj, class)
 		obj.__supers and not not table.find(obj.__supers, class)
 end
 
-function abstractMethod()error('Attempting to use abstract method')end
+function getErrorFunc(s: string) return function() error(s) end end
 
 Class.inherit = inherit
 Class.isClass = isClass
 Class.hasClass = hasClass
-Class.abstractMethod = abstractMethod
+Class.abstractMethod = getErrorFunc'Attempting to use abstract method.'
+Class.unimplemented = getErrorFunc'Attempting to use an unimplemented method.'
 
 return Class
