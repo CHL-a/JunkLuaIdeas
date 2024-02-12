@@ -9,7 +9,7 @@
 local Objects = script.Parent
 
 -- aliases
-type structFunc<a...> = (a...) -> any?;
+type structFunc<a...> = (a...) -> ();
 
 -- types of event uses
 export type eventSubjectTypes = 'connect' | 'once' | 'wait'
