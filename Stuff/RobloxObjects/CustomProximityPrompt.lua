@@ -129,12 +129,15 @@ function triggered(prompt:ProximityPrompt)
 	o.__triggered:fire(prompt, f)
 end
 
+function module.get(name: string): object? return module.objects[name] end
+
 function module.new(name: string, frame: Frame): object
 	-- pre
 	assert(name, "Attempting to pass bad name.")
-	assert(frame, "No referal frame")
+	local found = module.get(name)
+	if found then return found end;
 	
-	if module.objects[name] then return module.objects[name] end
+	assert(frame, "No referal frame")
 	
 	-- main
 	local self: object = disguise(setmetatable({}, module))
