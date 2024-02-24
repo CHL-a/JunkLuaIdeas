@@ -46,6 +46,7 @@ export type object = {
 
 	appendInt: (self: object,n: number, isLilEnd: boolean?) -> object;
 	appendFloat: (self: object,n: number, isLilend: boolean?) -> object;
+	appendString: (self: object, ...string) -> object;
 
 	-- cond
 	atEnd: (self: object) -> boolean;
@@ -53,7 +54,7 @@ export type object = {
 
 --// MAIN
 local ByteStream = {}
---local Static = require(Objects.Static)
+local Dash = require(Objects["@CHL/DashSingular"])
 local LuaUTypes = require(Objects.LuaUTypes)
 local Math = require(Objects.Math)
 
@@ -72,6 +73,20 @@ function ByteStream.new(getF, appendF): object
 	self.appendingBitPosition = 1;
 	self.appendingByte = 0;
 
+	return self
+end
+
+ByteStream.appendString = function(self: object, ...: string)
+	local n = select('#', ...)
+	
+	for i = 1, n do
+		local s:string = select(i, ...)
+		
+		for j = 1, #s do
+			self:appendBytes(s:byte(j))
+		end
+	end
+	
 	return self
 end
 
