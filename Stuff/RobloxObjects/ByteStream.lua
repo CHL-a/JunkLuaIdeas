@@ -25,12 +25,14 @@ export type object = {
 	bytePointer: number;
 
 	increment: (self: object, dir: number?) -> nil;
-
+	
+	getDouble: (self: object, isLilend: boolean) -> number;
 	getBits: (self: object, n: number?) -> number;
 	getBytes: (self: object, n: number?) -> number;
 	getString: (self: object, n: number?) -> string;
 	getFloat: (self: object, isLilEnd: boolean?) -> number;
-
+	getAllRemainingContent: (self: object) -> string;
+	
 	isBitOne: (self: object) -> boolean;
 	checkBytes: (self: object,...number) -> true | number;
 	assertBytes: (self: object,eMsg: string?, ...number) -> nil;
@@ -43,7 +45,8 @@ export type object = {
 
 	appendBits: (self: object,... number?) -> object;
 	appendBytes: (self: object,... number?) -> object;
-
+	
+	appendDouble: (self: object, n: number, isLilEnd: boolean?) -> object;
 	appendInt: (self: object,n: number, isLilEnd: boolean?) -> object;
 	appendFloat: (self: object,n: number, isLilend: boolean?) -> object;
 	appendString: (self: object, ...string) -> object;
@@ -57,7 +60,9 @@ local ByteStream = {}
 local Dash = require(Objects["@CHL/DashSingular"])
 local LuaUTypes = require(Objects.LuaUTypes)
 local Math = require(Objects.Math)
+local BufferWrapper = require(Objects["@CHL/BufferWrapper"])
 
+tempBuffer = BufferWrapper.getTemp()
 getDigit = Math.getDigit
 disguise = LuaUTypes.disguise
 from = {}
@@ -76,6 +81,46 @@ function ByteStream.new(getF, appendF): object
 	return self
 end
 
+ByteStream.getDouble = function(self: object, isLilend: boolean)
+	for i = 0, 7 do
+		tempBuffer:writeu8(i, self:getBytes())
+	end
+
+	if not isLilend then
+		for i = 0, 3 do
+			tempBuffer:swapBytes(i, 7 - i)
+		end
+	end
+
+	return tempBuffer:readDouble(0)
+end
+
+ByteStream.appendDouble = function(self: object, n: number, isLilEnd: boolean?)
+	tempBuffer:writeDouble(0, n)
+	
+	if not isLilEnd then
+		for i = 0, 3 do
+			tempBuffer:swapBytes(i, 7 - i)
+		end
+	end
+	
+	for i = 0, 7 do
+		self:appendBytes(tempBuffer:readu8(i))
+	end
+	
+	return self
+end
+
+ByteStream.getAllRemainingContent = function(self: object)
+	local result = ''
+	
+	while not self:atEnd() do
+		result ..= self:getString(1)
+	end
+	
+	return result
+end
+
 ByteStream.appendString = function(self: object, ...: string)
 	local n = select('#', ...)
 	
@@ -92,7 +137,21 @@ end
 
 ByteStream.atEnd = function(self: object)return not self:get(self.bytePointer)end
 
-ByteStream.appendFloat = function(self:object, n, isLilEnd)
+ByteStream.appendFloat = function(self: object, n: number, isLilEnd)
+	tempBuffer:writeFloat(0, n)
+	
+	if not isLilEnd then
+		for i = 0, 1 do
+			tempBuffer:swapBytes(i, 3 - i)
+		end
+	end
+	
+	for i = 0, 3 do
+		self:appendBytes(tempBuffer:readu8(i))
+	end
+	
+	-- old
+	--[=[
 	local m, e = math.frexp(n)
 	local sign = math.sign(m) == -1 and 1 or 0
 
@@ -130,7 +189,7 @@ ByteStream.appendFloat = function(self:object, n, isLilEnd)
 	end
 
 	for i = 1, 4 do self:appendBytes(temp[i])end
-
+	--]=]
 	return self
 end
 
@@ -190,6 +249,18 @@ ByteStream.peekByte = function(self: object, n)
 end
 
 ByteStream.getFloat = function(self: object, isLilEnd)
+	for i = 0, 3 do
+		tempBuffer:writeu8(i, self:getBytes())
+	end
+	
+	if not isLilEnd then
+		for i = 0, 1 do
+			tempBuffer:swapBytes(i, 3 - i)
+		end
+	end
+	
+	-- old
+	--[[
 	local temp: object = disguise(ByteStream).temp
 	local tempA = {}
 
@@ -207,6 +278,8 @@ ByteStream.getFloat = function(self: object, isLilEnd)
 	local mantissa = c / (2 ^ 23) + 1
 
 	return mantissa * (2 ^ exponent) * sign
+	--]]
+	return tempBuffer:readFloat(0)
 end
 
 ByteStream.assertBytes = function(self: object, e, ...)
