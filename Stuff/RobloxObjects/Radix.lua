@@ -110,6 +110,7 @@ local Class = require(Objects.Class)
 export type charRadix = {
 	toDecimal: (self: charRadix, seq: string) -> number;
 	fromDecimal: (self: charRadix, number) -> string;
+	formatSequence: (self: charRadix, n: number, maxLength: number?) -> string;
 } & Class.subclass<object<string>>
 
 charRadix = {}
@@ -127,9 +128,40 @@ charRadix.fromDecimal = function(self: charRadix, n: number)
 	return table.concat(self.__super:fromDecimal(n))
 end
 
-charRadix.binary = charRadix.new'01'
-charRadix.hexdecLower = charRadix.new'0123456789abcdef'
-charRadix.hexdecUpper = charRadix.new'0123456789ABCDEF'
+local binary = charRadix.new'01'
+binary.formatSequence = function(self: charRadix, n: number, len: number?)
+	local result = '0b'
+	local seq = self:fromDecimal(n)
+	
+	if len then
+		result ..= ('0'):rep(len - #seq)
+	end
+	
+	result ..= seq
+	
+	return result
+end
+
+local hexlower = charRadix.new'0123456789abcdef'
+hexlower.formatSequence = function(self: charRadix, n: number, len: number?)
+	local result = '0x'
+	local seq = self:fromDecimal(n)
+
+	if len then
+		result ..= ('0'):rep(len - #seq)
+	end
+
+	result ..= seq
+
+	return result
+end
+
+local hexupper = charRadix.new'0123456789ABCDEF'
+hexupper.formatSequence = hexlower.formatSequence
+
+charRadix.binary = binary
+charRadix.hexdecLower = hexlower
+charRadix.hexdecUpper = hexupper
 
 module.charRadix = charRadix
 
