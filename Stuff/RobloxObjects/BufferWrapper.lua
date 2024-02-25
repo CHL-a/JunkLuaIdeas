@@ -3,14 +3,15 @@ local Objects = script.Parent
 
 export type object = {
 	referral: buffer;
-	
+
 	writeBytes: (self: object, offset: number, ...number) -> ();
 	getBytes: (self: object, offset: number, len: number?) -> {number};
 	readFloat: (self: object, offset: number) -> number;
 	writeFloat: (self: object, offset: number, val: number) -> ();
 	readDouble: (self: object, offset: number) -> number;
 	writeDouble: (self: object, offset: number, val: number) -> ();
-	
+	swapBytes: (self: object, offsetI: number, offsetJ: number) -> ();
+
 	__len: (self: object) -> number;
 	len: (self: object) -> number;
 	__tostring: (self: object) -> string;
@@ -55,11 +56,17 @@ function from.size(n: number): object return module.new(buffer.create(n))end
 function module.new(b: buffer)
 	local self: object = disguise(setmetatable({}, module))
 	self.referral = b
-	
+
 	return self
 end
 
 function enqueReferral(self: object, ...)return self.referral, ... end
+
+module.swapBytes = function(self: object, i: number, j: number)
+	local t = self:readu8(i)
+	self:writeu8(i, self:readu8(j))
+	self:writeu8(j, t)
+end
 
 module.writeBytes = function(self: object, offset: number, ...: number)
 	for i = 1, select('#', ...) do
@@ -70,26 +77,26 @@ end
 
 module.getBytes = function(self: object, offset: number, len: number)
 	len = len or 1
-	
+
 	local result = {}
-	
+
 	for i = 1, len do
 		table.insert(result, self:readu8(offset + i - 1))
 	end
-	
+
 	return result
 end
 
 module.toString = function(self: object, sType: number?)
 	if not sType then return buffer.tostring(self.referral) end
-	
+
 	if sType == 1 then
 		local bytes = self:getBytes(0, self:len())
-		
+
 		for i = 1, #bytes do
 			bytes[i] = hexUpper:formatSequence(bytes[i], 2)
 		end
-		
+
 		return table.concat(bytes, '_')
 	else error(`Bad sType: {sType}`)end
 end
@@ -138,6 +145,7 @@ module.__index = module
 local Class = require(Objects.Class)
 
 export type temp = {
+	--[[
 	readi8: (self: object) -> number;
 	readu8: (self: object) -> number;
 	readi16: (self: object) -> number;
@@ -148,6 +156,7 @@ export type temp = {
 	readf64: (self: object) -> number;
 	readFloat: (self: object) -> number;
 	readDouble: (self: object) -> number;
+	--]]
 } & Class.subclass<object>
 
 local Temp = {}
@@ -161,12 +170,13 @@ function getTemp(): temp
 	if not Temp.temp then
 		Temp.temp = Temp.new()
 	end
-	
+
 	return Temp.temp
 end
 
 function tempImpliedOffset(self: object, _, ...)return self, 0, ...end
 
+--[[
 Temp.readi8 = compose(tempImpliedOffset, module.readi8)
 Temp.readu8 = compose(tempImpliedOffset, module.readu8)
 Temp.readi16 = compose(tempImpliedOffset, module.readi16)
@@ -177,6 +187,7 @@ Temp.readf32 = compose(tempImpliedOffset, module.readf32)
 Temp.readf64 = compose(tempImpliedOffset, module.readf64)
 Temp.readFloat = Temp.readf32
 Temp.readDouble = Temp.readf64
+--]]
 
 module.getTemp = getTemp
 
