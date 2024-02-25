@@ -130,7 +130,7 @@ end
 
 local binary = charRadix.new'01'
 binary.formatSequence = function(self: charRadix, n: number, len: number?)
-	local result = '0b'
+	local result = ''
 	local seq = self:fromDecimal(n)
 	
 	if len then
@@ -144,7 +144,7 @@ end
 
 local hexlower = charRadix.new'0123456789abcdef'
 hexlower.formatSequence = function(self: charRadix, n: number, len: number?)
-	local result = '0x'
+	local result = ''
 	local seq = self:fromDecimal(n)
 
 	if len then
