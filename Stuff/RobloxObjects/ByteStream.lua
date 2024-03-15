@@ -26,12 +26,16 @@ export type object = {
 
 	increment: (self: object, dir: number?) -> nil;
 	
+	getLine: (self: object) -> string;
 	getDouble: (self: object, isLilend: boolean) -> number;
 	getBits: (self: object, n: number?) -> number;
 	getBytes: (self: object, n: number?) -> number;
 	getString: (self: object, n: number?) -> string;
 	getFloat: (self: object, isLilEnd: boolean?) -> number;
 	getAllRemainingContent: (self: object) -> string;
+	
+	-- given n, in bytes, returns a signed int
+	getSignedInt: (self: object, n: number) -> number;
 	
 	isBitOne: (self: object) -> boolean;
 	checkBytes: (self: object,...number) -> true | number;
@@ -46,6 +50,7 @@ export type object = {
 	appendBits: (self: object,... number?) -> object;
 	appendBytes: (self: object,... number?) -> object;
 	
+	appendSignedInt: (self: object, n: number, bytes: number, isLilEnd: boolean?) -> object;
 	appendDouble: (self: object, n: number, isLilEnd: boolean?) -> object;
 	appendInt: (self: object,n: number, isLilEnd: boolean?) -> object;
 	appendFloat: (self: object,n: number, isLilend: boolean?) -> object;
@@ -65,6 +70,7 @@ local BufferWrapper = require(Objects["@CHL/BufferWrapper"])
 tempBuffer = BufferWrapper.getTemp()
 getDigit = Math.getDigit
 disguise = LuaUTypes.disguise
+lineBreakByte = ('\n'):byte()
 from = {}
 
 function ByteStream.new(getF, appendF): object
@@ -79,6 +85,48 @@ function ByteStream.new(getF, appendF): object
 	self.appendingByte = 0;
 
 	return self
+end
+
+-- append bytestream with n of length bytes
+ByteStream.appendSignedInt = function(
+	self: object, 
+	n: number,
+	bytes: number,
+	isLilEnd: boolean?)
+	
+	tempBuffer[`writei{bytes*8}`](tempBuffer, 0, n)
+	
+	for i = 1, bytes do
+		self:appendBytes(
+			tempBuffer:readu8(isLilEnd and i - 1 or bytes - i)
+		)
+	end
+end
+
+-- given n, in bytes, returns a signed int
+ByteStream.getSignedInt = function(self: object, n: number)
+	for i = 1, math.abs(n) do
+		tempBuffer:writeu8(n < 0 and i - 1 or 4 - i, self:getBytes())
+	end
+	
+	return tempBuffer[`readi{n*8}`](tempBuffer, 0)
+end
+
+ByteStream.getLine = function(self: object)
+	local i = 1
+	
+	while self:peekByte(i) ~= lineBreakByte and self:atEnd() do
+		i += 1;
+	end
+	
+	if self:atEnd() then
+		return self:getAllRemainingContent()
+	end
+	local result = self:getString(i-1)
+	
+	self:getBytes()
+	
+	return result
 end
 
 ByteStream.getDouble = function(self: object, isLilend: boolean)
@@ -351,6 +399,9 @@ ByteStream.getString = function(self: object, len)
 	return result
 end;
 
+--[[
+	Returns an integer, negative n denotes lil endian
+--]]
 ByteStream.getBytes = function(self:object, n)
 	-- pre
 	n = n or 1
