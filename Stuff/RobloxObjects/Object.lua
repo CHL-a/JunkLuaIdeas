@@ -12,7 +12,7 @@ local Class = require(Objects.Class)
 local LuaUTypes = require(Objects.LuaUTypes)
 
 disguise = LuaUTypes.disguise
-abstract = disguise(Class.abstractMethod) 
+unimplemented = disguise(Class.unimplemented) 
 
 function module.new(): object return setmetatable({}, module)end
 
@@ -26,19 +26,19 @@ module.__index = module
 module.isClass = Class.isClass :: (self: object, C: any) -> boolean
 module.hasClass = Class.hasClass :: (self: object, C: any) -> boolean
 
-module.add =    abstract :: binaryMethod
-module.sub =    abstract :: binaryMethod
-module.mul =    abstract :: binaryMethod
-module.div =    abstract :: binaryMethod
-module.mod =    abstract :: binaryMethod
-module.pow =    abstract :: binaryMethod
-module.idiv =   abstract :: binaryMethod
-module.eq =     abstract :: relationalMethod
-module.lt =     abstract :: relationalMethod
-module.le =     abstract :: relationalMethod
-module.concat = abstract :: binaryMethod
-module.len =    abstract :: method<(), (any)>
-module.call =   abstract :: method<(...any), (...any)>
+module.add =    unimplemented :: binaryMethod
+module.sub =    unimplemented :: binaryMethod
+module.mul =    unimplemented :: binaryMethod
+module.div =    unimplemented :: binaryMethod
+module.mod =    unimplemented :: binaryMethod
+module.pow =    unimplemented :: binaryMethod
+module.idiv =   unimplemented :: binaryMethod
+module.eq =     unimplemented :: relationalMethod
+module.lt =     unimplemented :: relationalMethod
+module.le =     unimplemented :: relationalMethod
+module.concat = unimplemented :: binaryMethod
+module.len =    unimplemented :: method<(), (any)>
+module.call =   unimplemented :: method<(...any), (...any)>
 
 module.__add =    proxyCall'add'
 module.__sub =    proxyCall'sub'
