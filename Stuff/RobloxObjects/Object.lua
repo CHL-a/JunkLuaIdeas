@@ -15,13 +15,13 @@ local EventPackage = require(Objects.EventPackage)
 disguise = LuaUTypes.disguise
 unimplemented = disguise(Class.unimplemented) 
 
-function module.new(): object return setmetatable({}, module)end
-
 function proxyCall(s: string)
 	return function(self: object, ...)
 		return self[s](self, ...)
 	end
 end
+
+function module.new(): object return setmetatable({}, module)end
 
 function module.__constructEvent(self: object, ...: string): ()
 	local __s = disguise(self)
@@ -32,6 +32,19 @@ function module.__constructEvent(self: object, ...: string): ()
 	end
 end
 
+function module.isA(self: object, className: string)
+	local supers = disguise(self).__supers
+	
+	for _, v in next, supers do
+		if v.className == className then
+			return true
+		end
+	end
+	
+	return false
+end
+
+module.className = 'Object'
 module.__index = module
 module.isClass = Class.isClass :: (self: object, C: any) -> boolean
 module.hasClass = Class.hasClass :: (self: object, C: any) -> boolean
