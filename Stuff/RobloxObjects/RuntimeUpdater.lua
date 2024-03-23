@@ -69,7 +69,7 @@ abstract.addObject = function(self:object, u:updatable, p: number?)
 end
 
 abstract.removeObject = function(self:object, u:updatable)
-	local map = disguise(self).collection[u.updatablePriority or 1]
+	local map = self.collection[u.updatablePriority or 1]
 	if not map then return end;
 	map[u] = nil;
 end
@@ -80,7 +80,7 @@ end
 
 abstract.update = function(self:object, delta: number)
 	for _, v in next, self.indexCollection do
-		for u in next, disguise(self).collection[v] do
+		for u in next, self.collection[v] do
 			if u.shouldDisconnect then self:removeObject(u)continue;end
 			if not u.canUpdate then continue end;
 			u:update(delta)
@@ -104,6 +104,7 @@ heartBeatUpdater.commence = function(self:object)
 	
 	self.updateThread = RunService.Heartbeat:Connect(function(d)self:update(d)end)
 end
+heartBeatUpdater.className = 'HeartBeatUpdater'
 module.heartBeat = heartBeatUpdater
 
 -- stepped
@@ -112,6 +113,7 @@ steppedUpdater.commence = function(self:object)
 	if self.updateThread then return end
 	self.updateThread = RunService.Stepped:Connect(function(_, d)self:update(d)end)
 end
+steppedUpdater.className = 'SteppedUpdater'
 module.stepped = steppedUpdater
 
 -- renderstepped
@@ -121,6 +123,7 @@ renderSteppedUpdater.commence = function(self:object)
 	
 	self.updateThread = RunService.RenderStepped:Connect(function(d)self:update(d)end)
 end
+renderSteppedUpdater.className = 'RenderSteppedUpdater'
 module.renderStepped = renderSteppedUpdater
 
 return module
