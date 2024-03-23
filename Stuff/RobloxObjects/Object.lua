@@ -2,8 +2,30 @@
 local Objects = script.Parent
 local module = {}
 
-export type object = typeof(setmetatable({}, module))
-type method<P..., R...> = (self: object, P...) -> (R...)
+export type object = {-- typeof(setmetatable({}, module))
+	className: string;
+	
+	__inherit: <A>(self: object, Class: any) -> A;
+	__constructEvent: (self: object, ...string) -> ();
+	isA: (self: object, className: string) -> boolean;
+	isClass: (self: object, C: any) -> boolean;
+	hasClass: (self: object, C: any) -> boolean;
+	add: <A, B>(self: object, A) -> B;
+	sub: <A, B>(self: object, A) -> B;
+	mul: <A, B>(self: object, A) -> B;
+	div: <A, B>(self: object, A) -> B;
+	mod: <A, B>(self: object, A) -> B;
+	pow: <A, B>(self: object, A) -> B;
+	idiv: <A, B>(self: object, A) -> B;
+	eq: <A>(self: object, A) -> boolean;
+	lt: <A>(self: object, A) -> boolean;
+	le: <A>(self: object, A) -> boolean;
+	concat: <A, B>(self: object, A) -> B;
+	len: (self: object) -> number;
+	call: <A..., B...>(self: object, A...) -> B...;
+	toString: <A...>(self: object, A...) -> string;
+}
+type method<self, P..., R...> = (self: self, P...) -> (R...)
 type binaryMethod = method<(any), (any)>
 type relationalMethod = method<(any), (boolean)>
 
@@ -21,7 +43,7 @@ function proxyCall(s: string)
 	end
 end
 
-function module.new(): object return setmetatable({}, module)end
+function module.new(): object return disguise(setmetatable({}, module))end
 
 function module.__constructEvent(self: object, ...: string): ()
 	local __s = disguise(self)
@@ -46,22 +68,24 @@ end
 
 module.className = 'Object'
 module.__index = module
-module.isClass = Class.isClass :: (self: object, C: any) -> boolean
-module.hasClass = Class.hasClass :: (self: object, C: any) -> boolean
+module.isClass = Class.isClass
+module.hasClass = Class.hasClass
+module.__inherit = Class.inherit
 
-module.add =    unimplemented :: binaryMethod
-module.sub =    unimplemented :: binaryMethod
-module.mul =    unimplemented :: binaryMethod
-module.div =    unimplemented :: binaryMethod
-module.mod =    unimplemented :: binaryMethod
-module.pow =    unimplemented :: binaryMethod
-module.idiv =   unimplemented :: binaryMethod
-module.eq =     unimplemented :: relationalMethod
-module.lt =     unimplemented :: relationalMethod
-module.le =     unimplemented :: relationalMethod
-module.concat = unimplemented :: binaryMethod
-module.len =    unimplemented :: method<(), (any)>
-module.call =   unimplemented :: method<(...any), (...any)>
+module.add =      unimplemented
+module.sub =      unimplemented
+module.mul =      unimplemented
+module.div =      unimplemented
+module.mod =      unimplemented
+module.pow =      unimplemented
+module.idiv =     unimplemented
+module.eq =       unimplemented
+module.lt =       unimplemented
+module.le =       unimplemented
+module.concat =   unimplemented
+module.len =      unimplemented
+module.call =     unimplemented
+module.toString = unimplemented
 
 module.__add =    proxyCall'add'
 module.__sub =    proxyCall'sub'
