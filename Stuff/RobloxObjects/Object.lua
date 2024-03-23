@@ -10,6 +10,7 @@ type relationalMethod = method<(any), (boolean)>
 -- MAIN
 local Class = require(Objects.Class)
 local LuaUTypes = require(Objects.LuaUTypes)
+local EventPackage = require(Objects.EventPackage)
 
 disguise = LuaUTypes.disguise
 unimplemented = disguise(Class.unimplemented) 
@@ -19,6 +20,15 @@ function module.new(): object return setmetatable({}, module)end
 function proxyCall(s: string)
 	return function(self: object, ...)
 		return self[s](self, ...)
+	end
+end
+
+function module.__constructEvent(self: object, ...: string): ()
+	local __s = disguise(self)
+	for i = 1, select('#', ...) do
+		local s = select(i, ...)
+		__s[`__{s}`] = EventPackage.new()
+		__s[s] = __s[`__{s}`].event
 	end
 end
 
