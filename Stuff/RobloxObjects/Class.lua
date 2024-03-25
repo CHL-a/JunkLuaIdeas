@@ -51,6 +51,7 @@ local LuaUTypes = require(Objects.LuaUTypes)
 disguise = LuaUTypes.disguise
 find = table.find
 clone = table.clone
+insert = table.insert
 
 local Method = {}
 
@@ -90,7 +91,8 @@ Proxy.new = function<A>(object: A, class)
 	local self: __proxy<A> = disguise(setmetatable({
 		__object = object;
 		__class = class;
-		__is_super = false
+		__is_super = false;
+		__is_proxy = true;
 	}, Proxy))
 
 	return self
@@ -190,6 +192,11 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 		local class = supers[j]
 		if not (typeof(class) == 'table' ) then 
 			if type(class) == 'function' then
+				if class == getLatestFunction then
+					print(self,supers)
+					error('Attempted to recurse: using getLatestFunction within .__supers')
+				end
+				
 				return class(self, i)
 			end
 			continue;
@@ -225,79 +232,58 @@ for _, v in next,LuaUTypes.metamethods do
 end
 
 function inherit<A, B>(t: A, methods, is_debugging): B-- __subclass<A>
+	if disguise(t).__is_proxy == true then
+		t = disguise(t).__object
+	end
+	
 	local _t = disguise(t)
 	local result: __subclass<A> = disguise(_t)
 	
-	local supers = rawget(result,'__supers') or {}
+	local supers = rawget(result,'__supers') or {}; 
 	rawset(result,"__supers", supers)
-
+	
 	-- metatable evaluation
-	local metat = getmetatable(disguise(result))
+	local metatable = getmetatable(disguise(result))
 	
-	local new_metat
 	
-	if not metat or metat.__index ~= getLatestFunction then
-		new_metat = mainMeta
+	if not metatable then setmetatable(_t, mainMeta)
+	elseif metatable.__index ~= getLatestFunction then
+		if metatable then
+			insert(supers, metatable.__index)
+		end
 		
-		if metat then
-			local didClone = false
+		local new_metatable = mainMeta
+		
+		if metatable then
+			local didClone = new_metatable.__is_clone
 			
 			for _, v in next, overwritableMeta do
-				if not metat[v] then continue end
+				if not metatable[v] then continue end
 				
 				if not didClone then
-					new_metat = clone(new_metat)
+					new_metatable = clone(new_metatable)
 					didClone = true
 				end
 				
-				new_metat[v] = other(v)
+				new_metatable[v] = other(v)
 			end
-		end
-	end
-	
-	table.insert(supers, metat.__index)
-	
-	--[[  ] ]
-	if metat ~= mainMeta then
-		if metat and metat.__index then
-			table.insert(supers, metat.__index)
+			
+			new_metatable.__is_clone = didClone
 		end
 		
-		setmetatable(_t, mainMeta)
+		setmetatable(_t, new_metatable)
 	end
-	--]]
-	
-	--[[] ]
-	if not metat then metat = {}
-	else metat = table.clone(metat)
-	end
-	
-	if not metat.__index or
-		-- establish __index
-		metat.__index ~= getLatestFunction then
-		if metat.__index then
-			table.insert(supers, metat.__index)
-		end
-		metat.__index = getLatestFunction
-		
-		-- establish others
-		for _, v in next, LuaUTypes.metamethods do
-			for i = #supers, 1, -1 do
-				if typeof(supers[i][v]) ~= 'function'then continue; end
-				
-				metat[v] = extraneousMetamethod(v)
-				break
-			end
-		end
-	end
-	--]]
 	
 	if methods then
-		table.insert(supers, methods)
+		insert(supers, methods)
 	end
-
-	setmetatable(disguise(result), new_metat) -- do something here later?
-
+	
+	--[[] ]
+	if new_metat then
+		setmetatable(disguise(result), new_metat) -- do something here later?
+	end
+	--]]
+	
 	-- set up self.__super
 	for i = #supers - 1, 1, -1 do
 		local class = supers[i]
@@ -310,7 +296,7 @@ function inherit<A, B>(t: A, methods, is_debugging): B-- __subclass<A>
 		end
 	end
 
-	return disguise(result)
+	return _t
 end
 
 function isClass(obj, class)
@@ -334,6 +320,7 @@ function getErrorFunc(s: string) return function() error(s) end end
 --########################################################################################
 --########################################################################################
 
+--Class.getLatestFunction = getLatestFunction
 Class.inherit = inherit
 Class.isClass = isClass
 Class.hasClass = hasClass
