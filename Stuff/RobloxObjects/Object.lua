@@ -5,6 +5,7 @@ local module = {}
 export type object = {-- typeof(setmetatable({}, module))
 	className: string;
 	
+	getAncestry: (self: object) -> {string};
 	__inherit: <A>(self: object, Class: any) -> A;
 	__constructEvent: (self: object, ...string) -> ();
 	isA: (self: object, className: string) -> boolean;
@@ -35,7 +36,8 @@ local LuaUTypes = require(Objects.LuaUTypes)
 local EventPackage = require(Objects.EventPackage)
 
 disguise = LuaUTypes.disguise
-unimplemented = disguise(Class.unimplemented) 
+unimplemented = disguise(Class.unimplemented)
+insert = table.insert
 
 function proxyCall(s: string)
 	return function(self: object, ...)
@@ -43,7 +45,14 @@ function proxyCall(s: string)
 	end
 end
 
-function module.new(): object return disguise(setmetatable({}, module))end
+function module.new(): object 
+	return disguise(setmetatable(
+		{
+			__supers = {};
+		}, 
+		module
+	))
+end
 
 function module.__constructEvent(self: object, ...: string): ()
 	local __s = disguise(self)
@@ -64,6 +73,28 @@ function module.isA(self: object, className: string)
 	end
 	
 	return false
+end
+
+function module.getAncestry(self: object)
+	local result = {}
+	local supers = disguise(self).__supers
+	
+	if supers then
+		for i = 1, #supers do
+			local v = supers[i]
+			
+			if typeof(v) == 'table' then
+				insert(result, v.className)
+			else
+				insert(result, '!Unlabeled')
+			end
+		end
+	else
+		insert(result, self.className)
+	end
+	
+	
+	return result
 end
 
 module.className = 'Object'
