@@ -1,30 +1,32 @@
-type __object = {
+local Objects = game:GetService('ReplicatedStorage').Objects
+
+local Object = require(Objects.Object)
+local Class = require(Objects.Class)
+
+export type object = {
 	oldParent: Instance;
 	localScript: LocalScript;
 	currentOwners: {LocalScript};
 	
-	undo: (self: __object) -> nil;
-}
+	undo: (self: object) -> nil;
+} & Class.subclass<Object.object>
 
-export type object = __object;
-
---#########################################
---#########################################
---#########################################
+--##################################################################################
+--##################################################################################
+--##################################################################################
 
 local LocalPlayerScriptLoader = {}
-LocalPlayerScriptLoader.__index = LocalPlayerScriptLoader
+local LuaUTypes = require(Objects.LuaUTypes)
 
-function LocalPlayerScriptLoader.new(LocalScript)
-	-- pre
-	assert(typeof(LocalScript) == 'Instance' and LocalScript:IsA('LocalScript'))
-	
+disguise = LuaUTypes.disguise
+
+function LocalPlayerScriptLoader.new(LocalScript: LocalScript): object
 	-- main
-	local object = setmetatable({}, LocalPlayerScriptLoader)
+	local self: object = Object.new():__inherit(LocalPlayerScriptLoader)
 	
-	object.oldParent = LocalScript.Parent
-	object.localScript = LocalScript
-	object.currentOwners = {}
+	self.oldParent = disguise(LocalScript.Parent)
+	self.localScript = LocalScript
+	self.currentOwners = {}
 	
 	for _, v in next, game:GetService('Players'):GetPlayers() do
 		local playerGui = v:FindFirstChildWhichIsA('PlayerGui')
@@ -35,18 +37,18 @@ function LocalPlayerScriptLoader.new(LocalScript)
 			
 			local clone = LocalScript:Clone()
 			
-			table.insert(object.currentOwners, clone)
+			table.insert(self.currentOwners, clone)
 			clone.Parent = sG
 			sG.Parent = playerGui
 		end
 	end
 	
-	LocalScript.Parent = game.StarterPlayer.StarterPlayerScripts
+	LocalScript.Parent = game:GetService('StarterPlayer').StarterPlayerScripts
 	
-	return object
+	return self
 end
 
-function LocalPlayerScriptLoader.undo(self: __object)
+function LocalPlayerScriptLoader.undo(self: object)
 	self.localScript.Parent = self.oldParent
 
 	for _, v in next, self.currentOwners do
@@ -55,5 +57,8 @@ function LocalPlayerScriptLoader.undo(self: __object)
 		end
 	end
 end
+
+LocalPlayerScriptLoader.__index = LocalPlayerScriptLoader
+LocalPlayerScriptLoader.className = 'LocalPlayerScriptLoader'
 
 return LocalPlayerScriptLoader
