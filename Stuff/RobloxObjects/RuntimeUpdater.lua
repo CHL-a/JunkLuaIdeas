@@ -35,7 +35,7 @@ local disguise = require(script.Parent.LuaUTypes).disguise
 local abstract = {}
 
 function abstract.new(): object
-	local self: object = disguise(Object.new(), abstract)
+	local self: object = Object.new():__inherit(abstract)
 	self.collection = {}
 	self.indexCollection = {}
 	
@@ -111,7 +111,9 @@ module.heartBeat = heartBeatUpdater
 local steppedUpdater: object = abstract.new()
 steppedUpdater.commence = function(self:object)
 	if self.updateThread then return end
-	self.updateThread = RunService.Stepped:Connect(function(_, d)self:update(d)end)
+	self.updateThread = RunService.Stepped:Connect(function(_, d)
+		self:update(d)
+	end)
 end
 steppedUpdater.className = 'SteppedUpdater'
 module.stepped = steppedUpdater
