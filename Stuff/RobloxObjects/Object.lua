@@ -34,10 +34,12 @@ type relationalMethod = method<(any), (boolean)>
 local Class = require(Objects.Class)
 local LuaUTypes = require(Objects.LuaUTypes)
 local EventPackage = require(Objects.EventPackage)
+local TableUtils = require(Objects["@CHL/TableUtils"])
 
 disguise = LuaUTypes.disguise
 unimplemented = disguise(Class.unimplemented)
 insert = table.insert
+from = {}
 
 function proxyCall(s: string)
 	return function(self: object, ...)
@@ -45,13 +47,12 @@ function proxyCall(s: string)
 	end
 end
 
-function module.new(): object 
-	return disguise(setmetatable(
-		{
-			__supers = {};
-		}, 
-		module
-	))
+function module.new(): object return from.rawStruct{}end
+
+function from.rawStruct(t): object
+	local self: object = disguise(setmetatable(t, module))
+	disguise(self).__supers = {}
+	return self
 end
 
 function module.__constructEvent(self: object, ...: string): ()
@@ -97,6 +98,7 @@ function module.getAncestry(self: object)
 	return result
 end
 
+module.from = from
 module.className = 'Object'
 module.__index = module
 module.isClass = Class.isClass
