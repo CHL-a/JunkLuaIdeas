@@ -1,17 +1,3 @@
---[[
-  {
-		name = '@CHL/CharacterMouth';
-		targetRepository = 'Shared';
-		packageType = 'url';
-		dependencies = {
-			"Object",
-			'Class',
-			'EventPackage',
-			'RuntimeUpdater',
-		};
-		url = 'fill in here, I hope';
-  }
---]]
 -- TYPES
 local Objects = script.Parent
 
@@ -28,8 +14,10 @@ export type object<A> = {
 	pieceSpeed: number;
 	delayedTime: number;
 	i: number;
+	
 	speak: (self: object<A>, m: string) -> ();
 	setCharacter: (self: object<A>, info: A) -> ();
+	skip: (self: object<A>) -> ();
 	
 	characterChanged: EventPackage.event<A>;
 	__characterChanged: EventPackage.package<A>;
@@ -92,6 +80,13 @@ module.update = function<A>(self: object<A>, dt: number)
 		self.delayedTime = self.pieceSpeed
 		self.i += 1
 	end
+end
+
+module.skip = function<A>(self: object<A>)
+	self.__pieceShown:fire(self.speech:sub(self.i+1))
+	self.delayedTime = self.pieceSpeed
+	self.canUpdate = false
+	self.i = #self.speech + 1
 end
 
 module.__index = module
