@@ -1,20 +1,23 @@
 --// TYPE
-type __object = {
+local Objects = script.Parent
+
+local Object = require(Objects.Object)
+local Class = require(Objects.Class)
+
+export type object = {
 	character: Model;
 	humanoid: Humanoid;
-	__constructorArg: __constructorArgs?;
-	
-	findDescendant: <A>(self:__object, ...string) -> A?;
-	waitDescendant: <A>(self:__object, ...string) -> A;
-	__getDescendantFromArg: <A>(self:__object, ...string) -> A;
-	__setLimbFromConstruction: <A>(self:__object, ... string) -> A;
-}
-export type object = __object
+	__constructorArg: constructorArgs?;
 
-type __constructorArgs = {
+	findDescendant: <A>(self: object, ...string) -> A?;
+	waitDescendant: <A>(self: object, ...string) -> A;
+	__getDescendantFromArg: <A>(self: object, ...string) -> A;
+	__setLimbFromConstruction: <A>(self: object, ... string) -> A;
+} & Class.subclass<Object.object>
+
+export type constructorArgs = {
 	shouldYield: boolean?;
 }
-export type constructorArgs = __constructorArgs
 
 type __anyFn = (...any) -> ...any
 
@@ -22,11 +25,10 @@ type __anyFn = (...any) -> ...any
 local Rig = {}
 Rig.__index = Rig
 
-function disguise<A...>(...: any): A...return...end
---local disguise = require(sc)
+disguise = require(Objects.LuaUTypes).disguise()
 
-function Rig.new(char: Model, arg: __constructorArgs?): __object
-	local self: __object = disguise(setmetatable({}, Rig))
+function Rig.new(char: Model, arg: constructorArgs?): object
+	local self: object = Object.new():__inherit(Rig)
 	self.character = char
 	self.__constructorArg = arg or {}
 	
@@ -36,7 +38,7 @@ function Rig.new(char: Model, arg: __constructorArgs?): __object
 	return self
 end
 
-Rig.findDescendant = function(self:__object, ...: string)
+Rig.findDescendant = function(self:object, ...: string)
 	local result = self.character
 	
 	for i = 1, select('#', ...) do
@@ -48,7 +50,7 @@ Rig.findDescendant = function(self:__object, ...: string)
 	return result
 end
 
-Rig.waitDescendant = function(self:__object, ...: string)
+Rig.waitDescendant = function(self:object, ...: string)
 	local result = self.character
 	
 	for i = 1, select('#', ...) do
@@ -60,7 +62,7 @@ Rig.waitDescendant = function(self:__object, ...: string)
 	return result
 end
 
-Rig.__getDescendantFromArg = function(self:__object, ...: string)
+Rig.__getDescendantFromArg = function(self:object, ...: string)
 	local arg = self.__constructorArg
 	
 	return assert(
@@ -71,7 +73,7 @@ Rig.__getDescendantFromArg = function(self:__object, ...: string)
 	)
 end
 
-Rig.__setLimbFromConstruction = function(self:__object, ...: string)
+Rig.__setLimbFromConstruction = function(self:object, ...: string)
 	local n = select(select('#', ...),...)
 	local obj = self:__getDescendantFromArg(...)
 	disguise(self)[n:sub(1,1):lower() .. n:sub(2)] = obj
