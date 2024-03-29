@@ -25,7 +25,7 @@ type __anyFn = (...any) -> ...any
 local Rig = {}
 Rig.__index = Rig
 
-disguise = require(Objects.LuaUTypes).disguise()
+disguise = require(Objects.LuaUTypes).disguise
 
 function Rig.new(char: Model, arg: constructorArgs?): object
 	local self: object = Object.new():__inherit(Rig)
