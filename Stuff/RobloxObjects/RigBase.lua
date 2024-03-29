@@ -23,7 +23,6 @@ type __anyFn = (...any) -> ...any
 
 -- CLASS
 local Rig = {}
-Rig.__index = Rig
 
 disguise = require(Objects.LuaUTypes).disguise
 
@@ -81,5 +80,7 @@ Rig.__setLimbFromConstruction = function(self:object, ...: string)
 	return obj
 end
 
+Rig.__index = Rig
+Rig.className = 'RigBase'
 
 return Rig
