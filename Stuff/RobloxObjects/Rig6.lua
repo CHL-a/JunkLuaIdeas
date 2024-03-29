@@ -1,31 +1,30 @@
 -- SPEC
 local Objects = script.Parent
+
 local Class = require(Objects.Class)
 local CharacterRig = require(Objects.CharacterRig)
 
-type __object = {
+export type object = {
 	leftArm: BasePart;
 	rightArm: BasePart;
 	leftLeg: BasePart;
 	rightLeg: BasePart;
 	torso: BasePart;
 } & Class.subclass<CharacterRig.object>
-export type object = __object
 
-type __constructorArgs = CharacterRig.constructorArgs
-export type constructorArgs = __constructorArgs
+export type constructorArgs = CharacterRig.constructorArgs
 
 -- CLASS
 local Rig6 = {}
-local disguise = require(Objects.LuaUTypes).disguise
 
-Rig6.__index = Rig6
+disguise = require(Objects.LuaUTypes).disguise
 
 local sides = {'Left', 'Right'}
 local limbs = {'Arm', 'Leg'}
 
-function Rig6.new(char:Model, arg: __constructorArgs?): object
-	local self: __object = disguise(Class.inherit(CharacterRig.new(char, arg), Rig6))
+function Rig6.new(char:Model, arg: constructorArgs?): object
+	local self: object = CharacterRig.new(char, arg):__inherit(Rig6)
+		-- disguise(Class.inherit(CharacterRig.new(char, arg), Rig6))
 	
 	for _, a in next, sides do
 		for _, b in next, limbs do
@@ -37,5 +36,9 @@ function Rig6.new(char:Model, arg: __constructorArgs?): object
 	
 	return self
 end
+
+Rig6.__index = Rig6
+Rig6.className = 'Rig6'
+
 
 return Rig6
