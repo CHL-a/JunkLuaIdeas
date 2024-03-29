@@ -18,7 +18,7 @@ local CharacterRig = {}
 
 disguise = require(Objects.LuaUTypes).disguise
 
-CharacterRig.new = function(char:Model, arg: __constructorArgs?): object
+function CharacterRig.new(char:Model, arg: __constructorArgs?): object
 	local self: __object = RigBase.new(char, arg):__inherit(CharacterRig)
 		--disguise(Class.inherit(RigBase.new(char, arg), CharacterRig))
 	
