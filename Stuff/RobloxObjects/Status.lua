@@ -1,39 +1,47 @@
 --// TYPE
 local Objects = script.Parent
-local Destructable = require(Objects["@CHL/Destructable"])
 
-type __object<A> = {
+local Destructable = require(Objects["@CHL/Destructable"])
+local Object = require(Objects.Object)
+local Class = require(Objects.Class)
+
+export type object<A> = {
+	name: string;
 	active: boolean;
 	host: A;
-	toggle: (self: __object<A>, isActive: boolean?) -> nil;
-} & Destructable.object
-export type object<A> = __object<A>
+	toggle: (self: object<A>, isActive: boolean?) -> nil;
+} & Class.subclass<Object.object>
+  & Destructable.object
 
 --// MAIN
 local module = {}
 
-local disguise = require(Objects.LuaUTypes).disguise
-local Class = require(Objects.Class)
+disguise = require(Objects.LuaUTypes).disguise
 
-module.__index = module
-
-function module.new<A>(host: A)
-	local self: __object<A> = disguise(setmetatable({}, module))
+function module.new<A>(host: A): object<A>
+	local self: object<A> = Object.new():__inherit(module)
+	
 	self.active = false;
 	self.host = host
 	self.isDestroyed = false;
 	
+	-- cool?
+	self.name = 'Status'
+	
 	return self
 end
 
-module.toggle = Class.abstractMethod
-module.destroy = function<A>(self: __object<A>)
+module.destroy = function<A>(self: object<A>)
 	self:assertDestruction()
 	
 	self:toggle(false)
 	
 	self.isDestroyed = true
 end
+
+module.toggle = Class.abstractMethod
 module.assertDestruction = Destructable.assertDestruction
+module.__index = module
+module.className = '@CHL/Status'
 
 return module
