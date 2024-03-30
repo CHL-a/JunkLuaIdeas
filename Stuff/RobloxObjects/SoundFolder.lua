@@ -1,31 +1,37 @@
 --// TYPES
-type __object = {
-	folder: Folder;
-	getSound: (self: __object, name: string) -> Sound;
-}
-export type object = __object
+local Objects = script.Parent
+
+local Object = require(Objects.Object)
+local Class = require(Objects.Class)
+
+export type object = {
+	container: Instance;
+	getSound: (self: object, name: string) -> Sound;
+	findSound: (self: object, name: string) -> Sound?
+} & Class.subclass<Object.object>
 
 --// MAIN
 local module = {}
-local Objects = script.Parent
-local LuaUTypes = require(Objects.LuaUTypes)
 
-disguise = LuaUTypes.disguise
+disguise = require(Objects.LuaUTypes).disguise
 
-module.__index = module
-
-function module.new(folder: Folder): __object
-	local self: __object = disguise(setmetatable({}, module))
-	
-	self.folder = folder
+function module.new(inst: Instance): object
+	local self: object = Object.new():__inherit(module)
+		
+	self.container = inst
 	
 	return self
 end
 
-module.getSound = function(self: __object, name: string)
-	local s = self.folder:FindFirstChild(name)
-	
-	return assert(s, `Missing a sound: {name}`)
+module.getSound = function(self: object, name: string)
+	return assert(self:findSound(name), `Missing a sound: {name}`)
 end
+
+module.findSound = function(self:object, name: string)
+	return self.container:FindFirstChild(name)
+end
+
+module.__index = module
+module.className = '@CHL/SoundFolder'
 
 return module
