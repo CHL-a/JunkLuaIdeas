@@ -1,9 +1,12 @@
 --// TYPES
 local Objects = script.Parent
+
+local Object = require(Objects.Object)
+local Class = require(Objects.Class)
 local Spring = require(Objects["@CHL/Spring"])
 local RuntimeUpdater = require(Objects.RuntimeUpdater)
 
-type __constructorArgs = {
+export type constructorArgs = {
 	legJoints: {Attachment};
 	foot: Attachment?;
 	footTarget: Attachment;
@@ -11,9 +14,8 @@ type __constructorArgs = {
 	targetHover: Attachment?;
 	iKControl: IKControl;
 }
-export type constructorArgs = __constructorArgs
 
-type __object = {
+export type object ={
 	hip: Attachment;
 	foot: Attachment;
 	footTarget: Attachment;
@@ -26,23 +28,22 @@ type __object = {
 	positionSpring: Spring.object<Vector3>;
 	normalSpring: Spring.object<Vector3>;
 	
-	getBigL: (self: __object) -> number;
-	getSmallD: (self: __object) -> number;
-	getNewStep: (self: __object) -> (Vector3, Vector3);
-	updateStep: (self: __object) -> nil;
-} & RuntimeUpdater.updatable
-export type object = __object
+	getBigL: (self: object) -> number;
+	getSmallD: (self: object) -> number;
+	getNewStep: (self: object) -> (Vector3, Vector3);
+	updateStep: (self: object) -> ();
+} & Class.subclass<Object.object>
+  & RuntimeUpdater.updatable
 
 --// MAIN
 local module = {}
-local disguise = require(Objects.LuaUTypes).disguise
 local Dash = require(Objects["@CHL/DashSingular"])
 local Vector3Utils = require(Objects.Vector3Utils)
 
-module.__index = module;
+disguise = require(Objects.LuaUTypes).disguise
 
-function module.new(arg: __constructorArgs): __object
-	local self : __object = disguise(setmetatable({}, module))
+function module.new(arg: constructorArgs): object
+	local self: object = Object.new():__inherit(module)
 	local joints = arg.legJoints
 	
 	self.hip = joints[1]
@@ -81,7 +82,7 @@ function module.new(arg: __constructorArgs): __object
 	return self
 end
 
-module.getNewStep = function(self: __object)
+module.getNewStep = function(self: object)
 	local down = Vector3.new(0,-50)
 	local resultRaycast = workspace:Raycast(
 		self.targetHover.WorldPosition, 
@@ -93,7 +94,7 @@ module.getNewStep = function(self: __object)
 		resultRaycast and resultRaycast.Normal or Vector3.yAxis
 end
 
-module.getBigL = function(self: __object)
+module.getBigL = function(self: object)
 	local result = 0
 	local lJs = self.legJoints
 	
@@ -110,17 +111,17 @@ module.getBigL = function(self: __object)
 	return result
 end
 
-module.getSmallD = function(self: __object)
+module.getSmallD = function(self: object)
 	return (self.hip.WorldPosition - self.footTarget.WorldPosition).Magnitude
 end
 
-module.updateStep = function(self: __object)
+module.updateStep = function(self: object)
 	local p, n = self:getNewStep()
 	self.positionSpring.t = p
 	self.normalSpring.t = n
 end
 
-module.update = function(self: __object, dt: number)
+module.update = function(self: object, dt: number)
 	local d = self:getSmallD()
 	
 	self.positionSpring:update(dt)
@@ -134,5 +135,8 @@ module.update = function(self: __object, dt: number)
 	self.footTarget.WorldPosition = self.positionSpring.p
 	self.footTarget.WorldSecondaryAxis = self.normalSpring.p
 end
+
+module.__index = module;
+module.className = '@CHL/ProceduralLeg'
 
 return module
