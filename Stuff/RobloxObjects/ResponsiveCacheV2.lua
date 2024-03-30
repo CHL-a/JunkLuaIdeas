@@ -4,39 +4,50 @@
 --]]
 
 -- SPEC
+local Objects = script.Parent
+
+local Object = require(Objects.Object)
+local Class = require(Objects.Class)
+local Map = require(Objects["@CHL/Map"])
+
+type map<I, V> = Map.simple<I,V>
+
 export type object<returns..., params...> = {
-	cache: {[string]: {any}};
+	cache:  map<string, {any}>;
 	func: (params...) -> returns...;
+	
 	get: (self: object<returns..., params...>, params...) -> returns...;
-	decache: (self: object<returns..., params...>,params...) -> returns...;
-}
+	decache: (self: object<returns..., params...>, params...) -> returns...;
+	exists: (self: object<returns..., params...>, params...) -> (boolean, returns...)
+} & Class.subclass<Object.object>
 
 -- CLASS
 local ResponsiveCache = {}
-
-local Objects = script.Parent
-local disguise = require(Objects.LuaUTypes).disguise
-
 local availibleIndex = 0
 
-ResponsiveCache.__index = ResponsiveCache
+disguise = require(Objects.LuaUTypes).disguise
+
 ResponsiveCache.nilRepresentitive = {} -- find something to replace this later
 -- ^ lua doesn't allow nil indexes but allows anything else
 ResponsiveCache.indexes = {}
 
-function ResponsiveCache.new<returns..., params...>(func: (params...) -> returns...):
+function ResponsiveCache.new<
+	returns...,
+	params...>(func: (params...) -> returns...):
 	object<returns...,params...>
 	-- pre
 	assert(type(func) == 'function')
 
 	-- main
-	local result: object<returns..., params...> = 
-		disguise(setmetatable({}, ResponsiveCache))
+	local self: object<returns..., params...> = 
+		Object.new():__inherit(ResponsiveCache)
+		
+		--disguise(setmetatable({}, ResponsiveCache))
 
-	result.cache = {}
-	result.func = func
+	self.cache = {}
+	self.func = func
 
-	return result
+	return self
 end
 
 function getIndex(v)
@@ -65,18 +76,15 @@ function getMegaIndex(...)
 	return result
 end
 
-ResponsiveCache.getIndex = getIndex
-ResponsiveCache.getMegaIndex = getMegaIndex
-
 --[[
 	Calls "func" with arguments and returns any cached values if the arguments are 
 	inputted twice
 ]]
-ResponsiveCache.get = function<r, p...>(self: object<r,p...>, ...: p...)
+ResponsiveCache.get = function<r..., p...>(self: object<r... ,p...>, ...: p...)
 	-- main
 	local result
-	local megaIndex = ResponsiveCache:getMegaIndex(...)
-
+	local megaIndex = getMegaIndex(...)
+	
 	if not self.cache[megaIndex] then
 		self.cache[megaIndex] = {self.func(...)}
 	end
@@ -86,7 +94,7 @@ ResponsiveCache.get = function<r, p...>(self: object<r,p...>, ...: p...)
 	return unpack(result)
 end
 
-ResponsiveCache.exists = function<r,p...> (self:object<r,p...>, ...:p...)
+ResponsiveCache.exists = function<r...,p...> (self:object<r...,p...>, ...:p...)
 	local mI = getMegaIndex(...)
 
 	local isExist = false
@@ -108,5 +116,10 @@ ResponsiveCache.decache = function<r..., p...>(self: object<r..., p...>, ...: p.
 
 	return unpack(result)
 end
+
+ResponsiveCache.__index = ResponsiveCache
+ResponsiveCache.getIndex = getIndex
+ResponsiveCache.getMegaIndex = getMegaIndex
+ResponsiveCache.className = 'ResponsiveCache'
 
 return ResponsiveCache
