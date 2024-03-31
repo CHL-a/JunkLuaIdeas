@@ -1,40 +1,53 @@
+-- TYPE
+local Objects = script.Parent
+
+local Object = require(Objects.Object)
+local Class = require(Objects.Class)
+
+export type object<params...> = {
+	queue: {{any}};
+	func: (params...) -> ();
+	thread: thread;
+	
+	call: (self: object<params...>, params...) -> ();
+} & Class.subclass<Object.object>
+
+-- MAIN
 local ResponsiveQueue = {}
 
-function ResponsiveQueue.new<rValues..., params...>(func: (params...) -> rValues...)
-	local object = {}
-	object.queue = {}
+disguise = require(Objects.LuaUTypes).disguise
+
+function ResponsiveQueue.new<params...>(func: (params...) -> ())
+	local self: object<params...> = Object.new():__inherit(ResponsiveQueue)
+	self.queue = {}
+	self.func = func
 	
-	local temp = func
-	
-	object.thread = coroutine.create(function()
+	self.thread = coroutine.create(function()
 		while true do
-			if #object.queue == 0 then 
+			if #self.queue == 0 then 
 				coroutine.yield()
 			end
 
-			local val = table.remove(object.queue, 1)
-
-			temp(unpack(val))
+			local val = table.remove(self.queue, 1)
+			
+			self.func(unpack(val))
 		end
 	end)
 	
-	object.call = function(...: params...)
-		local temp = {}
-		
-		for i = 1, select('#', ...) do
-			temp[i] = select(i, ...)
-		end
-		
-		table.insert(object.queue, temp)
-		
-		if #object.queue == 1 then
-			coroutine.resume(object.thread)
-		end
-	end
-	
-	
-	return object
+	return self
 end
 
+ResponsiveQueue.call = function<A...>(self: object<A...>, ...: A...)
+	local temp = {disguise(...)}
+
+	table.insert(self.queue, temp)
+
+	if #self.queue == 1 then
+		coroutine.resume(self.thread)
+	end
+end
+
+ResponsiveQueue.__index = ResponsiveQueue
+ResponsiveQueue.className = 'ResponsiveQueue'
 
 return ResponsiveQueue
