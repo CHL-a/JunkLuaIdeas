@@ -190,14 +190,16 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 	-- upper class methods returned psuedo
 	for j = #supers - 1, 1, -1 do
 		local class = supers[j]
-		if not (typeof(class) == 'table' ) then 
-			if type(class) == 'function' then
-				if class == getLatestFunction then
+		local __indexF = class.__index
+		
+		if not (typeof(__indexF) == 'table' ) then 
+			if type(__indexF) == 'function' then
+				if __indexF == getLatestFunction then
 					print(self,supers)
 					error('Attempted to recurse: using getLatestFunction within .__supers')
 				end
 				
-				return class(self, i)
+				return __indexF(self, i)
 			end
 			continue;
 		end
@@ -244,7 +246,6 @@ function inherit<A, B>(t: A, methods, is_debugging): B-- __subclass<A>
 	
 	-- metatable evaluation
 	local metatable = getmetatable(disguise(result))
-	
 	
 	if not metatable then setmetatable(_t, mainMeta)
 	elseif metatable.__index ~= getLatestFunction then
