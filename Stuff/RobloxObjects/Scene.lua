@@ -10,8 +10,10 @@ local EventPackage = require(Objects.EventPackage)
 
 export type abstract<A...> = {
 	isRunning: boolean;
+	isInSkip: boolean;
 
 	runScene: (self: abstract<A...>, A...) -> ();
+	selfWait: (self: abstract<A...>, number) -> ();
 	-- Subjected to yielding
 	play: (self: abstract<A...>, A...) -> ();
 
@@ -21,12 +23,19 @@ export type abstract<A...> = {
 
 local Abstract = {}
 
-function Abstract.new<A...>(): singleton<A...>
-	local self: singleton<A...> = Object.new():__inherit(Abstract)
+function Abstract.new<A...>(): abstract<A...>
+	local self: abstract<A...> = Object.new():__inherit(Abstract)
 	
+	self.isInSkip = false
 	self:__constructEvent('completed')
 	
 	return self
+end
+
+Abstract.selfWait = function<A...>(self: abstract<A...>, n: number)
+	if not self.isInSkip then
+		wait(n)
+	end
 end
 
 Abstract.play = Class.abstractMethod
@@ -112,9 +121,40 @@ Continuous.className = '@CHL/Scene/Continuous'
 --##########################################################################################
 --##########################################################################################
 
+export type hybrid<A> = {
+	runScene: (self: hybrid<A>) -> ();
+} & continuous<A> 
+
+local Hybrid = {}
+
+function Hybrid.new<A>(init: A): hybrid<A>
+	local self: hybrid<A> = Abstract.new():__inherit(Hybrid)
+
+	self.meta = disguise(init)
+	self.elapsed = 0
+	
+	return self
+end
+
+Hybrid.play = function<A>(self: hybrid<A>, a: A)
+	Continuous.play(self, a)
+	self:runScene()
+end
+
+Hybrid.update = Continuous.update
+
+
+Hybrid.__index = Hybrid
+Hybrid.className = '@CHL/Scene/Hybrid'
+
+--##########################################################################################
+--##########################################################################################
+--##########################################################################################
+
 module = {}
 module.abstract = Abstract
 module.singleton = Singleton
 module.continuous = Continuous
+module.hybrid = Hybrid
 
 return module
