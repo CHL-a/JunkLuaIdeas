@@ -1,9 +1,9 @@
 -- TYPES
 local Objects = script.Parent
 local Class = require(Objects.Class)
-local Dash = require(Objects["@CHL/DashSingular"])
 local Object = require(Objects.Object)
 local Set = require(Objects["@CHL/Set"])
+local Destructable = require(Objects["@CHL/Destructable"])
 
 type grandfather = Object.object
 type set<T> = Set.simple<T>
@@ -13,26 +13,27 @@ export type updatable = {
 	shouldDisconnect: boolean;
 	updatablePriority: number?;
 
-	update: (self:updatable, delta: number) -> nil;
-}
+	update: (self:updatable, delta: number) -> ();
+} & Destructable.object
 
 export type object = {
 	updateThread: thread;
 	indexCollection: {number};
 	collection: {set<updatable>};
 
-	insertIndex: (self:object, number) -> nil;
-	commence: (self:object) -> nil;
-	addObject: (self:object, updatable, priority: number?) -> nil;
-	removeObject: (self:object, updatable) -> nil;
-	update: (self:object, delta: number) -> nil;
+	insertIndex: (self:object, number) -> ();
+	commence: (self:object) -> ();
+	addObject: (self:object, updatable, priority: number?) -> ();
+	removeObject: (self:object, updatable) -> ();
+	update: (self:object, delta: number) -> ();
 	getUpdatables: (self:object) -> {updatable};
 } & Class.subclass<grandfather>
 
 -- MAIN
 local LuaUTypes = require(Objects.LuaUTypes)
-local disguise = require(script.Parent.LuaUTypes).disguise
 local abstract = {}
+
+disguise = require(Objects.LuaUTypes).disguise
 
 function abstract.new(): object
 	local self: object = Object.new():__inherit(abstract)
@@ -75,7 +76,15 @@ abstract.removeObject = function(self:object, u:updatable)
 end
 
 abstract.getUpdatables = function(self:object)
-	return Dash.keys(Dash.flat(disguise(self.collection)))
+	local result = {}
+	
+	for _, v in next, self.collection do
+		for w in next, v do
+			table.insert(result, w)
+		end
+	end
+	
+	return result
 end
 
 abstract.update = function(self:object, delta: number)
