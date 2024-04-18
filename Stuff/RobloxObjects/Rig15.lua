@@ -6,77 +6,70 @@ local IKCollection = require(Objects['@CHL/IKCollection'])
 local ProceduralLeg = require(Objects["@CHL/ProceduralLeg"])
 local RuntimeUpdater = require(Objects.RuntimeUpdater)
 local Spring = require(Objects["@CHL/Spring"])
+local Destructable = require(Objects["@CHL/Destructable"])
+local ResponsiveCache = require(Objects.ResponsiveCache)
+local Dash = require(Objects["@CHL/DashSingular"])
 
-type __walkState = 'idle' | 'forward' | 'backward' | 'left' | 'right'
-
-type __walker = {
-	leftLeg: ProceduralLeg.object;
-	rightLeg: ProceduralLeg.object;
-	isUsingLeft: boolean;
-	rightStep: Vector3;
-	leftStep: Vector3;
-	rig: __object;
-	walkingState: __walkState;
-	enabled: boolean;
-	enable: (self: __walker, boolean) -> nil;
-} & RuntimeUpdater.updatable
-
+type map<I, V> = Dash.Map<I, V>
+type set<A> = Dash.Set<A>
 type __side = 'Left' | 'Right'
 
-type __object = {
+export type object = {
 	-- States
-	__constructorArg: __constructorArgs;
-
-	-- right leg
-	rightUpperLeg: BasePart;
-	rightLowerLeg: BasePart;
-	rightFoot: BasePart;
-
-	rightAnkle: Motor6D;
-	rightKnee: Motor6D;
-	rightHip: Motor6D;
-
-	-- left leg
-	leftUpperLeg: BasePart;
-	leftLowerLeg: BasePart;
-	leftFoot: BasePart;
-
-	leftAnkle: Motor6D;
-	leftKnee: Motor6D;
-	leftHip: Motor6D;
-
-	-- torso
-	upperTorso: BasePart;
-	lowerTorso: BasePart;
-
-	waist: Motor6D;
-	root: Motor6D;
-	neck: Motor6D;
-
-	-- right arm
-	rightUpperArm: BasePart;
-	rightLowerArm: BasePart;
-	rightHand: BasePart;
-
-	rightWrist: Motor6D;
-	rightElbow: Motor6D;
-	rightShoulder: Motor6D; 
-
-	-- left arm
-	leftUpperArm: BasePart;
-	leftLowerArm: BasePart;
-	leftHand: BasePart;
-
-	leftWrist: Motor6D;
-	leftElbow: Motor6D;
-	leftShoulder: Motor6D;
+	__constructorArg: constructorArgs;
 	
-	motor6Ds: {Motor6D};
-	limbs: {BasePart};
+	-- nodes
+	nodes: {node};
 	
-	-- ik
-	leftSole: Attachment;
-	rightSole: Attachment;
+	head: node;
+	upperTorso: node;
+	lowerTorso: node;
+	humanoidRootPart: node;
+
+	rightUpperLeg: node;
+	rightLowerLeg: node;
+	rightFoot: node;
+
+	leftUpperLeg: node;
+	leftLowerLeg: node;
+	leftFoot: node;
+
+	rightUpperArm: node;
+	rightLowerArm: node;
+	rightHand: node;
+
+	leftUpperArm: node;
+	leftLowerArm: node;
+	leftHand: node;
+
+	-- edges
+	edges: {edge};
+	
+	neck: edge;
+	waist: edge;
+	root: edge;
+	
+	rightGrip: gripEdge;
+	rightWrist: edge;
+	rightElbow: edge;
+	rightShoulder: edge;
+	
+	leftGrip: gripEdge;
+	leftWrist: edge;
+	leftElbow: edge;
+	leftShoulder: edge;
+	
+	rightAnkle: edge;
+	rightKnee: edge;
+	rightHip: edge;
+	
+	leftAnkle: edge;
+	leftKnee: edge;
+	leftHip: edge;
+	
+	-- animations
+	animator: Animator;
+	
 	ikCollection: IKCollection.object;
 	rightFootTarget: Attachment;
 	leftFootTarget: Attachment;
@@ -85,38 +78,45 @@ type __object = {
 	walker: __walker;
 	
 	-- Methods
-	getMotor6Ds: (self:__object) -> {Motor6D};
-	getLimbs: (self:__object) -> {BasePart};
-	__setLimbFromConstruction: <A>(self:__object, ... string) -> A;
-	isAtFront: (self:__object, world: Vector3) -> boolean;
-	getRelativeVelocity: (self: __object) -> Vector3;
-	getAngleRelativeToFloor: (self: __object, epsilon: number) -> (number, boolean);
-	getFrontReference: (self:__object) -> Vector3;
-	getBackReference: (self:__object) -> Vector3;
-	getLeftReference: (self:__object) -> Vector3;
-	getRightReference: (self: __object) -> Vector3;
-	isAtRight: (self:__object, world: Vector3) -> Vector3;
-	getWorldPosFromRelative: (self:__object, Vector3) -> Vector3;
+	__setNode: (self: object, string) -> node;
+	__setEdge: (self: object, string) -> edge;
+	
+	getMotor6Ds: (self:object) -> {Motor6D};
+	getLimbs: (self:object) -> {BasePart};
+	isAtFront: (self:object, world: Vector3) -> boolean;
+	getRelativeVelocity: (self: object) -> Vector3;
+	getAngleRelativeToFloor: (self: object, epsilon: number) -> (number, boolean);
+	getFrontReference: (self:object) -> Vector3;
+	getBackReference: (self:object) -> Vector3;
+	getLeftReference: (self:object) -> Vector3;
+	getRightReference: (self: object) -> Vector3;
+	isAtRight: (self:object, world: Vector3) -> Vector3;
+	getWorldPosFromRelative: (self:object, Vector3) -> Vector3;
+	getHRPElevation: (self:object) -> number;
+	repairGraph: (self: object) -> boolean;
+	getCoreSound: (self: object, s: string) -> Sound;
 } & Class.subclass<CharacterRig.object>
-export type object = __object
+  & Destructable.object
 
-type __constructorArgs = {
+export type constructorArgs = {
 	loadWalker: boolean?;
 } & CharacterRig.constructorArgs
-export type constructorArgs = __constructorArgs
 
 -- CLASS
 local Rig15 = {}
 local LuaUTypes = require(Objects.LuaUTypes)
 local TableUtils = require(Objects["@CHL/TableUtils"])
-local Dash = require(Objects["@CHL/DashSingular"])
 local InstanceUtils = require(Objects["@CHL/InstanceUtils"])
 local Vector3Utils = require(Objects.Vector3Utils)
+local StringUtils = require(Objects["@CHL/StringUtils"])
 
+camelCaseify = StringUtils.camelCaseify
 disguise = LuaUTypes.disguise
 compose = Dash.compose
 imprint = TableUtils.imprint
 create = InstanceUtils.create
+push = TableUtils.push
+valueSet = TableUtils.valueSet
 
 sides = {'Left', 'Right'}
 limbs = {'Arm', 'Leg'}
@@ -125,15 +125,31 @@ isClient = game:GetService('RunService'):IsClient()
 pi = math.pi
 vFloor = Vector3.new(1,0,1)
 
---[[
-###########################################################################################
-###########################################################################################
-###########################################################################################
---]]
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+
+local Object = require(Objects.Object)
+
+type __walkState = 'idle' | 'forward' | 'backward' | 'left' | 'right'
+
+type inheritance = Class.subclass<Object.object>
+
+type __walker = {
+	leftLeg: ProceduralLeg.object;
+	rightLeg: ProceduralLeg.object;
+	isUsingLeft: boolean;
+	rightStep: Vector3;
+	leftStep: Vector3;
+	rig: object;
+	walkingState: __walkState;
+	enabled: boolean;
+	enable: (self: __walker, boolean) -> ();
+} & RuntimeUpdater.updatable
+  & inheritance
 
 local Walker = {}
 
-Walker.__index = Walker
 Walker.hoverPositions = {
 	idle     = {left = Vector3.new(-.5)     ;right = Vector3.new(.5)     };
 	forward  = {left = Vector3.new(-.5,0,-1);right = Vector3.new(.5,0,-1)};
@@ -142,8 +158,8 @@ Walker.hoverPositions = {
 	left     = {left = Vector3.new(-1.25)   ;right = Vector3.new(-1,0,-.75)}
 }
 
-function Walker.new(rig: __object): __walker
-	local self: __walker = disguise(setmetatable({}, Walker))
+function Walker.new(rig: object): __walker
+	local self: __walker = Object.new():__inherit(Walker)
 	local __self, __rig = disguise(self, rig)
 	
 	self.canUpdate = true
@@ -198,7 +214,7 @@ function convertHoverPosition(s: string, y: number)
 end
 
 Walker.enable = function(self:__walker, b: boolean)
-	local rig = self.rig :: __object
+	local rig = self.rig :: object
 
 	self.enabled = b;
 
@@ -209,7 +225,7 @@ end
 Walker.update = function(self: __walker, dt: number)
 	local rightLeg = self.rightLeg
 	local leftLeg = self.leftLeg
-	local rig = self.rig::__object
+	local rig = self.rig::object
 	local angle, isWalking = rig:getAngleRelativeToFloor(1)
 	
 	angle *= 180 / pi
@@ -251,268 +267,600 @@ Walker.update = function(self: __walker, dt: number)
 	-- check step sides
 	if 
 		-- workspace.updateHover.Value and
-		leftSpringP:FuzzyEq(leftT, .01) and rightSpringP:FuzzyEq(rightT, .01) then
-		local referral: Vector3 = nil
-		
-		-- get reference for compare
-		if walkingState == 'left' or walkingState == 'right' then
-			local hrpP = rig:getWorldPosFromRelative(Vector3.zero)
-			local far = rig:getWorldPosFromRelative(
-				Vector3.xAxis * (walkingState ~= 'right' and 1 or -1))
-			
-			local leftLegAtFar = Vector3Utils.getCloserVector3(leftT, hrpP, far) == far
-			local rightLegAtFar = Vector3Utils.getCloserVector3(rightT, hrpP, far) == far
-			
-			if not leftLegAtFar and not rightLegAtFar then
-				if walkingState == 'right' then
-					referral = rig:getRightReference()
-				else
-					referral = rig:getLeftReference()
-				end
-			end
-		else
-			local leftLegZ = rig:isAtFront(leftT)
-			local isOnSameZ = leftLegZ == rig:isAtFront(rightT)
-			
-			if isOnSameZ and (not leftLegZ) == (walkingState ~= 'backward') then
-				if not leftLegZ then
-					referral = rig:getBackReference()
-				else
-					referral = rig:getFrontReference()
-				end
-			end
+		not (leftSpringP:FuzzyEq(leftT, .01) and rightSpringP:FuzzyEq(rightT, .01)) then
+		return
+	end
+	
+	local referral: Vector3 = nil
+
+	-- get reference for compare
+	if walkingState == 'left' or walkingState == 'right' then
+		local hrpP = rig:getWorldPosFromRelative(Vector3.zero)
+		local far = rig:getWorldPosFromRelative(
+			Vector3.xAxis * (walkingState ~= 'right' and 1 or -1))
+
+		local leftLegAtFar = Vector3Utils.getCloserVector3(leftT, hrpP, far) == far
+		local rightLegAtFar = Vector3Utils.getCloserVector3(rightT, hrpP, far) == far
+
+		if not leftLegAtFar and not rightLegAtFar then
+			referral = walkingState == 'right' and 
+				rig:getRightReference() or 
+				rig:getLeftReference()
 		end
-		
-		-- update the step that is the closest
-		if referral then
-			if Vector3Utils.getCloserVector3(
-				referral, leftT, rightT) == leftT then
-				leftLeg:updateStep()
-			else
-				rightLeg:updateStep()
-			end
+	else
+		local leftLegZ = rig:isAtFront(leftT)
+		local isOnSameZ = leftLegZ == rig:isAtFront(rightT)
+
+		if isOnSameZ and (not leftLegZ) == (walkingState ~= 'backward') then
+			referral = not leftLegZ and 
+				rig:getBackReference() or 
+				rig:getFrontReference()
 		end
+	end
+
+	-- update the step that is the closest
+	if not referral then return end
+	
+	if Vector3Utils.getCloserVector3(
+		referral, leftT, rightT) == leftT then
+		leftLeg:updateStep()
+	else
+		rightLeg:updateStep()
 	end
 end
 
---[[
-###########################################################################################
-###########################################################################################
-###########################################################################################
---]]
+Walker.__index = Walker
+Walker.className = 'Rig15/Walker'
 
-Rig15.__index = Rig15
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
 
-MAIN = disguise() :: __object
+type __attachmentMap = map<string, true | (n: node, name: string) -> Attachment>
 
-function Rig15.new(char:Model, arg: __constructorArgs?): object
-	local self: __object = (Class.inherit(CharacterRig.new(char, arg), Rig15))
-	local __arg = self.__constructorArg :: __constructorArgs
-	
-	MAIN = self
-	
-	
-	-- torso
-	self.limbs = TableUtils.push({}, 
-		self:__setLimbFromConstruction'UpperTorso',
-		self:__setLimbFromConstruction'LowerTorso',
-		self.head
-	)
-	
-	self.motor6Ds = TableUtils.push({},
-		self:__setLimbFromConstruction('Head', 'Neck'),
-		self:__setLimbFromConstruction('UpperTorso','Waist'),
-		self:__setLimbFromConstruction('LowerTorso', 'Root')
-	)
+export type node_arg = {
+	attachmentPresence: __attachmentMap;
+	name: string;
+	rig: object;
+}
 
+export type node = {
+	name: string;
+	basePart: BasePart;
+	rig: object;
+	attachments: map<string, Attachment>;
+	attachmentPresence: __attachmentMap;
+	
+	edges: map<string, edge>;
+	
+	repair: (self: node) -> boolean;
+} & inheritance
+
+local Node = {}
+
+function Node.new(arg: node_arg) : node
+	local self: node = Object.new():__inherit(Node)
+	self.name = arg.name
+	self.attachments = {}
+	self.attachmentPresence = arg.attachmentPresence
+	self.rig = arg.rig
+	self.edges = {}
+	
+	self:repair()
+	
+	return self
+end
+
+Node.repair = function(self: node)
+	local rig = self.rig;
+	local character = rig.character
+	local basePart = self.basePart
+	local attachments = self.attachments
+	local result = true
+	
+	if not (self.basePart and self.basePart:IsDescendantOf(game)) then
+		basePart = rig:__getDescendantFromArg(self.name)
+		self.basePart = basePart
+		result = false;
+	end
+	
+	for a, ref in next, self.attachmentPresence do
+		local at = attachments[a]
+		
+		if (at and at:IsDescendantOf(game))then continue;end
+		
+		if isClient or ref == true then
+			at = rig:__getDescendantFromArg(self.name, a)
+		else
+			at = ref(self, a)
+		end
+		
+		attachments[a] = at
+		result = false
+	end
+	
+	return result;
+end
+
+-- presences
+Node.attachmentPresences = {
+	head = valueSet(('FaceCenterAttachment,FaceFrontAttachment,HairAttachment,\z
+		HatAttachment,NeckRigAttachment'):split(','));
+	upperTorso = valueSet(('BodyBackAttachment,BodyFrontAttachment,LeftCollarA\z
+		ttachment,LeftShoulderRigAttachment,NeckAttachment,NeckRigAttachment\z
+		,RightCollarAttachment,RightShoulderRigAttachment,WaistRigAttachment')
+		:split',');
+	lowerTorso = valueSet(('LeftHipRigAttachment,RightHipRigAttachment,RootRig\z
+		Attachment,WaistBackAttachment,WaistCenterAttachment,WaistFrontAttac\z
+		hment,WaistRigAttachment'):split(','));
+	humanoidRootPart = valueSet(('RootAttachment,RootRigAttachment'):split',');
+	
+	leftUpperArm = valueSet(('LeftElbowRigAttachment,LeftShoulderAttachment,Le\z
+		ftShoulderRigAttachment'):split',');
+	leftLowerArm = valueSet(('LeftElbowRigAttachment,LeftWristRigAttachment'):
+		split',');
+	leftHand = valueSet(('LeftWristRigAttachment,LeftGripAttachment'):split',');
+	
+	rightUpperArm = valueSet(('RightElbowRigAttachment,RightShoulderAttachment\z
+		,RightShoulderRigAttachment'):split',');
+	rightLowerArm = valueSet(('RightElbowRigAttachment,RightWristRigAttachment')
+		:split',');
+	rightHand=valueSet(('RightWristRigAttachment,RightGripAttachment'):split',')
+	;
+	
+	leftUpperLeg = valueSet(('LeftHipRigAttachment,LeftKneeRigAttachment'):split
+		',');
+	leftLowerLeg=valueSet(('LeftKneeRigAttachment,LeftAnkleRigAttachment'):split
+		',');
+	leftFoot = valueSet(('LeftAnkleRigAttachment,LeftFootAttachment'):split',');
+	
+	rightUpperLeg = valueSet(('RightHipRigAttachment,RightKneeRigAttachment'):
+		split',');
+	rightLowerLeg = valueSet(('RightKneeRigAttachment,RightAnkleRigAttachment'):
+		split',');
+	rightFoot=valueSet(('RightAnkleRigAttachment,RightFootAttachment'):split',')
+	;
+}
+
+local presence = Node.attachmentPresences
+
+function cloneAttachment90(node: node, name: string)
+	local alt = name:gsub('Constraint', 'Rig')
+	local ref = node.basePart:FindFirstChild(alt)
+	local clone: Attachment = ref:Clone()
+	clone.Orientation = Vector3.zAxis * 90
+	clone.Name = name
+	clone.Parent = ref.Parent
+	return clone
+end
+
+function soleAttachment(node: node, name: string)
+	local at = Instance.new('Attachment')
+	at.Position = Vector3.new(0, node.basePart.Size.Y/-2)
+	at.Name = name;
+	at.Parent = node.basePart
+	return at
+end
+
+Node.__index = Node
+Rig15.Node = Node;
+Node.className = 'Rig15/Node'
+
+presence.head.NeckConstraintAttachment = cloneAttachment90
+
+presence.upperTorso.NeckConstraintAttachment = cloneAttachment90
+presence.upperTorso.WaistConstraintAttachment = cloneAttachment90
+presence.upperTorso.LeftShoulderConstraintAttachment=cloneAttachment90
+presence.upperTorso.RightShoulderConstraintAttachment=cloneAttachment90
+
+presence.lowerTorso.WaistConstraintAttachment = cloneAttachment90
+presence.lowerTorso.LeftHipConstraintAttachment=cloneAttachment90
+presence.lowerTorso.RightHipConstraintAttachment=cloneAttachment90
+
+presence.leftUpperArm.LeftShoulderConstraintAttachment=cloneAttachment90
+presence.leftLowerArm.LeftWristConstraintAttachment=cloneAttachment90
+presence.leftHand.LeftWristConstraintAttachment=cloneAttachment90
+
+presence.rightUpperArm.RightShoulderConstraintAttachment=cloneAttachment90
+presence.rightLowerArm.RightWristConstraintAttachment=cloneAttachment90
+presence.rightHand.RightWristConstraintAttachment=cloneAttachment90
+
+presence.leftUpperLeg.LeftHipConstraintAttachment=cloneAttachment90
+presence.leftLowerLeg.LeftAnkleConstraintAttachment=cloneAttachment90
+presence.leftFoot.LeftAnkleConstraintAttachment=cloneAttachment90
+presence.leftFoot.LeftSole = soleAttachment
+
+presence.rightUpperLeg.RightHipConstraintAttachment=cloneAttachment90
+presence.rightLowerLeg.RightAnkleConstraintAttachment=cloneAttachment90
+presence.rightFoot.RightAnkleConstraintAttachment=cloneAttachment90
+presence.rightFoot.RightSole = soleAttachment
+
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+type __constraintStruct = {
+	properties: {
+		LowerAngle: number?;
+		UpperAngle: number;
+		TwistLowerAngle: number?;
+		TwistUpperAngle: number?;
+	};
+	class: 'HingeConstraint' | 'BallSocketConstraint';
+	attachmentName: string
+}
+
+export type edge_constructor_arg = {
+	name: string;
+	rig: object;
+	endPoints: {node};
+	constraintsReference: map<string, __constraintStruct>;
+}
+
+type edge = {
+	name: string;
+	rig: object;
+	motor6D: Motor6D;
+	constraints: map<string, Constraint>;
+	constraintReference: map<string, __constraintStruct>;
+	endPoints: {node};
+	
+	repair: (self: edge) -> boolean;
+} & inheritance
+
+local Edge = {}
+
+function Edge.new(arg: edge_constructor_arg): edge
+	local self: edge = Object.new():__inherit(Edge)
+	self.name = arg.name;
+	self.rig = arg.rig
+	self.constraints = {}
+	self.constraintReference = arg.constraintsReference
+	self.endPoints = arg.endPoints
+	
+	for i = 1, 2 do
+		local n = self.endPoints[i]
+		n.edges[self.name] = self
+	end
+	
+	self:repair()
+	
+	return self
+end
+
+Edge.repair = function(self: edge)
+	local result = true
+	local node0, node1 = unpack(self.endPoints)
+	local rig = self.rig
+	
+	local motor6d = self.motor6D
+	if not (motor6d and motor6d:IsDescendantOf(game)) then
+		motor6d = rig:__getDescendantFromArg(node1.name, self.name)
+		self.motor6D = motor6d
+		result = false
+	end
+	
+	for a, ref: __constraintStruct in next, self.constraintReference do
+		local con = self.constraints[a]
+		
+		if (con and con:IsDescendantOf(game)) then continue;end
+		
+		if isClient then
+			con = rig:__getDescendantFromArg(node1.name, self.name)
+		else
+			con = Instance.new(ref.class)
+			con.LimitsEnabled = true
+			
+			if ref.class == 'HingeConstraint' then
+				imprint(con, ref.properties)
+			else
+				con.UpperAngle = ref.properties.UpperAngle
+				
+				local low = ref.properties.TwistLowerAngle
+				
+				if low then
+					con.TwistLimitsEnabled = true
+					con.TwistLowerAngle = low
+					con.TwistUpperAngle = ref.properties.TwistUpperAngle or -low
+				end
+			end
+			
+			con.Attachment1 = node1.attachments[ref.attachmentName]
+			con.Attachment0 = node0.attachments[ref.attachmentName]
+			con.Name = a
+			con.Parent = node1.basePart
+		end
+		
+		self.constraints[a] = con
+		
+		result = false
+	end
+	
+	return result
+end
+
+function getBallSocket(atName: string, upperangle: number, tlower:number?, tupper: number?)
+	return {
+		attachmentName = atName;
+		class = 'BallSocketConstraint';
+		properties = {
+			UpperAngle = upperangle;
+			TwistLowerAngle = tlower;
+			TwistUpperAngle = tupper
+		}
+	} :: __constraintStruct
+end
+
+function getHinge(atName: string, lower: number, upper: number)
+	return {
+		attachmentName = atName;
+		class = 'HingeConstraint';
+		properties = {
+			LowerAngle = lower;
+			UpperAngle = upper;
+		}
+	} :: __constraintStruct
+end
+
+local constraintInfo: map<string, map<string, __constraintStruct>> = {
+	neck = {neckConstraint = getBallSocket('NeckConstraintAttachment', 30, -45);};
+	waist = {waistConstraint = getBallSocket('WaistConstraintAttachment', 15, -1)};
+	root = {};
+	
+	leftShoulder = {
+		leftShoulderConstraint=getBallSocket('LeftShoulderRigAttachment',30,-60)};
+	leftElbow = {leftElbowConstraint=getHinge('LeftElbowRigAttachment', 0, 135)};
+	leftWrist={leftWristConstraint=getBallSocket('LeftWristConstraintAttachment',30,-45)};
+	
+	rightShoulder = {
+		rightShoulderConstraint=getBallSocket('RightShoulderRigAttachment',30,-60)};
+	rightElbow = {rightElbowConstraint=getHinge('RightElbowRigAttachment', 0, 135)};
+	rightWrist={rightWristConstraint=getBallSocket('RightWristConstraintAttachment',30,-45)};
+	
+	leftHip = {leftHipConstraint = getBallSocket('LeftHipConstraintAttachment', 45, -45)};
+	leftKnee = {leftKneeConstraint = getHinge('LeftKneeRigAttachment', -135, 0)};
+	leftAnkle={leftAnkleConstraint=getBallSocket('LeftAnkleConstraintAttachment',-135,0)};
+
+	rightHip = {rightHipConstraint = getBallSocket('RightHipConstraintAttachment',45,-45)};
+	rightKnee = {rightKneeConstraint = getHinge('RightKneeRigAttachment', -135, 0)};
+	rightAnkle = {
+		rightAnkleConstraint = getBallSocket('RightAnkleConstraintAttachment',-135,0)};
+}
+
+Edge.constraintInfo = constraintInfo
+Edge.__index = Edge
+Rig15.Edge = Edge;
+Edge.className = 'Rig15/Edge'
+
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+
+export type grip_edge_args = {
+	name: string;
+	rig: object;
+	endPoint: node;
+	constraintsReference: map<string, __constraintStruct>?;
+}
+
+export type gripEdge = { 
+	args: grip_edge_args;
+} & edge 
+
+local GripEdge = {}
+
+function GripEdge.new(args: grip_edge_args)
+	local self: gripEdge = Object.new():__inherit(GripEdge)
+	self.args = args
+	self.rig = args.rig
+	self.name = args.name
+	self.constraints = {}
+	self.constraintReference = args.constraintsReference or {}
+	self.endPoints = {args.endPoint}
+	
+	self.endPoints[1].edges[self.name] = self
+	
+	self:repair()
+	
+	return self
+end
+
+GripEdge.repair = function(self: gripEdge)
+	local result = true
+	
+	if not (self.motor6D and self.motor6D:IsDescendantOf(game)) then
+		local m6d = self.endPoints[1].basePart:FindFirstChild(self.name)
+		
+		if not m6d then
+			m6d = Instance.new('Motor6D')
+			local part0 = self.endPoints[1].basePart
+		
+			m6d.Name = self.name
+			m6d.Part0 = part0
+			m6d.Parent = part0
+		end
+		
+		self.motor6D = m6d
+		result = false
+	end
+	
+	return result
+end
+
+GripEdge.__index = GripEdge
+GripEdge.className = 'Rig15/GripEdge'
+Rig15.gripEdge = GripEdge
+
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+
+function __setGraph(self: object)
+	-- set nodes
+	self.nodes = {
+		self:__setNode('Head'),
+		self:__setNode('UpperTorso'),
+		self:__setNode('LowerTorso'),
+		self:__setNode('HumanoidRootPart')
+	}
+	
+	for _, a in next, sides do
+		for _, b in next, sections do
+			for _, c in next, limbs do
+				push(self.nodes, self:__setNode(`{a}{b}{c}`))
+			end
+		end
+		
+		push(self.nodes,
+			self:__setNode(`{a}Hand`),
+			self:__setNode(`{a}Foot`)
+		)
+	end
+	
+	-- set edges
+	self.edges = {
+		self:__setEdge('Head.Neck'),
+		self:__setEdge('UpperTorso.Waist'),
+		self:__setEdge('LowerTorso.Root')
+	}
+	
+	for _, a in next, sides do
+		push(self.edges, 
+			self:__setEdge(`{a}UpperArm.{a}Shoulder`),
+			self:__setEdge(`{a}LowerArm.{a}Elbow`),
+			self:__setEdge(`{a}Hand.{a}Wrist`),
+			
+			self:__setEdge(`{a}UpperLeg.{a}Hip`),
+			self:__setEdge(`{a}LowerLeg.{a}Knee`),
+			self:__setEdge(`{a}Foot.{a}Ankle`)
+		)
+		
+		local gripNode = disguise(self)[`{camelCaseify(a)}Hand`]
+		
+		local grip = GripEdge.new{
+			name = `{a}Grip`;
+			rig = self;
+			endPoint = gripNode;
+		}
+		
+		disguise(self)[camelCaseify(a)] = grip
+	end
+end
+
+function __getFootIKControl(chainRoot: BasePart, endEffector: Attachment, 
+	name: string, parent: Instance)
+	local footIKC = imprint(Instance.new('IKControl'), {
+		Enabled = false;
+		ChainRoot = chainRoot; -- upperLeg;
+		EndEffector = endEffector; -- sole
+		Name = name
+	})
+	footIKC.Parent = parent
+	return footIKC
+end
+
+function __getFootTarget(a: string, b: string, hrp: BasePart, elevation: number)
+	local footTarget = imprint(Instance.new('Attachment'),{
+		Position = Vector3.new(
+			(a == 'Right' and 1 or -1)  * .8,
+			-elevation
+		);
+		Name = `__{b}FootTarget`
+	})
+	footTarget.Parent = hrp
+	return footTarget
+end
+
+function __getHandIKControl(footIKC: IKControl, upperArm, hand, handName, humanoid)
+	local handIKC = imprint(footIKC:Clone(),{
+		ChainRoot = upperArm;
+		EndEffector = hand;
+		Name = handName;
+	})
+	handIKC:ClearAllChildren()
+	handIKC.Parent = humanoid
+	
+	return handIKC
+end
+
+function __getHandTarget(a, b, hrp)
+	local handTarget = imprint(Instance.new('Attachment'), {
+		Position = Vector3.new((a == 'Right' and 1 or -1) * 1, 0, -1);
+		Orientation = Vector3.new(90);
+		Name = `__{b}HandTarget`
+	})
+	handTarget.Parent = hrp
+	return handTarget
+end
+
+local cache: ResponsiveCache.object<(object), (Model)> = ResponsiveCache.new(disguise)
+
+function Rig15.new(char:Model, arg: constructorArgs?): object
+	-- pre
+	local cached = cache:exists(char);
+	if cached then return cache:get(char) end
+	
+	-- main
+	local self: object = CharacterRig.new(char, arg):__inherit(Rig15)
+	local __self = disguise(self)
+	local __arg = self.__constructorArg :: constructorArgs
+	
+	__setGraph(self)
+	
+	local hrp: node = self.humanoidRootPart
+	hrp.basePart.CanCollide = true
+	
+	self.animator = self:__getDescendantFromArg('Humanoid', 'Animator')
+	
 	--ik control
 	self.ikCollection = IKCollection.new()
 	
 	-- other states
-	local __self = disguise(self)
-	local hrp = self.humanoidRootPart
-	
 	for _, a in next, sides do -- per side
-		for _, b in next, sections do -- sections
-			for _, c in next, limbs do -- limbs
-				table.insert(self.limbs, self:__setLimbFromConstruction(a .. b .. c))
-			end
-		end
-		
-		-- limbs
-		local highFootName = `{a}Foot`
-		
-		TableUtils.push(self.limbs,
-			self:__setLimbFromConstruction(highFootName),
-			self:__setLimbFromConstruction(`{a}Hand`)
-		)
-		
-		-- m6ds
-		TableUtils.push(self.motor6Ds,
-			self:__setLimbFromConstruction(`{a}Foot`,`{a}Ankle`),
-			self:__setLimbFromConstruction(`{a}LowerLeg`,`{a}Knee`),
-			self:__setLimbFromConstruction(`{a}UpperLeg`,`{a}Hip`),
-			self:__setLimbFromConstruction(`{a}Hand`,`{a}Wrist`),
-			self:__setLimbFromConstruction(`{a}LowerArm`,`{a}Elbow`),
-			self:__setLimbFromConstruction(`{a}UpperArm`,`{a}Shoulder`)
-		)
-		
 		-- sole + inv kin + foot target + hand target
-		local b = a:sub(1,1):lower() .. a:sub(2)
+		local highFootName = `{a}Foot`
+		local b = camelCaseify(a)
+
 		local footName = `{b}Foot`
-		local foot = __self[footName]
+		
+		local sole = (__self[footName] :: node).attachments[`{a}Sole`]
+		
 		local soleName = `{b}Sole`
 		local handName = `{b}Hand`
+		
+		local foot = __self[footName]
 		local hand = __self[handName]
 		local lowerLeg = __self[`{b}LowerLeg`]
 		local lowerArm = __self[`{b}LowerArm`]
 		local upperLeg = __self[`{b}UpperLeg`]
 		
-		local sole: Attachment,
-			footIKC,
-			handIKC,
-			footTarget,
-			handTarget = disguise()
+		local footIKC = isClient and 
+			self:__getDescendantFromArg('Humanoid', footName) or
+			__getFootIKControl(upperLeg, sole, footName, self.humanoid)
+		local footTarget = isClient and
+			self:__getDescendantFromArg('HumanoidRootPart', `__{b}FootTarget`) or 
+			__getFootTarget(a, b, hrp.basePart, self:getHRPElevation())
 		
-		if isClient then
-			sole = self:__getDescendantFromArg(highFootName, soleName)
-			footIKC = self:__getDescendantFromArg('Humanoid', footName)
-			handIKC = self:__getDescendantFromArg('Humanoid', handName)
-			footTarget = self:__getDescendantFromArg('HumanoidRootPart', `__{b}FootTarget`)
-			handTarget = self:__getDescendantFromArg('HumanoidRootPart', `__{b}HandTarget`)
-		else
+		local handIKC = isClient and 
+			self:__getDescendantFromArg('Humanoid', handName) or 
+			__getHandIKControl(footIKC, __self[`{b}UpperArm`], hand, handName, 
+				self.humanoid)
+		local handTarget = isClient and
+			self:__getDescendantFromArg('HumanoidRootPart', `__{b}HandTarget`) or 
+			__getHandTarget(a, b, hrp.basePart)
+		
+		
+		if not isClient then
 			-- feet
-			sole = imprint(Instance.new('Attachment'), {
-				Name = soleName;
-				Position = Vector3.new(0,-foot.Size.Y / 2)
-			})
-			sole.Parent = foot
-			
-			footIKC = imprint(Instance.new('IKControl'), {
-				Enabled = false;
-				ChainRoot = upperLeg;
-				EndEffector = sole;
-				Name = footName
-			})
-			footIKC.Parent = self.humanoid
-			
-			footTarget = imprint(Instance.new('Attachment'),{
-				Position = Vector3.new(
-					(a == 'Right' and 1 or -1)  * .8,
-					-hrp.Size.Y/2 - self.humanoid.HipHeight
-				);
-				Name = `__{b}FootTarget`
-			})
-			footTarget.Parent = hrp
 			footIKC.Target = footTarget;
-			
-			local kneeHinge = imprint(Instance.new('HingeConstraint'),{
-				Name = '__knee';
-				Attachment0 = upperLeg[`{a}KneeRigAttachment`];
-				Attachment1 = lowerLeg[`{a}KneeRigAttachment`];
-				LimitsEnabled = true;
-			})
-			kneeHinge.LowerAngle = -135
-			kneeHinge.UpperAngle = 0
-			-- upper angle subjected to limitations
-			kneeHinge.Parent = footIKC
 
-			local ankleAt1: Attachment = imprint(foot[`{a}AnkleRigAttachment`]:Clone(),{
-				Orientation = Vector3.new(0,0,90);
-				Name = 'AnkleAttachment1'
-			})
-			ankleAt1.Parent = foot;
-
-			local ankleAt0: Attachment = imprint(lowerLeg[`{a}AnkleRigAttachment`]:Clone(),{
-				WorldOrientation = ankleAt1.WorldOrientation;
-				Name = 'AnkleAttachment0'
-			})
-			ankleAt0.Parent = lowerLeg;
-
-			local ankleBS = imprint(Instance.new('BallSocketConstraint'), {
-				Name = '__ankle';
-				Attachment1 = ankleAt1;
-				Attachment0 = ankleAt0;
-				LimitsEnabled = true;
-			})
-			imprint(ankleBS, {UpperAngle = 70;TwistLimitsEnabled = true;})
-			imprint(ankleBS, {TwistLowerAngle = -45;TwistUpperAngle = 45})
-			ankleBS.Parent = footIKC
-			
-			local hipAt1: Attachment = imprint(upperLeg[`{a}HipRigAttachment`]:Clone(), {
-				Orientation = Vector3.new(0,0,90);
-				Name = 'HipAttachment1'
-			})
-			hipAt1.Parent = upperLeg;
-
-			local hipAt0:Attachment=imprint(__self.lowerTorso[`{a}HipRigAttachment`]:Clone(),{
-				WorldOrientation = hipAt1.WorldOrientation;
-				Name = 'HipAttachment0'
-			})
-			hipAt0.Parent = self.lowerTorso;
-			
-			local hipBS = imprint(Instance.new('BallSocketConstraint'), {
-				Name = '__hip';
-				LimitsEnabled = true;
-				Attachment1 = hipAt1;
-				Attachment0 = hipAt0;
-			})
-			imprint(hipBS, {TwistLimitsEnabled = true;UpperAngle = 90})
-			imprint(hipBS, {TwistLowerAngle = -45;TwistUpperAngle = 45})
-			hipBS.Parent = footIKC;
-			
 			-- hands
-			handIKC = imprint(footIKC:Clone(),{
-				ChainRoot = __self[`{b}UpperArm`];
-				EndEffector = hand;
-				Name = handName;
-			})
-			handIKC.Parent = self.humanoid
-			
-			handTarget = imprint(Instance.new('Attachment'), {
-				Position = Vector3.new((a == 'Right' and 1 or -1) * 1, 0, -1);
-				Orientation = Vector3.new(90);
-				Name = `__{b}HandTarget`
-			})
-			handTarget.Parent = hrp
 			handIKC.Target = handTarget;
-			
-			local elbowHinge = imprint(Instance.new('HingeConstraint'), {
-				Name = '__elbow';
-				Attachment0 = __self[`{b}UpperArm`][`{a}ElbowRigAttachment`];
-				Attachment1 = lowerArm[`{a}ElbowRigAttachment`];
-				LimitsEnabled = true
-			})
-			elbowHinge.UpperAngle = 135
-			-- upper angle subjected to limitations
-			elbowHinge.Parent = handIKC
-
-			local wristAt1: Attachment = imprint(hand[`{a}WristRigAttachment`]:Clone(), {
-				Orientation = Vector3.new(0,0,90);
-				Name = 'WristAttachment1'
-			})
-			wristAt1.Parent = hand;
-
-			local wristAt0: Attachment = imprint(lowerArm[`{a}WristRigAttachment`]:Clone(),{
-				WorldOrientation = wristAt1.WorldOrientation;
-				Name = 'WristAttachment0'
-			})
-			wristAt0.Parent = lowerArm;
-
-			local wristBS = imprint(Instance.new('BallSocketConstraint'), {
-				Name = '__wrist';
-				Attachment1 = wristAt1;
-				Attachment0 = wristAt0;
-				LimitsEnabled = true
-			})
-			wristBS.UpperAngle = 100
-			wristBS.Parent = handIKC
 		end
 		
-		__self[soleName] = sole
-		self.ikCollection:add(footIKC, handIKC)
 		__self[`{footName}Target`] = footTarget
 		__self[`{handName}Target`] = handTarget
+		
+		self.ikCollection:add(footIKC, handIKC)
 	end
 	
 	self.ikCollection:enable(false)
@@ -521,19 +869,12 @@ function Rig15.new(char:Model, arg: __constructorArgs?): object
 		self.walker = Walker.new(self)
 	end
 	
+	cache.cache[ResponsiveCache.getIndex(char)] = {self}
 	return self
 end
 
-Rig15.__setLimbFromConstruction = function(self:__object, ...: string)
-	local n = select(select('#', ...),...)
-	local obj = self:__getDescendantFromArg(...)
-	disguise(self)[n:sub(1,1):lower() .. n:sub(2)] = obj
-	
-	return obj
-end
-
 getNillessArray = compose(table.clone,TableUtils.clearNils)
-getHumanoidRootPart = function(self:__object,...)return self.humanoidRootPart,...;end
+getHumanoidRootPart=function(self:object,...)return self.humanoidRootPart.basePart,...end
 getPositionAndVelocity=function(p: Part,...)return p.CFrame,p.AssemblyLinearVelocity,...end
 getHrpPNV = compose(getHumanoidRootPart,getPositionAndVelocity)
 
@@ -542,20 +883,73 @@ getWorldVectorFromRel = function(cf:CFrame,_,rel: Vector3, ...)
 end
 
 plusDefaultVect = function(a)
-	return function(self: __object)return self:getWorldPosFromRelative(a)end
+	return function(self: object)return self:getWorldPosFromRelative(a)end
 end
 
-Rig15.getMotor6Ds = function(self: __object)return getNillessArray(self.motor6Ds)end
-Rig15.getLimbs=function(self:__object)return getNillessArray(disguise(self).limbs)end
+repairGraph_1 = function(last, current: node | edge)
+	local op = disguise(current):repair()
+	return last and op
+end
+
 Rig15.getRelativeVelocity = compose(getHrpPNV,Vector3Utils.getRelativeVector)
 Rig15.getWorldPosFromRelative = compose(getHrpPNV,getWorldVectorFromRel)
-
 Rig15.getFrontReference = plusDefaultVect(Vector3.zAxis)
 Rig15.getBackReference = plusDefaultVect(-Vector3.zAxis)
 Rig15.getRightReference = plusDefaultVect(Vector3.xAxis)
 Rig15.getLeftReference = plusDefaultVect(-Vector3.xAxis)
+Rig15.assertDestruction = Destructable.assertDestruction
 
-Rig15.getAngleRelativeToFloor = function(self: __object, epsilon: number)
+Rig15.getLimbs = function(self:object)
+	return Dash.collectArray(self.nodes, function(a0: number, a1: node)
+		return a1.name ~= 'HumanoidRootPart' and a1.basePart or nil
+	end)
+end
+
+Rig15.getMotor6Ds = function(self: object)
+	return Dash.collectArray(self.edges, function(a0: number, a1: edge)
+		return a1.motor6D
+	end)
+end
+
+Rig15.__setNode = function(self: object, n: string)
+	local low = camelCaseify(n)
+	
+	disguise(self)[low] = Node.new{
+		name = n;
+		rig = self;
+		attachmentPresence = Node.attachmentPresences[low];
+	}
+	return disguise(self)[low]
+end
+
+Rig15.__setEdge = function(self: object, breadcrumb: string)
+	local parent, name = unpack(breadcrumb:split('.'))
+	local __self = disguise(self)
+	local low = camelCaseify(name)
+	local motor6D = __self.character[parent][name]
+	local edge = Edge.new({
+		name = name;
+		rig = self;
+		endPoints = disguise{
+			__self[camelCaseify(motor6D.Part0.Name)], 
+			__self[camelCaseify(motor6D.Part1.Name)]
+		};
+		constraintsReference = Edge.constraintInfo[low]
+	})
+	
+	__self[low] = edge
+	
+	return edge
+end
+
+Rig15.destroy = function(self: object)
+	cache:decache(self.character)
+	table.clear(self.nodes)
+	table.clear(self.edges)
+	self.isDestroyed = true;
+end
+
+Rig15.getAngleRelativeToFloor = function(self: object, epsilon: number)
 	local h = self.humanoidRootPart
 	local v = h.AssemblyLinearVelocity * vFloor
 	local c = h.CFrame
@@ -564,16 +958,33 @@ Rig15.getAngleRelativeToFloor = function(self: __object, epsilon: number)
 		v.Magnitude > epsilon
 end
 
-Rig15.isAtFront = function(self: __object, world: Vector3):boolean
+Rig15.isAtFront = function(self: object, world: Vector3):boolean
 	local front = self:getFrontReference()
 
 	return Vector3Utils.getCloserVector3(world, front, self:getBackReference()) == front
 end
 
-Rig15.isAtRight = function(self: __object, world: Vector3):boolean
+Rig15.isAtRight = function(self: object, world: Vector3):boolean
 	local right = self:getRightReference()
 	
 	return Vector3Utils.getCloserVector3(world, right, self:getLeftReference()) == right
 end
+
+Rig15.getHRPElevation = function(self:object)
+	return self.humanoid.HipHeight + self.humanoidRootPart.basePart.Size.Y / 2
+end
+
+Rig15.repairGraph = function(self: object)
+	--print(self)
+	return Dash.reduce(self.nodes, repairGraph_1, true) and 
+		Dash.reduce(self.edges, repairGraph_1, true)
+end
+
+Rig15.getCoreSound = function(self: object, s: string)
+	return self.humanoidRootPart.basePart:FindFirstChild(s)
+end
+
+Rig15.__index = Rig15
+Rig15.className = 'Rig15'
 
 return Rig15
