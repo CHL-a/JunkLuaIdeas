@@ -1,6 +1,6 @@
 -- TYPES
 local Objects = script.Parent
-local module = {}
+local Class = require(Objects.Class)
 
 export type object = {-- typeof(setmetatable({}, module))
 	className: string;
@@ -26,12 +26,16 @@ export type object = {-- typeof(setmetatable({}, module))
 	call: <A..., B...>(self: object, A...) -> B...;
 	toString: <A...>(self: object, A...) -> string;
 }
+
+export type object_inheritance = Class.subclass<object>
+
 type method<self, P..., R...> = (self: self, P...) -> (R...)
 type binaryMethod = method<(any), (any)>
 type relationalMethod = method<(any), (boolean)>
 
 -- MAIN
-local Class = require(Objects.Class)
+local module = {}
+
 local LuaUTypes = require(Objects.LuaUTypes)
 local EventPackage = require(Objects.EventPackage)
 local TableUtils = require(Objects["@CHL/TableUtils"])
@@ -53,6 +57,13 @@ function from.rawStruct(t): object
 	local self: object = disguise(setmetatable(t, module))
 	disguise(self).__supers = {}
 	return self
+end
+
+function from.simple_object(o):object
+	local C = getmetatable(o)
+	rawset(o, '__supers', {})
+	setmetatable(o, module)
+	return (o::object):__inherit(C)
 end
 
 function module.__constructEvent(self: object, ...: string): ()
