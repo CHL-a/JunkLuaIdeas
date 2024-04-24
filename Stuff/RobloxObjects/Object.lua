@@ -59,11 +59,15 @@ function from.rawStruct(t): object
 	return self
 end
 
-function from.simple_object(o):object
+function from.simple_object(o): object
 	local C = getmetatable(o)
 	rawset(o, '__supers', {})
 	setmetatable(o, module)
 	return (o::object):__inherit(C)
+end
+
+function from.class<A>(CLASS): A
+	return module.new():__inherit(CLASS)
 end
 
 function module.__constructEvent(self: object, ...: string): ()
