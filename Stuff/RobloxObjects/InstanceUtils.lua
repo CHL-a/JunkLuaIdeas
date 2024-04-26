@@ -1,17 +1,4 @@
 --// TYPES
-type __module = {
-	create: (<A>(class: string, properties: __properties<A>) -> A) | 
-		(<A>(class: string) -> (props: __properties<A>) -> A);
-	getOrCreate: <A>(
-		parent: Instance, 
-		name: string, 
-		class: __className, 
-		properties: __properties<A>?) -> (A, boolean);
-	findFirstDescendant: <A>(parent: Instance, ...string) -> A?;
-	waitForDescendant: <A>(parent: Instance, ...string) -> A;
-	yieldUntilPresent: <A>(parent: A) -> A;
-}
-export type module = __module
 
 type __className = string;
 export type className = __className
@@ -26,19 +13,19 @@ local TableUtils = require(Objects['@CHL/TableUtils'])
 local Dash = require(Objects["@CHL/DashSingular"])
 
 --// MAIN
-local module: __module = disguise{}
+local module = {} 
 
-function create<A>(className: __className, props: __properties<A>?)
+function module.create<A>(className: __className, props: __properties<A>?)
 	if not props then
 		return function(props2: {[string]: any}?)
 			return TableUtils.imprint(Instance.new(className), disguise(props2), true)
 		end
 	end
 	
-	return create(className)(props)
+	return module.create(className)(props)
 end
 
-function getOrCreate<A>(
+function module.getOrCreate<A>(
 	parent: Instance, 
 	name: string, 
 	class:__className, 
@@ -52,14 +39,14 @@ function getOrCreate<A>(
 		p.Parent = parent;
 		p.Name = name
 
-		result = create(class, p)
+		result = module.create(class, p)
 		isNewlyCreated = true
 	end
 
 	return result, isNewlyCreated
 end
 
-function findFirstDescendant<A>(parent: Instance, ...: string): A?
+function module.findFirstDescendant<A>(parent: Instance, ...: string): A?
 	Dash.forEachArgs(function(a)
 		if not parent then return end;
 		parent = parent:FindFirstChild(a)
@@ -68,7 +55,7 @@ function findFirstDescendant<A>(parent: Instance, ...: string): A?
 	return disguise(parent)
 end
 
-function waitForDescendant<A>(parent: Instance, ...: string): A
+function module.waitForDescendant<A>(parent: Instance, ...: string): A
 	Dash.forEachArgs(function(a)
 		parent = parent:WaitForChild(a)
 	end, ...)
@@ -76,7 +63,7 @@ function waitForDescendant<A>(parent: Instance, ...: string): A
 	return disguise(parent)
 end
 
-function yieldUntilPresent<A>(parent: A): A
+function module.yieldUntilPresent<A>(parent: A): A
 	local p = disguise(parent)
 
 	while not p:IsDescendantOf(game) do p.AncestryChanged:Wait()end
@@ -84,10 +71,27 @@ function yieldUntilPresent<A>(parent: A): A
 	return parent
 end
 
-module.create = create;
-module.getOrCreate = getOrCreate
-module.findFirstDescendant = findFirstDescendant
-module.waitForDescendant = waitForDescendant
-module.yieldUntilPresent = yieldUntilPresent
+--###########################################################################################
+--###########################################################################################
+--###########################################################################################
+
+Weld = {}
+
+function Weld.apply(part0: BasePart, part1: BasePart, c0: CFrame?, c1: CFrame?)
+	local result = Instance.new('Weld')
+	result.Part0 = part0
+	result.Part1 = part1
+	result.C0 = c0
+	result.C1 = c1
+	result.Parent = part0
+
+	return result
+end
+
+--###########################################################################################
+--###########################################################################################
+--###########################################################################################
+
+module.weld = Weld
 
 return module
