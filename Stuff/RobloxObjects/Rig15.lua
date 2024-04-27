@@ -496,7 +496,7 @@ export type edge_constructor_arg = {
 	constraintsReference: map<string, __constraintStruct>;
 }
 
-type edge = {
+export type edge = {
 	name: string;
 	rig: object;
 	motor6D: Motor6D;
