@@ -25,7 +25,11 @@ function module.append_argument(n: number, value: any)
 	return function(...)
 		local args = {...}
 		
-		table.insert(args, value)
+		if not n then
+			table.insert(args, value)
+		else
+			table.insert(args, n, value)
+		end
 		
 		return unpack(args)
 	end
