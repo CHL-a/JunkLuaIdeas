@@ -21,7 +21,7 @@ function module.modify_argument(
 	end
 end
 
-function module.append_argument(value: any, n: number)
+function module.append_argument(value: any, n: number?)
 	return function(...)
 		local args = {...}
 		
