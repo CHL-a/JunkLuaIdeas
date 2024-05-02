@@ -38,7 +38,6 @@ local module = {}
 
 local LuaUTypes = require(Objects.LuaUTypes)
 local EventPackage = require(Objects.EventPackage)
-local TableUtils = require(Objects["@CHL/TableUtils"])
 
 disguise = LuaUTypes.disguise
 unimplemented = disguise(Class.unimplemented)
