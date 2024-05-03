@@ -1,6 +1,7 @@
 local module = {}
 local LuaUTypes = require(script.Parent.LuaUTypes)
-local disguise = LuaUTypes.disguise
+
+disguise = LuaUTypes.disguise
 
 function isEmpty(a: {[any]: any}): boolean return next(a) == nil end
 
@@ -109,6 +110,21 @@ function valueSet<I, V>(t: {[I]: V}): {[V]: true}
 	return result
 end
 
+function keys<I,V>(t: {[I]:V}):{I}
+	local result = {}
+	
+	for i in next, t do
+		table.insert(result, i)
+	end
+	
+	return result
+end
+
+function randomValue<I,V>(t: {[I]: V}): V
+	local ks = keys(t)
+	
+	return t[ks[math.random(1, #ks)]]
+end
 
 module.deepSoftIndex = deepSoftIndex
 module.safeSet = safeSet
@@ -121,5 +137,6 @@ module.isProperArray = isProperArray
 module.isEmpty = isEmpty
 module.deepClone = deepClone
 module.valueSet = valueSet
+module.keys = keys
 
 return module
