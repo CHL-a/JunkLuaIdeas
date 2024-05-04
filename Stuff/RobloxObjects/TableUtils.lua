@@ -138,5 +138,6 @@ module.isEmpty = isEmpty
 module.deepClone = deepClone
 module.valueSet = valueSet
 module.keys = keys
+module.randomValue = randomValue
 
 return module
