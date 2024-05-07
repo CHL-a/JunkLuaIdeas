@@ -1,9 +1,11 @@
 -- TYPES
 local Objects = script.Parent
 local Class = require(Objects.Class)
+local Destructable = require(Objects["@CHL/Destructable"])
 
 export type object = {-- typeof(setmetatable({}, module))
 	className: string;
+	__event_names: {string};
 	
 	getAncestry: (self: object) -> {string};
 	__inherit: <A>(self: object, Class: any) -> A;
@@ -25,7 +27,7 @@ export type object = {-- typeof(setmetatable({}, module))
 	len: (self: object) -> number;
 	call: <A..., B...>(self: object, A...) -> B...;
 	toString: <A...>(self: object, A...) -> string;
-}
+} & Destructable.object
 
 export type object_inheritance = Class.subclass<object>
 
@@ -46,7 +48,7 @@ from = {}
 
 function proxyCall(s: string)
 	return function(self: object, ...)
-		return self[s](self, ...)
+		return disguise(self)[s](self, ...)
 	end
 end
 
@@ -55,6 +57,7 @@ function module.new(): object return from.rawStruct{}end
 function from.rawStruct(t): object
 	local self: object = disguise(setmetatable(t, module))
 	disguise(self).__supers = {}
+	self.__event_names = {}
 	return self
 end
 
@@ -73,8 +76,10 @@ function module.__constructEvent(self: object, ...: string): ()
 	local __s = disguise(self)
 	for i = 1, select('#', ...) do
 		local s = select(i, ...)
-		__s[`__{s}`] = EventPackage.new()
-		__s[s] = __s[`__{s}`].event
+		local t = `__{s}`
+		__s[t] = EventPackage.new()
+		__s[s] = __s[t].event
+		insert(self.__event_names, s)
 	end
 end
 
@@ -110,6 +115,19 @@ function module.getAncestry(self: object)
 	
 	
 	return result
+end
+
+function module.destroy(self: object)
+	if self.isDestroyed then return end
+	
+	self.isDestroyed = true
+	
+	for _, v in next, self.__event_names do
+		disguise(self)[`__{v}`]:destroy()
+		disguise(self)[`__{v}`] = nil
+	end
+	
+	disguise(self).__super = nil
 end
 
 module.from = from
