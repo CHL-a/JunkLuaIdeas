@@ -37,6 +37,8 @@ end
 function connection.disconnect<a...>(self: connection<a...>)
 	if self.__is_disconnected then return;end
 	
+	self.__is_disconnected = true
+	
 	for i, v in next, self.__q do
 		if v.f == self.__f and v.id == self.__id then
 			table.remove(self.__q, i)
@@ -44,7 +46,6 @@ function connection.disconnect<a...>(self: connection<a...>)
 		end
 	end
 	
-	self.__is_disconnected = true
 end
 
 connection.Disconnect = connection.disconnect
