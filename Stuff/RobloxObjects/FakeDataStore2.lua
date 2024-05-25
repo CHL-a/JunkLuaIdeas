@@ -39,6 +39,9 @@ function module.GetTable<A, I, V>(self: object<A>, default: A): A
 	return TableUtils.fill(self:Get(), default)
 end
 
+function module.Save<A>(self: object<A>)
+end
+
 module.__index = module
 module.className = 'FakeDataStore2/object'
 
