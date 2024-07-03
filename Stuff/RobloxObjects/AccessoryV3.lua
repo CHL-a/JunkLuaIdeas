@@ -316,31 +316,6 @@ end
 
 Morph.from = {}
 
-function Morph.from.simple_struct_1(name: string, dict)
-	-- main
-	local result = {}
-
-	for i, v in next, dict do
-		i = type(i) ~= 'table' and {i} or i
-
-		local a = {}
-
-		for _, b in next, v do
-			table.insert(a, AccessoryV2.new(b))
-		end
-
-		table.insert(
-			result, 
-			MorphLimbAccessoryCollection.new(
-				AccessoryV2Collection.new(a), 
-				i
-			)
-		)
-	end
-
-	return Morph.new(result)
-end
-
 function Morph.attachTo(self: morph, parent: Instance)
 	for _, v in next, self.accessories do
 		v:attachTo(parent)
