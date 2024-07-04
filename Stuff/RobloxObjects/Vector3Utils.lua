@@ -67,10 +67,15 @@ function getCloserVector3(x: Vector3, other: Vector3, ...: Vector3): Vector3
 	return result
 end
 
+function clamp(x: Vector3, min: Vector3, max: Vector3): Vector3
+	return Vector3.min(max, Vector3.max(x, min))
+end
+
 module.getRelativeVector = getRelativeVector
 module.getAbsolutePosition = getAbsolutePosition
 module.getSphereCoordinates = getSphereCoordinates
 module.components = components
 module.getCloserVector3 = getCloserVector3
+module.clamp = clamp
 
 return module
