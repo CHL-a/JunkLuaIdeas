@@ -71,6 +71,17 @@ function module.yieldUntilPresent<A>(parent: A): A
 	return parent
 end
 
+function module.getOrClone<T>(parent: Instance, target: T): T
+	local result = parent:FindFirstChild(disguise(target).Name)
+	
+	if not result then
+		result = disguise(target):Clone()
+		result.Parent = parent
+	end
+	
+	return result
+end
+
 --###########################################################################################
 --###########################################################################################
 --###########################################################################################
@@ -81,8 +92,8 @@ function Weld.apply(part0: BasePart, part1: BasePart, c0: CFrame?, c1: CFrame?)
 	local result = Instance.new('Weld')
 	result.Part0 = part0
 	result.Part1 = part1
-	result.C0 = c0
-	result.C1 = c1
+	result.C0 = c0 or part0.CFrame:Inverse() * part1.CFrame
+	result.C1 = c1 or CFrame.identity
 	result.Parent = part0
 
 	return result
