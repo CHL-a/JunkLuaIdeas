@@ -63,7 +63,7 @@ function AccessoryComponent.getReference(self:component, model)
 		and model.PrimaryPart
 		or model:FindFirstChild('Middle')
 
-	assert(result and result:IsA'BasePart')
+	assert(result and result:IsA'BasePart', `No reference: in: {model:GetFullName()}`)
 
 	return result
 end
@@ -240,6 +240,7 @@ function AccessoryV3.attachTo(self: object, parent: Instance)
 	
 	self.__attached:fire(parent)
 	model.Parent = parent
+	model.Name = self.name
 	self.model = model
 	return model
 end
@@ -293,8 +294,9 @@ export type morph = {
 	name: string;
 	
 	attachTo: (self: morph, parent: Instance) -> ();
-	detatch: (self: object) -> ();
-
+	detatch: (self: morph) -> ();
+	clone: (self: morph) -> morph;
+	
 	__attached: package<Instance>;
 	attached: event<Instance>;
 	__destroyed: package<>;
@@ -338,6 +340,16 @@ function Morph.detatch(self: morph)
 	for _, v in next, self.accessories do
 		v:detatch()
 	end
+end
+
+function Morph.clone(self: morph)
+	local arg = self.accessories
+	
+	for i, v in next, arg do
+		arg[i] = v:clone()
+	end
+	
+	return Morph.new(self.name, arg)
 end
 
 Morph.Destroy = Morph.destroy
