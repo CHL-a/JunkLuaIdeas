@@ -45,7 +45,7 @@ function clearNils<A>(t: A): A
 	local i = 1
 	local b = disguise(t)
 
-	while i > #b do
+	while i <= #b do
 		if b[i] == nil then
 			table.remove(b,i)
 			i -= 1
