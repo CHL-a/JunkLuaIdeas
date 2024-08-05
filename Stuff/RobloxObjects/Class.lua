@@ -185,8 +185,15 @@ function getLatestFunction<A>(self: __subclass<A>, i: string)
 	local first = supers[#supers]
 
 	-- first method always returned raw
-	if type(first) == 'table' and first[i] then return first[i]end
-
+	local first_check = first.__index
+	
+	if type(first_check) == 'table' and first_check[i] then
+		return first_check[i]
+	elseif typeof(first_check) == 'function' then
+		local got = first_check(self, i)
+		if got then return got end
+	end
+	
 	-- upper class methods returned psuedo
 	for j = #supers - 1, 1, -1 do
 		local class = supers[j]
@@ -277,6 +284,23 @@ function inherit<A, B>(t: A, methods, is_debugging): B-- __subclass<A>
 	
 	if methods then
 		insert(supers, methods)
+		
+		local meta = getmetatable(_t)
+		local did_clone = meta.__is_clone
+		
+		for _, v in next, overwritableMeta do
+			if not (methods[v] and not meta[v]) then continue; end
+			
+			if not did_clone then
+				meta = clone(meta)
+				did_clone = true
+			end
+
+			meta[v] = other(v)		
+		end
+		
+		meta.__is_clone = did_clone
+		setmetatable(_t, meta)
 	end
 	
 	--[[] ]
