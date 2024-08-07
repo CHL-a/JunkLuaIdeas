@@ -37,4 +37,6 @@ Ladder.className = '@CHL/ReceiptLadder'
 
 local module = {}
 
+module.Ladder = Ladder
+
 return module
