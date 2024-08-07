@@ -8,7 +8,7 @@ export type rung<Params..., Returns...> = {
 export type object<init_params...> = {
 	rungs: {rung<...any,...any>|(...any)->(rung_type, ...any)};
 	call: <Returns...>(init_params...)->(Returns...)
-}
+} & Object.object_inheritance
 
 --########################################################################################
 --########################################################################################
@@ -36,6 +36,7 @@ function Ladder.call<init_params...,Returns...>(self: object<init_params...>, ..
 end
 
 Ladder.__index = Ladder
+Ladder.className = '@CHL/LadderFunction'
 
 local module = {}
 
