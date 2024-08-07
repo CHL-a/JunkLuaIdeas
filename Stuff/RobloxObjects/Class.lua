@@ -334,6 +334,15 @@ function isClass(obj, class)
 	return supers[#supers] == class
 end
 
+function isProperClass(CLASS): (boolean, number?, string?)
+	if not CLASS.__index then return false, 1, 'CLASS.__index is falsy.'
+	elseif type(CLASS.className) ~= 'string' then 
+		return false, 2, 'CLASS.className is not a string.'
+	end
+	
+	return true
+end
+
 function hasClass(obj, class)
 	return isClass(obj, class) or 
 		obj.__supers and not not find(obj.__supers, class)
@@ -346,6 +355,7 @@ function getErrorFunc(s: string) return function() error(s) end end
 --########################################################################################
 
 --Class.getLatestFunction = getLatestFunction
+Class.isProperClass = isProperClass
 Class.inherit = inherit
 Class.isClass = isClass
 Class.hasClass = hasClass
