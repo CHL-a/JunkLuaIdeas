@@ -68,7 +68,7 @@ export type ban_history_page = {
 export type user_info_item = {
 	Id: number;
 	Username: string;
-	DisplayNAme: string;
+	DisplayName: string;
 	HasVerifiedBadge: boolean;
 }
 
