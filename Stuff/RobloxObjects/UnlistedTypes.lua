@@ -42,16 +42,42 @@ export type marketplace_receipt = {
 	PurchaseId: string;
 }
 
+export type marketplace_developer_product = {
+	DeveloperProductId: number;
+	Name: string;
+	PriceInRobux: number;
+	ProductId: number;
+	displayName: string;
+}
+
 --######################################################################################
 --######################################################################################
 --######################################################################################
 
--- pages
+-- non specific
 
+export type ban_history_page = {
+	DisplayReason: string;
+	PrivateReason: string;
+	StartTime: string;
+	Duration: number;
+	Ban: boolean;
+	PlaceId: number;
+}
+
+export type user_info_item = {
+	Id: number;
+	Username: string;
+	DisplayNAme: string;
+	HasVerifiedBadge: boolean;
+}
 
 --######################################################################################
 --######################################################################################
 --######################################################################################
 
+--######################################################################################
+--######################################################################################
+--######################################################################################
 
 return true
