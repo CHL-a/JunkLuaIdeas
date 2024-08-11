@@ -11,10 +11,9 @@ function getRelativeVector(cf: CFrame, world: Vector3): Vector3
 		cf.LookVector * world.Z
 end
 
-type __worldPositionObject = BasePart | Attachment
-export type worldPositionObject = __worldPositionObject
+export type worldPositionObject = BasePart | Attachment
 
-function getAbsolutePosition(v: __worldPositionObject): Vector3
+function getAbsolutePosition(v: worldPositionObject): Vector3
 	if typeof(v) == 'Instance' then
 		if v:IsA('BasePart') then
 			return v.Position
@@ -71,6 +70,17 @@ function clamp(x: Vector3, min: Vector3, max: Vector3): Vector3
 	return Vector3.min(max, Vector3.max(x, min))
 end
 
+function between_magnitude_sum(a: {Vector3}): number 
+	local result = 0
+	
+	for i = 2, #a do
+		result += (a[i-1]-a[i]).Magnitude
+	end
+	
+	return result
+end
+
+module.between_magnitude_sum = between_magnitude_sum;
 module.getRelativeVector = getRelativeVector
 module.getAbsolutePosition = getAbsolutePosition
 module.getSphereCoordinates = getSphereCoordinates
