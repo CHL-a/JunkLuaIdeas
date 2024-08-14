@@ -1,14 +1,17 @@
 module = {}
 
-function isNan(x: number)return x ~= x end
-function isInfinity(x:number)return x+1==x;end
-function oneDLerp(i: number, f:number, a: number)return i + (f - i) * a end
+module.epsilon = 9E-323
 
-function getDigit(n: number, base: number?, i: number)
+function module.isNan(x: number)return x ~= x end
+function module.isInfinity(x:number)return x+1==x;end
+
+module.radix = {}
+
+function module.radix.getDigit(n: number, base: number?, i: number)
 	return (n // ((base or 10) ^ i)) % (base or 10)
 end
 
-function getDigits(n: number, base: number?)
+function module.radix.digit_length(n: number, base: number?)
 	local result = 1
 
 	if n > 0 then
@@ -18,11 +21,42 @@ function getDigits(n: number, base: number?)
 	return result
 end
 
-module.epsilon = 9E-323
-module.isNan = isNan
-module.isInfinity = isInfinity
-module.oneDLerp = oneDLerp
-module.getDigit = getDigit
-module.getDigits = getDigits
+module.factorial = {}
+
+function module.factorial.func(x: number)
+	local r = 1
+	for i = 1, x do r *= i end
+	return r
+end
+
+factorial = module.factorial.func
+
+function module.factorial.combination(n: number, k: number)
+	return factorial(n) / (factorial(k) * factorial(n - k))
+end
+
+module.bezier = {}
+module.bezier.factory_funcs = {}
+
+function module.bezier.factory(n: number) : <U>(t: number, now: {U})-> U
+	if module.bezier.factory_funcs[n] then return module.bezier.factory_funcs[n] end
+	
+	local function func<U>(t: number, now: {U}) : U
+		assert(#now == n + 1)
+		local r = 0
+		for i = 0, n do
+			r += module.factorial.combination(n, t) 
+				* (1 - t) ^ (n - i) 
+				* t ^ i 
+				* now[i + 1]
+		end
+		
+		return r
+	end
+	
+	module.bezier.factory_funcs[n] = func
+	
+	return func
+end
 
 return module
