@@ -38,16 +38,20 @@ end
 module.bezier = {}
 module.bezier.factory_funcs = {}
 
-function module.bezier.factory(n: number) : <U>(t: number, now: {U})-> U
+function module.bezier.factory(n: number) : <U>(t: number, now: {U}, zero: U?)-> U
 	if module.bezier.factory_funcs[n] then return module.bezier.factory_funcs[n] end
 	
-	local function func<U>(t: number, now: {U}) : U
+	local function func<U>(t: number, now: {U}, zero: U?) : U
 		assert(#now == n + 1)
-		local r = 0
+		local r = zero or 0
 		for i = 0, n do
-			r += module.factorial.combination(n, t) 
-				* (1 - t) ^ (n - i) 
-				* t ^ i 
+			local fact = module.factorial.combination(n, i)
+			local a = (1 - t) ^ (n - i)
+			local b = t ^ i
+			
+			r += fact 
+				* a
+				* b
 				* now[i + 1]
 		end
 		
