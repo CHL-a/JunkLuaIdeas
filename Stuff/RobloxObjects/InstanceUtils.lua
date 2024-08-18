@@ -1,21 +1,20 @@
 --// TYPES
-
-type __className = string;
-export type className = __className
-
-type __properties<A> = {[string]: any};
-export type properties<A> = __properties<A>
-
 local Objects = script.Parent
+local Map = require(Objects["@CHL/Map"])
 
-local disguise = require(Objects.LuaUTypes).disguise
+export type className = string
+export type properties<A> = Map.dictionary<any>
+
 local TableUtils = require(Objects['@CHL/TableUtils'])
 local Dash = require(Objects["@CHL/DashSingular"])
 
 --// MAIN
 local module = {} 
 
-function module.create<A>(className: __className, props: __properties<A>?)
+isClient = game:GetService('RunService'):IsClient()
+disguise = require(Objects.LuaUTypes).disguise
+
+function module.create<A>(className: className, props: properties<A>?)
 	if not props then
 		return function(props2: {[string]: any}?)
 			return TableUtils.imprint(Instance.new(className), disguise(props2), true)
@@ -28,8 +27,8 @@ end
 function module.getOrCreate<A>(
 	parent: Instance, 
 	name: string, 
-	class:__className, 
-	properties: __properties<A>?)
+	class: className, 
+	properties: properties<A>?)
 
 	local result = parent:FindFirstChild(name)
 	local isNewlyCreated = false
@@ -80,6 +79,21 @@ function module.getOrClone<T>(parent: Instance, target: T): T
 	end
 	
 	return result
+end
+
+--[[
+	Returns an instance,
+		if runtime is client, parent will wait for child of name,
+		otherwise, it will create from getOrCreate
+--]]
+function module.assumeObject1<T>(parent: Instance, 
+	name: string, 
+	class: className, 
+	properties:  properties<T>?): T
+	
+	return isClient 
+		and disguise(parent):WaitForChild(name, 1/0)
+		or module.getOrCreate(parent, name, class, properties)
 end
 
 --###########################################################################################
