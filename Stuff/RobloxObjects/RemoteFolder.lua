@@ -13,11 +13,9 @@ Proxy = nil;
 
 function module.construct()
 	if Remotes then return end
-
-	Remotes = if IsClient 
-		then ReplicatedStorage:WaitForChild('Remotes', 1/0)
-		else InstanceUtils.getOrCreate(ReplicatedStorage, 'Remotes', 'Folder')
-
+	
+	Remotes = InstanceUtils.assumeObject1(ReplicatedStorage, 'Remotes', 'Folder')
+	
 	Proxy = Proxy or setmetatable({}, {__index = function(_, i: string)
 		return Remotes:FindFirstChild(i)
 	end,})
@@ -45,12 +43,7 @@ function module.new<A>(map: observer_args): observer<A>
 	self.remotes = Proxy
 	
 	for i, v in next, map do
-		if IsClient then
-			Remotes:WaitForChild(i)
-			continue
-		end
-		
-		InstanceUtils.getOrCreate(Remotes, i, v)
+		InstanceUtils.assumeObject1(Remotes, i, v)
 	end
 	
 	return self
