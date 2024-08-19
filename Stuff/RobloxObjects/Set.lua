@@ -94,10 +94,16 @@ end
 --########################################################################################
 --########################################################################################
 
-function array_set.add<A>(set: array_set<A>, item: A): ()
-	if array_set.get_location(set, item) then return end
+function array_set.add<A>(set: array_set<A>, ...: A): ()
+	local n = select('#', ...)
+	
+	for i = 1, n do
+		local v = select(i, ...)
 
-	table.insert(set, item)
+		if array_set.get_location(set, v) then continue end
+
+		table.insert(set, v)
+	end
 end
 
 function array_set.has<A>(set: array_set<A>, item: A): boolean
@@ -108,10 +114,16 @@ function array_set.get_location<A>(set: array_set<A>, item: A): number?
 	return table.find(set, item)
 end
 
-function array_set.safe_remove<A>(set: array_set<A>, item: A): ()
-	local i = array_set.get_location(set, item)
-	
-	if i then
+function array_set.safe_remove<A>(set: array_set<A>, ...: A): ()
+	local n = select('#', ...)
+
+	for i = 1, n do
+		local v = select(i, ...)
+
+		local i = array_set.get_location(set, v)
+
+		if not i then continue end
+		
 		table.remove(set, i)
 	end
 end
