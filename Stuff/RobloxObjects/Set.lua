@@ -95,11 +95,7 @@ end
 --########################################################################################
 
 function array_set.add<A>(set: array_set<A>, item: A): ()
-	for _, v in next, set do
-		if v == item then
-			return
-		end
-	end
+	if array_set.get_location(set, item) then return end
 
 	table.insert(set, item)
 end
