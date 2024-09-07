@@ -11,6 +11,8 @@ local NevermoreSpring = require(Objects.NevermoreSpring)
 local Class = require(Objects.Class)
 local RuntimeUpdater = require(Objects.RuntimeUpdater)
 
+export type clock_function = ()->number;
+
 export type object<A> = {
 	-- is in spring
 	SetTarget: (self: object<A>, A, boolean)->();
@@ -21,9 +23,10 @@ export type object<A> = {
 -- main
 local module = {}
 
+module.from = {}
 disguise = require(Objects.LuaUTypes).disguise
 
-function module.new<A>(p: A, runtimer: (()->number)?): object<A>
+function module.new<A>(p: A, runtimer: clock_function?): object<A>
 	runtimer = runtimer or module.defaults.runtimer
 	
 	local old = NevermoreSpring.new(p, runtimer)
@@ -35,7 +38,21 @@ function module.new<A>(p: A, runtimer: (()->number)?): object<A>
 	return self
 end
 
-function module.update<A>(self: object<A>, dt: number)return self:TimeSkip(dt)end
+function module.from.values<A>(
+	position0: A,
+	position1: A?,
+	velocity: A?,
+	damper: number?,
+	speed: number?,
+	clock: clock_function?): object<A>
+	local self = module.new(position0, clock)
+	
+	if position1 then self.t = position1 end
+	if velocity then self.v = velocity end
+	if damper then self.d = damper end
+	if speed then self.s = speed end
+	return self
+end
 
 function module.__index<A>(self: object<A>, i: string)
 	local _s = disguise(self)
@@ -84,6 +101,7 @@ module.defaults = {}
 module.defaults.runtimer = function(): number return workspace.DistributedGameTime end
 module.Impulse = NevermoreSpring.Impulse
 module.TimeSkip = NevermoreSpring.TimeSkip
+module.update = module.TimeSkip
 module._positionVelocity = NevermoreSpring._positionVelocity
 module.SetTarget = NevermoreSpring.SetTarget
 module.className = '@CHL/Spring'
