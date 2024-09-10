@@ -16,8 +16,8 @@ export type enum_item<A> = typeof(
 	)
 )
 
-export type enum<INTERSECTION, MAP> = {
-	intersection: INTERSECTION;
+export type enum<UNION, MAP> = {
+	union: UNION;
 	enum_items: MAP
 }
 
@@ -38,8 +38,8 @@ function EnumItem.__eq<A>(self: enum_item<A>, other: enum_item<A>)
 	return self.value == other.value and self.number_value == other.number_value
 end
 
-function module.new<I,M>(l: {I}): enum<I,M>
-	local self: enum<I, M> = disguise(setmetatable({}, module))
+function module.new<U,M>(l: {U}): enum<U,M>
+	local self: enum<U, M> = disguise(setmetatable({}, module))
 	
 	self.enum_items = disguise{}
 	
