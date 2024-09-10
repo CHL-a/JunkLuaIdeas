@@ -10,6 +10,28 @@ local Objects = script.Parent
 local Object = require(Objects.Object)
 local Class = require(Objects.Class)
 local RuntimeUpdater = require(Objects.RuntimeUpdater)
+local CNum = require(Objects["@CHL/Enum"])
+local Spring = require(Objects["@CHL/Spring"])
+
+--#######################################################################################
+--#######################################################################################
+--#######################################################################################
+
+type enum_item<U> = CNum.enum_item<U>
+
+local FOVUpdateMode: CNum.enum<
+	'Default' | 'Spring',
+	{
+		Default: enum_item<'Default'>;
+		Spring: enum_item<'Spring'>;
+	}
+	> = CNum.new{'Default', 'Spring'}
+
+export type FOVUpdateMode = typeof(FOVUpdateMode.union)
+
+--#######################################################################################
+--#######################################################################################
+--#######################################################################################
 
 export type mode = Enum.CameraType 
 	| 'AttachOnPart'
@@ -17,24 +39,43 @@ export type mode = Enum.CameraType
 export type object = {
 	camera: Camera;
 	mode: mode;
+	fov_update_mode: enum_item<FOVUpdateMode>;
+	fov_spring: Spring.object<number>;
 	
 	changeMode: (self: object, m: mode) -> ();
-} & Class.subclass<Object.object>
+	changeFOVUpdateMode: (self: object, m: FOVUpdateMode)->();
+} & Object.object_inheritance
   & RuntimeUpdater.updatable
 
 -- MAIN
 local module = {}
 
+disguise = require(Objects.LuaUTypes).disguise
+
 function module.new(c: Camera): object
-	local self: object = Object.new():__inherit(module)
+	local self: object = Object.from.class(module)
 	
 	self.camera = c;
 	self.mode = c.CameraType
+	self.fov_update_mode = FOVUpdateMode.enum_items.Default
+	self.canUpdate = true
 	
 	return self
 end
 
-module.changeMode = function(self: object, m: mode)
+function module.changeFOVUpdateMode(self: object, m: FOVUpdateMode | enum_item<FOVUpdateMode>)
+	if type(m) == 'string' then
+		m = FOVUpdateMode.enum_items[m]
+	end
+	
+	if self.fov_update_mode == m then return; end
+	
+	self.fov_update_mode = disguise(m)
+	self.fov_spring.t = self.camera.FieldOfView
+	self.fov_spring.p = self.camera.FieldOfView
+end
+
+function module.changeMode(self: object, m: mode)
 	local old = self.mode
 	
 	if old == m then return end
@@ -43,26 +84,30 @@ module.changeMode = function(self: object, m: mode)
 	
 	if m == 'AttachOnPart' then
 		self.camera.CameraType = Enum.CameraType.Scriptable
-		self.canUpdate = true
 		return
-	else
-		self.canUpdate = false
 	end
 	
 	self.camera.CameraType = m
 end
 
-module.update = function(self: object, dt: number)
+function module.update(self: object, dt: number)
 	if self.mode == 'AttachOnPart' then
 		local subject = self.camera.CameraSubject
 		
-		if not subject then return end
-		if not subject:IsA('BasePart') then return end
-		
-		self.camera.CFrame = subject.CFrame
+		if (subject and subject:IsA('BasePart')) then 
+			self.camera.CFrame = subject.CFrame
+		end
+	end
+	
+	if self.fov_update_mode == FOVUpdateMode.enum_items.Spring then
+		self.fov_spring:update(dt)
+		self.camera.FieldOfView = self.fov_spring.p
 	end
 end
 
+module.enums = {
+	FOVUpdateMode = FOVUpdateMode;
+}
 module.__index = module
 module.className = '@CHL/Camera'
 
