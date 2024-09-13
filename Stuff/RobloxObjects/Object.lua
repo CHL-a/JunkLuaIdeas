@@ -130,6 +130,13 @@ function module.destroy(self: object)
 	disguise(self).__super = nil
 end
 
+function module.eq(a,e)
+	if a.__is_proxy then
+		a = a.__object
+	end
+	return rawequal(a,e)
+end
+
 module.from = from
 module.className = 'Object'
 module.__index = module
@@ -144,7 +151,6 @@ module.div =      unimplemented
 module.mod =      unimplemented
 module.pow =      unimplemented
 module.idiv =     unimplemented
-module.eq =       unimplemented
 module.lt =       unimplemented
 module.le =       unimplemented
 module.concat =   unimplemented
