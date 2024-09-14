@@ -26,14 +26,16 @@ function module.new(
 end
 
 function module.heuristic_invoke(self: object)
-	local result = self:invoke()
-	if not result then return end
+	local result
+	local dir = (self.to-self.from).Unit
+	self.to = self.from + dir * 100
 	
 	while true do
-		self.from = result.Position
+		result = self:invoke()
+		if not result then return end
+		self.from = result.Position + dir * .01
 		
 		if self.filter_heuristic and not self.filter_heuristic(result) then
-			result = self:invoke()
 			continue
 		end
 		
