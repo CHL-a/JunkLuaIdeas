@@ -8,6 +8,7 @@ export type object = {
 	raycast_params: RaycastParams?;
 
 	invoke: (self: object)->RaycastResult?;
+	get_displacement: (self: object)->Vector3;
 } & Object.object_inheritance
 
 local module = {}
@@ -29,8 +30,11 @@ function module.new(
 end
 
 function module.invoke(self: object)
-	local from = self.from
-	return self.space:Raycast(from,self.to-from,self.raycast_params)
+	return self.space:Raycast(self.from,self:get_displacement(),self.raycast_params)
+end
+
+function module.get_displacement(self: object)
+	return self.to-self.from
 end
 
 function module.destroy(self: object)
