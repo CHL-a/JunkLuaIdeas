@@ -12,6 +12,7 @@ type filter_heuristic = HRay.filter_heuristic
 export type object = {
 	mouse: Mouse;
 	camera: Camera;
+	range: number;
 	
 	get_hit_raycast: (self: object, filter: filter_heuristic?, 
 		params: RaycastParams?)->RaycastResult?;
@@ -29,7 +30,7 @@ function module.new(mouse: Mouse, camera: Camera): object
 	
 	self.mouse = mouse
 	self.camera = camera
-	
+	self.range = 1E3
 	return self
 end
 
@@ -44,7 +45,7 @@ function module.get_hit_raycast(
 		params
 	)
 	
-	h.to = h.from + h:get_displacement().Unit * 1E3
+	h.to = h.from + h:get_displacement().Unit * self.range
 	
 	return h:heuristic_invoke()
 end
