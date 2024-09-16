@@ -27,8 +27,7 @@ end
 
 function module.heuristic_invoke(self: object)
 	local result
-	local dir = (self.to-self.from).Unit
-	self.to = self.from + dir * 100
+	local dir = self:get_displacement().Unit
 	
 	while true do
 		result = self:invoke()
