@@ -25,11 +25,11 @@ export type object = {
 
 local module = {}
 
-function module.new(mouse: Mouse, camera: Camera): object
+function module.new(mouse: Mouse, camera: Camera?): object
 	local self: object = Object.from.class(module)
 	
 	self.mouse = mouse
-	self.camera = camera
+	self.camera = camera or workspace.CurrentCamera
 	self.range = 1E3
 	return self
 end
