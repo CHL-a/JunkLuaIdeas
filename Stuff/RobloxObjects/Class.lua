@@ -350,6 +350,16 @@ end
 
 function getErrorFunc(s: string) return function() error(s) end end
 
+function makeProperClass<A>(CLASS: A, name: string)
+	local c = disguise(CLASS)
+	
+	if not c.__index then
+		c.__index = c
+	end
+	
+	c.className = assert(name)
+end
+
 --########################################################################################
 --########################################################################################
 --########################################################################################
@@ -361,5 +371,6 @@ Class.isClass = isClass
 Class.hasClass = hasClass
 Class.abstractMethod = getErrorFunc'Attempting to use abstract method.'
 Class.unimplemented = getErrorFunc'Attempting to use an unimplemented method.'
+Class.makeProperClass = makeProperClass
 
 return Class
