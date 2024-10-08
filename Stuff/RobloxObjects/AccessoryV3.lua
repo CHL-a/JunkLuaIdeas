@@ -63,7 +63,7 @@ function AccessoryComponent.getReference(self:component, model)
 		and model.PrimaryPart
 		or model:FindFirstChild('Middle')
 
-	assert(result and result:IsA'BasePart', `No reference: in: {model:GetFullName()}`)
+	assert(result and result:IsA'BasePart', `Missing middle of instance: {model:GetFullName()}`)
 
 	return result
 end
@@ -131,8 +131,11 @@ module.accessoryComponent = AccessoryComponent
 local Map = require(Objects["@CHL/Map"])
 local Dash = require(Objects["@CHL/DashSingular"])
 local ComposeOperations = require(Objects["@CHL/ComposeOperations"])
+local Status = require(Objects["@CHL/Status"])
 
 type map<I, V> = Map.simple<I, V>
+type dict<A> = Map.dictionary<A>
+type status = Status.object<Model>
 
 export type componentMap = map<{string}, {component}>
 
@@ -140,6 +143,7 @@ export type object = {
 	components: componentMap;
 	name: string;
 	model: Model;
+	statuses: {status}?;
 
 	attachTo: (self: object, parent: Instance) -> ();
 	detatch: (self: object) -> ();
@@ -150,7 +154,6 @@ export type object = {
 	__destroyed: package<>;
 	destroyed: event<>;
 } & Object.object_inheritance
-  & Destructable.object
 
 AccessoryV3 = {}
 
@@ -163,7 +166,7 @@ compose = Dash.compose
 c_modify = ComposeOperations.modify_argument
 
 function AccessoryV3.componentsArgs.from.dictionary1(
-	d: map<string, {component}>): componentMap
+	d: dict<{component}>): componentMap
 	
 	local keys = Dash.keys(d)
 	
@@ -206,7 +209,7 @@ end
 
 function AccessoryV3.new(
 	name: string, 
-	components_args: map<{string}, {component}>, 
+	components_args: componentMap, 
 	keep_states: boolean?): object
 	local self: object = Object.from.class(AccessoryV3)
 	
@@ -236,11 +239,18 @@ function AccessoryV3.attachTo(self: object, parent: Instance)
 		for _, w in next, v do
 			w:attachTo(part, model)
 		end
+		
 	end
 	
+	if self.statuses then 
+		for _, w in self.statuses do
+			w.host = parent
+			w:toggle(true)
+		end
+	end
+
 	self.__attached:fire(parent)
 	model.Parent = parent
-	model.Name = self.name
 	self.model = model
 	return model
 end
@@ -261,12 +271,42 @@ function AccessoryV3.destroy(self: object)
 		end
 	end
 	
-	self.model:Destroy()
+	if self.statuses then
+		for _, v in self.statuses do
+			v:destroy()
+		end
+	end
+	if self.model then
+		self.model:Destroy()
+	end
 	self.__destroyed:fire()
 end
 
 function AccessoryV3.clone(self: object)
-	return AccessoryV3.new(self.name, self.components)
+	local other = {}
+	
+	for i, v in self.components do
+		local j = table.clone(i)
+		local w = table.clone(v)
+		
+		for x,y in w do
+			w[x] = y:clone()
+		end
+		
+		other[j] = w
+	end
+	
+	local result = AccessoryV3.new(self.name, other)
+	
+	result.statuses = self.statuses
+	
+	if result.statuses then
+		for i, v in result.statuses do
+			result.statuses[i] = v:clone();
+		end
+	end
+	
+	return result
 end
 
 AccessoryV3.from.model1 = compose(
@@ -289,14 +329,14 @@ module.accessory = AccessoryV3
 --#############################################################################################
 --#############################################################################################
 
+--[[
 export type morph = {
 	accessories: {object};
 	name: string;
 	
 	attachTo: (self: morph, parent: Instance) -> ();
-	detatch: (self: morph) -> ();
-	clone: (self: morph) -> morph;
-	
+	detatch: (self: object) -> ();
+
 	__attached: package<Instance>;
 	attached: event<Instance>;
 	__destroyed: package<>;
@@ -317,6 +357,31 @@ function Morph.new(name: string, accessories: {object}): morph
 end
 
 Morph.from = {}
+
+function Morph.from.simple_struct_1(name: string, dict)
+	-- main
+	local result = {}
+
+	for i, v in next, dict do
+		i = type(i) ~= 'table' and {i} or i
+
+		local a = {}
+
+		for _, b in next, v do
+			table.insert(a, AccessoryV2.new(b))
+		end
+
+		table.insert(
+			result, 
+			MorphLimbAccessoryCollection.new(
+				AccessoryV2Collection.new(a), 
+				i
+			)
+		)
+	end
+
+	return Morph.new(result)
+end
 
 function Morph.attachTo(self: morph, parent: Instance)
 	for _, v in next, self.accessories do
@@ -342,20 +407,11 @@ function Morph.detatch(self: morph)
 	end
 end
 
-function Morph.clone(self: morph)
-	local arg = self.accessories
-	
-	for i, v in next, arg do
-		arg[i] = v:clone()
-	end
-	
-	return Morph.new(self.name, arg)
-end
-
 Morph.Destroy = Morph.destroy
 Morph.__index = Morph
 Morph.className = 'AccessoryV3/Morph'
 
 module.morph = Morph
 
+--]]
 return module
