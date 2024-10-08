@@ -40,7 +40,8 @@ type __proxy<A> = {
 	__get_class_i: (self: __proxy<A>) -> number;
 	__get_super_class: (self:__proxy<A>) -> __class?;
 	__get_method: (self:__proxy<A>, name: string) -> __method<A>;
-	__clone: (self:__proxy<A>) -> __proxy<A>
+	__clone: (self:__proxy<A>) -> __proxy<A>;
+	__get_value: <V>(self: __proxy<A>, i: string) -> V;
 }
 
 --// MAIN
@@ -80,7 +81,7 @@ Proxy.__index = function<A>(self: __proxy<A>, i: string)
 	if method then return method end
 
 	-- self.__object regular values
-	local val = rawget(disguise(self.__object),i)
+	local val = self:__get_value(i)
 
 	if val ~= nil then return val end
 end
@@ -108,7 +109,7 @@ Proxy.__get_class_i = function<A>(self: __proxy<A>)
 		)
 	)
 end
-Proxy.__get_super_class = function<A>(self:__proxy<A>)
+function Proxy.__get_super_class<A>(self:__proxy<A>)
 	local i = self:__get_class_i()
 
 	for j = i - 1, 1, -1 do
@@ -119,7 +120,7 @@ Proxy.__get_super_class = function<A>(self:__proxy<A>)
 		end
 	end
 end
-Proxy.__get_method = function<A>(self:__proxy<A>,name: string)
+function Proxy.__get_method<A>(self:__proxy<A>,name: string)
 	local supers = disguise(self.__object).__supers
 	local start = self.__is_super and self:__get_class_i() or #supers
 
@@ -148,8 +149,29 @@ Proxy.__get_method = function<A>(self:__proxy<A>,name: string)
 
 	return disguise(Method).new(clone,m,j,name)
 end
-Proxy.__clone = function<A>(self:__proxy<A>)
+function Proxy.__clone<A>(self:__proxy<A>)
 	return Proxy.new(self.__object, self.__class)
+end
+
+function Proxy.__get_value<A, B>(self: __proxy<A>, name: string): B
+	local v = rawget(disguise(self.__object),name)
+	if v ~= nil then return v;end
+	
+	local supers = disguise(self.__object).__supers
+	local start = self.__is_super and self:__get_class_i() or #supers
+	
+	-- get method
+	
+	for i = start, 1, -1 do
+		local superclass = supers[i]
+		if type(superclass) ~= 'table' then continue end;
+
+		local v = superclass[name]
+		if type(v) == 'function' then continue end
+		
+		return v
+	end
+	return disguise()
 end
 
 Method.__index = Method
@@ -352,7 +374,6 @@ function getErrorFunc(s: string) return function() error(s) end end
 
 function makeProperClass<A>(CLASS: A, name: string)
 	local c = disguise(CLASS)
-	
 	if not c.__index then
 		c.__index = c
 	end
