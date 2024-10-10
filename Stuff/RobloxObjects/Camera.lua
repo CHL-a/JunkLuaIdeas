@@ -47,7 +47,7 @@ export type object = {
 	
 	changeMode: (self: object, m: mode) -> ();
 	changeFOVUpdateMode: (self: object, m: FOVUpdateMode)->();
-	get_target: (self: object, to: Vector3, filter: HRay.filter_heuristic?)->();
+	get_target: (self: object, to: Vector3, filter: HRay.filter_heuristic?)->(RaycastResult?);
 } & Object.object_inheritance
 & RuntimeUpdater.updatable
 
@@ -64,6 +64,7 @@ function module.new(c: Camera): object
 	self.fov_update_mode = FOVUpdateMode.enum_items.Default
 	self.canUpdate = true
 	self.h_ray = HRay.new(Vector3.zero, Vector3.zero)
+	self.fov_spring = Spring.new(70)
 
 	return self
 end
