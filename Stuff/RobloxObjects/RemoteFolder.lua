@@ -13,9 +13,11 @@ Proxy = nil;
 
 function module.construct()
 	if Remotes then return end
-	
-	Remotes = InstanceUtils.assumeObject1(ReplicatedStorage, 'Remotes', 'Folder')
-	
+
+	Remotes = if IsClient 
+		then ReplicatedStorage:WaitForChild('Remotes', 1/0)
+		else InstanceUtils.getOrCreate(ReplicatedStorage, 'Remotes', 'Folder')
+
 	Proxy = Proxy or setmetatable({}, {__index = function(_, i: string)
 		return Remotes:FindFirstChild(i)
 	end,})
@@ -25,12 +27,17 @@ end
 --####################################################################################
 --####################################################################################
 
+local Class = require(Objects.Class)
+
 local Map = require(Objects["@CHL/Map"])
 
 type map<I,V> = Map.simple<I,V>
 
 export type observer<RemoteMap> = {
 	remotes: RemoteMap;
+	get: <A>(self: observer<RemoteMap>, name: string, class: string) -> A;
+	get_event: (self: observer<RemoteMap>, name: string) -> RemoteEvent;
+	get_function: (self: observer<RemoteMap>, name: string) -> RemoteFunction;
 } & Object.object_inheritance
 
 export type observer_args = map<string, 'RemoteEvent' | 'RemoteFunction'>
@@ -43,13 +50,26 @@ function module.new<A>(map: observer_args): observer<A>
 	self.remotes = Proxy
 	
 	for i, v in next, map do
-		InstanceUtils.assumeObject1(Remotes, i, v)
+		self:get(i, v)
 	end
 	
 	return self
 end
 
-module.__index = module
-module.className = '@CHL/RemoteFolder/Observer'
+function module.get<A>(self: observer<A>, name: string, class: string)
+	return if IsClient 
+		then Remotes:WaitForChild(name, 1/0)
+		else InstanceUtils.getOrCreate(Remotes, name, class)
+end
+
+function module.get_event<A>(self: observer<A>, name: string)
+	return self:get(name, 'RemoteEvent')
+end
+
+function module.get_function<A>(self: observer<A>, name: string)
+	return self:get(name, 'RemoteFunction')
+end
+
+Class.makeProperClass(module, '@CHL/RemoteFolder/Observer')
 
 return module
