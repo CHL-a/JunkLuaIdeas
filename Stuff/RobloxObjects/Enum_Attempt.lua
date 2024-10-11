@@ -53,4 +53,22 @@ end
 
 EnumItem.__index = EnumItem;
 
+--##########################################################################################
+--##########################################################################################
+--##########################################################################################
+
+export type default_types<A> = A | number | string
+
+module.default_enum = {}
+
+function module.default_enum.enumify<A>(value: default_types<A>, parent: Enum): A
+	if type(value) == 'number' then
+		value = disguise(parent):FromValue(value)
+	elseif type(value) == 'string' then
+		value = disguise(parent):FromName(value)
+	end
+	
+	return disguise(value)
+end
+
 return module
