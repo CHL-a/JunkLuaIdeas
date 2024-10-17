@@ -194,7 +194,7 @@ function AccessoryV3.componentsArgs.from.model1(model: Model): componentMap
 		local reference = component:getReference()
 		
 		for _, w in next, reference:GetChildren() do
-			if not w:IsA('Weld') then
+			if not (w:IsA('Weld') or w:IsA('Attachment'))then
 				w:Destroy()
 			end
 		end
@@ -241,6 +241,8 @@ function AccessoryV3.attachTo(self: object, parent: Instance)
 		end
 		
 	end
+
+	self.model = model
 	
 	if self.statuses then 
 		for _, w in self.statuses do
@@ -249,9 +251,11 @@ function AccessoryV3.attachTo(self: object, parent: Instance)
 		end
 	end
 
-	self.__attached:fire(parent)
 	model.Parent = parent
-	self.model = model
+	model.Name = self.name
+	
+	self.__attached:fire(parent)
+	
 	return model
 end
 
