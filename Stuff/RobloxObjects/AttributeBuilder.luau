@@ -25,6 +25,11 @@ module.value_types = {
 
 function module.from.buffer(b: buffer)
 	local result = {}
+	
+	if buffer.len(b) == 0 then
+		return result
+	end
+	
 	local len = buffer.readu32(b, 0)
 
 	local j = 4
