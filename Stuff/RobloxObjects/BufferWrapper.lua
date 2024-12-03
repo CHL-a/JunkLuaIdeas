@@ -43,12 +43,25 @@ export type object = {
 local LuaUTypes = require(Objects.LuaUTypes)
 local Dash = require(Objects["@CHL/DashSingular"])
 local Radix = require(Objects["@CHL/Radix"])
+local Iterator = require(Objects["@CHL/Iterator"])
 
 module = {}
 from = {}
+raw_constructors = {}
 disguise = LuaUTypes.disguise
 compose = Dash.compose
 hexUpper = Radix.charRadix.hexdecUpper
+
+function raw_constructors.bytes(...: number): buffer
+	local n = select('#', ...)
+	local b = buffer.create(n)
+	for i = 1, n do
+		local byte = select(i, ...)
+		buffer.writeu8(b, i - 1, byte)
+	end
+	
+	return b
+end
 
 function from.string(s: string): object return module.new(buffer.fromstring(s))end
 function from.size(n: number): object return module.new(buffer.create(n))end
@@ -62,20 +75,20 @@ end
 
 function enqueReferral(self: object, ...)return self.referral, ... end
 
-module.swapBytes = function(self: object, i: number, j: number)
+function module.swapBytes(self: object, i: number, j: number)
 	local t = self:readu8(i)
 	self:writeu8(i, self:readu8(j))
 	self:writeu8(j, t)
 end
 
-module.writeBytes = function(self: object, offset: number, ...: number)
+function module.writeBytes(self: object, offset: number, ...: number)
 	for i = 1, select('#', ...) do
 		local b = select(i, ...)
 		self:writeu8(offset + i - 1, b)
 	end
 end
 
-module.getBytes = function(self: object, offset: number, len: number)
+function module.getBytes(self: object, offset: number, len: number)
 	len = len or 1
 
 	local result = {}
@@ -87,7 +100,7 @@ module.getBytes = function(self: object, offset: number, len: number)
 	return result
 end
 
-module.toString = function(self: object, sType: number?)
+function module.toString(self: object, sType: number?)
 	if not sType then return buffer.tostring(self.referral) end
 
 	if sType == 1 then
@@ -101,7 +114,7 @@ module.toString = function(self: object, sType: number?)
 	else error(`Bad sType: {sType}`)end
 end
 
-module.copy = function(self: object, fromOffset: number, to: buffer | object, 
+function module.copy(self: object, fromOffset: number, to: buffer | object, 
 	toOffset: number?, count: number?)
 	if typeof(to) == 'buffer' then
 		return buffer.copy(self.referral, fromOffset, to, toOffset, count)
@@ -138,6 +151,7 @@ module.readDouble = module.readf64
 module.writeDouble = module.writef64
 module.from = from
 module.__index = module
+module.raw_constructors = raw_constructors
 
 --#####################################################################################
 --#####################################################################################
@@ -190,5 +204,37 @@ Temp.readDouble = Temp.readf64
 --]]
 
 module.getTemp = getTemp
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+export type iterator = {
+	referral: buffer;
+	current: number;
+} & Class.subclass<Iterator.object<number>>
+
+BufferIterator = {}
+
+function BufferIterator.new(_buffer: buffer, _current: number?)
+	local self: iterator = Class.inherit(Iterator.new(), BufferIterator)
+	self.referral = _buffer
+	self.current = _current or 0
+	
+	return self
+end
+
+function BufferIterator.canProceed(self: iterator)
+	return buffer.len(self.referral) > self.current
+end
+
+function BufferIterator.proceed(self: iterator)
+	local byte = buffer.readu8(self.referral, self.current)
+	self.current += 1
+	return byte
+end
+
+Class.makeProperClass(BufferIterator, '@CHL/BufferWrapper/Iterator')
+module.BufferIterator = BufferIterator
 
 return module
