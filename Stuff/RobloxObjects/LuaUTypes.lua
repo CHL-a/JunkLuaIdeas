@@ -1,9 +1,8 @@
 --// metatable indices
-type __metatableIndices = '__index' |'__newindex' | '__call' | '__concat' | 
-	'__unm' | '__add' | '__sub' | '__mul' | '__div' | '__idiv' | '__mod' | 
-	'__pow' | '__tostring' | '__metatable' | '__eq' | '__lt' | '__le' | 
-	'__mode' | '__gc' | '__len' | '__iter'
-export type metatableIndices = __metatableIndices
+export type metatableIndices = '__index' |'__newindex' | '__call' | '__concat' | 
+'__unm' | '__add' | '__sub' | '__mul' | '__div' | '__idiv' | '__mod' | 
+'__pow' | '__tostring' | '__metatable' | '__eq' | '__lt' | '__le' | 
+'__mode' | '__gc' | '__len' | '__iter'
 
 local module = {}
 
@@ -19,22 +18,22 @@ function empty()end
 type __binaryOp<__self> = (<__in, __out>(__self, __in) -> __out)?;
 type __logicalOp<__self> = (<__in>(__self, __in) -> any?)?
 
-type __metatable<__self> = typeof({
+export type metatable<__self> = typeof({
 	__index = disguise() :: (
-	{[any]: any} | -- needs work
-		<I,V>(__self, I) -> V
+		{[any]: any} | -- needs work
+			<I,V>(__self, I) -> V
 	)?;
 	__newindex = disguise() :: (<I, V>(__self, I, V) -> nil)?;
 	__call = disguise() :: (<__in..., __out...>(__self, __in...) -> __out...)?;
 	__concat = disguise() :: __binaryOp<__self>;
 	__unm = disguise() :: (<A>(__self) -> A)?;
-	
+
 	__add = disguise() :: __binaryOp<__self>;
 	__sub = disguise() :: __binaryOp<__self>;
 	__mul = disguise() :: __binaryOp<__self>;
 	__div = disguise() :: __binaryOp<__self>;
 	__idiv = disguise() :: __binaryOp<__self>;
-	
+
 	__mod = disguise() :: __binaryOp<__self>;
 	__pow = disguise() :: __binaryOp<__self>;
 	__tostring = disguise() :: ((__self) -> string)?;
@@ -49,7 +48,6 @@ type __metatable<__self> = typeof({
 }
 -- :: {[__metatableIndices]: any}
 )
-export type metatable<__self> = __metatable<__self>
 
 --// theoretical object
 --// !!! subjected to change because this way is terrible because intersection 
