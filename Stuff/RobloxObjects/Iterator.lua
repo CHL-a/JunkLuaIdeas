@@ -16,7 +16,7 @@ local module = {}
 disguise = require(Objects.LuaUTypes).disguise
 
 function module.new<A...>(): object<A...>
-	return Object.new():__inherit(module)
+	return Object.from.class(module)
 		--disguise(setmetatable({}, module)) :: __object<A...>
 end
 
@@ -28,7 +28,6 @@ end
 
 module.proceed = Class.abstractMethod
 module.canProceed = Class.abstractMethod
-module.__index = module
-module.className = '@CHL/Iterator'
+Class.makeProperClass(module, '@CHL/Iterator')
 
 return module
