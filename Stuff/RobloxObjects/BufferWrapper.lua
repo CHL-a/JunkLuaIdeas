@@ -51,6 +51,8 @@ raw_constructors = {}
 disguise = LuaUTypes.disguise
 compose = Dash.compose
 hexUpper = Radix.charRadix.hexdecUpper
+readu8 = buffer.readu8
+len = buffer.len
 
 function raw_constructors.bytes(...: number): buffer
 	local n = select('#', ...)
@@ -124,7 +126,7 @@ function module.copy(self: object, fromOffset: number, to: buffer | object,
 end
 
 module.readi8 = compose(enqueReferral, buffer.readi8)
-module.readu8 = compose(enqueReferral, buffer.readu8)
+module.readu8 = compose(enqueReferral, readu8)
 module.readi16 = compose(enqueReferral, buffer.readi16)
 module.readu16 = compose(enqueReferral, buffer.readu16)
 module.readi32 = compose(enqueReferral, buffer.readi32)
@@ -142,7 +144,7 @@ module.writef64 = compose(enqueReferral, buffer.writef64)
 module.readstring = compose(enqueReferral, buffer.readstring)
 module.writestring = compose(enqueReferral, buffer.writestring)
 module.fill = compose(enqueReferral, buffer.fill)
-module.len = compose(enqueReferral, buffer.len)
+module.len = compose(enqueReferral, len)
 module.__tostring = module.toString
 module.__len = module.len
 module.readFloat = module.readf32
@@ -216,6 +218,16 @@ export type iterator = {
 
 BufferIterator = {}
 
+function BufferIterator.init_simple(b: buffer)
+	return BufferIterator.simple, b, -1
+end
+
+function BufferIterator.simple(b: buffer, current: number)
+	current += 1
+	if current >= len(b)then return;end
+	return current, readu8(b, current)
+end
+
 function BufferIterator.new(_buffer: buffer, _current: number?)
 	local self: iterator = Class.inherit(Iterator.new(), BufferIterator)
 	self.referral = _buffer
@@ -225,11 +237,11 @@ function BufferIterator.new(_buffer: buffer, _current: number?)
 end
 
 function BufferIterator.canProceed(self: iterator)
-	return buffer.len(self.referral) > self.current
+	return len(self.referral) > self.current
 end
 
 function BufferIterator.proceed(self: iterator)
-	local byte = buffer.readu8(self.referral, self.current)
+	local byte = readu8(self.referral, self.current)
 	self.current += 1
 	return byte
 end
