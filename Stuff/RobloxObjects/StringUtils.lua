@@ -1,18 +1,14 @@
 --// TYPES
-type __multilineType = 'single' | 'multiline'
-export type multilineType = __multilineType
+export type multilineType = 'single' | 'multiline'
+export type singleLineTokens = '"' | "'"
 
-type __singleLineTokens = '"' | "'"
-export type singleLineTokens = __singleLineTokens
-
-type __luaSArgs = {
-	multilineType: __multilineType;
-	token: __singleLineTokens?;
+export type luaSArgs = {
+	multilineType: multilineType;
+	token: singleLineTokens?;
 	equalSigns: number?;
 	prefix: string?;
 	suffix: string?;
 }
-export type luaSArgs = __luaSArgs
 
 --// MAIN
 local module = {}
@@ -50,7 +46,7 @@ function compareStrings(strA: string, strB: string): boolean
 	return result
 end
 
-function luaStringTokenize(str: string, args: __luaSArgs): {string}
+function luaStringTokenize(str: string, args: luaSArgs): {string}
 	local result = str:split''
 	insert(result, 1, args.prefix)
 	
@@ -85,9 +81,9 @@ function luaStringTokenize(str: string, args: __luaSArgs): {string}
 	return result
 end
 
-function luaStringify(str: string, args: __luaSArgs?)
+function luaStringify(str: string, args: luaSArgs?)
 	-- pre
-	local a = disguise(args or {})::__luaSArgs
+	local a = disguise(args or {})::luaSArgs
 	a.multilineType = a.multilineType or 'single'
 	a.equalSigns = a.equalSigns or 0
 	a.token = a.token or '\''
@@ -105,7 +101,7 @@ function luaStringify(str: string, args: __luaSArgs?)
 	return table.concat(luaStringTokenize(str, a))
 end
 
-function sugarfy(i: string, args: __luaSArgs?)
+function sugarfy(i: string, args: luaSArgs?)
 	if isSugarIndex(i) then return i;end
 	if typeof(i) == 'string' then
 		i = luaStringify(i, args)
@@ -113,6 +109,19 @@ function sugarfy(i: string, args: __luaSArgs?)
 	return `[{i}]`
 end
 
+Iterator = {}
+
+function Iterator.init_simple(s: string)
+	return Iterator.simple, s, 0
+end
+
+function Iterator.simple(s: string, i: number)
+	i += 1
+	if i > #s then return;end
+	return i, s:sub(i,i)
+end
+
+module.Iterator = Iterator
 module.camelCaseify = camelCaseify
 module.compareStrings = compareStrings
 module.luaStringify = luaStringify
