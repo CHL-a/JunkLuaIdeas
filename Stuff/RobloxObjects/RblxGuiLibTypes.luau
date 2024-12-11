@@ -30,13 +30,13 @@ export type GUIObject_module<A> = module_base<GUIObject<A>, A>;
 	Denotes button from simple click
 --]]
 export type Button_args = {
-	-- Textbox or string Text
+	Textbox: Textbox_rgl?;
+	Text: string?;
 	Disabled: boolean;
 	ButtonSize: legitimate_scale_args;
 }
 export type Button = {
-	-- TextboxTable: nil;
-	-- textbox mod
+	TextboxTable: Textbox_rgl;
 	ButtonFrame: Frame;
 	Button: ImageButton;
 	ButtonBackground: ImageLabel;
@@ -102,7 +102,11 @@ export type InputField_args = {
 	InputSize: legitimate_scale_args;
 	ClearBackground: boolean;
 	NoDropdown: boolean?;
-	DisableEditing: boolean?
+	DisableEditing: boolean?;
+	Placeholder: string;
+	Value: any;
+	CurrentItem: any;
+	Items: {any};
 }
 export type InputField = {
 	MouseInDropdownButton: boolean;
@@ -203,10 +207,11 @@ export type Labeled_args_Object_entry = {
 	Size: legitimate_scale_args?;
 }
 export type Labeled_args = {
-	-- Textbox Text
+	Textbox: Textbox_rgl?;
+	Text: string?;
 	LabelSize: legitimate_scale_args?;
 	Objects: {Labeled_args_Object_entry};
-	Object: {Labeled_args_Object_entry};
+	Object: Labeled_args_Object_entry;
 	Disabled: boolean;
 }
 export type Labeled = {
@@ -605,7 +610,7 @@ export type GUIUtil = {
 
 export type library = {
 	Button: Button_module;
-	CheckBox: CheckBox_module;
+	Checkbox: CheckBox_module;
 	ColorInput: ColorInput_module;
 	GUIObject: GUIObject_module<any>;
 	InputField: InputField_module;
