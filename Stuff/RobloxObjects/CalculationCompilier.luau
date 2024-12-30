@@ -117,69 +117,6 @@ module.lexer = lexer
 
 ast = {}
 
---[[
-
-function parseTokens(tokens):
-	# Initialize a cursor to keep track of the current token
-	cursor = 0
-
-	# Define a helper to get the current token
-	function currentToken():
-		if cursor < length(tokens):
-			return tokens[cursor]
-		return null  # End of token stream
-
-	# Define a helper to consume the current token and advance the cursor
-	function consume():
-		nonlocal cursor
-		token = currentToken()
-		cursor += 1
-		return token
-
-	# Define parsing functions for grammar rules
-	function parseExpression():
-		# Example: parse binary expressions or literals
-		node = parseTerm()  # Parse a term (e.g., a number or variable)
-
-		while currentToken() in ["+", "-"]:  # Handle binary operators
-			operator = consume()
-			right = parseTerm()
-			node = {
-				"type": "BinaryExpression",
-				"operator": operator,
-				"left": node,
-				"right": right
-			}
-
-	return node
-
-	function parseTerm():
-		# Example: parse a number, variable, or parenthesis
-		if currentToken().type == "NUMBER":
-		return {
-			"type": "Literal",
-			"value": consume().value
-		}
-		elif currentToken().type == "IDENTIFIER":
-			return {
-				"type": "Identifier",
-				"name": consume().value
-			}
-		elif currentToken() == "(":
-			consume()  # Consume '('
-			node = parseExpression()  # Parse the expression inside parentheses
-			if currentToken() != ")":
-				error("Expected closing parenthesis")
-			consume()  # Consume ')'
-			return node
-		else:
-			error("Unexpected token: " + currentToken())
-
-	# Main parsing loop
-	return parseExpression()
-
-]]
-
 export type ast_node = {
 	operands: {ast_node}
 } & token
