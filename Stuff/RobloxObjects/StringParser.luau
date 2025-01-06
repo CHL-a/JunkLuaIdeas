@@ -14,6 +14,8 @@ export type object = {
 	peek_until: (self: object, other: string, plain: boolean?)->(string, string);
 	pop: (self: object, len: number?, offset: number?)->string;
 	c_pop: (self: object, other: string, plain: boolean?) -> boolean;
+	pop_until: (self: object, other: string, plain: boolean?)->(string, string);
+	get_snapshot: (self: object)->string;
 } & Object.object_inheritance
 
 local module = {}
@@ -71,7 +73,6 @@ function module.peek_until(self: object, other: string, plain: boolean?)
 	return gap, other
 end
 
-
 function module.c_pop(self: object, other: string, plain: boolean?)
 	local gap, other = self:peek_until(other, plain)
 	local result = #gap == 0 and #other > 0
@@ -83,14 +84,49 @@ function module.c_pop(self: object, other: string, plain: boolean?)
 	return result
 end
 
+function module.pop_until(self: object, other: string, plain: boolean?)
+	local gap, other = self:peek_until(other, plain)
+	
+	self:proceed(#gap + #other)
+	
+	return gap, other
+end
+
+function module.get_snapshot(self: object)
+	local line_break_i = self.i - 1
+	
+	while line_break_i > 0 and self.referral:sub(line_break_i, line_break_i) ~= '\n' do
+		line_break_i -= 1
+	end
+	
+	local line_break_j = self.referral:find('\n', self.i) or #self.referral + 1
+	local line1 = `{self.referral:sub(line_break_i + 1, line_break_j - 1)} \n`
+	local space_count = self.i - line_break_i - 1
+	local line2 = `{(' '):rep(space_count)}^`
+	local result = line1 .. line2
+	
+	return result
+end
+
 function module.test()
-	local a = module.new('ABC')
+	
+	local a = module.new('ABC\ndef')
 	assert(a:peek() == 'A')
 	assert(a:pop() == 'A')
 	assert(a:peek() == 'B')
 	
-	assert(a:check_hop('B',true))
+	--assert(a:check_hop('B',true))
+	
 	print(a)
+	print('\n'.. a:get_snapshot())
+	
+	a:proceed(2)
+	
+	print('\n'.. a:get_snapshot())
+
+	a:proceed(1)
+	
+	print('\n'.. a:get_snapshot())
 end
 
 Class.makeProperClass(module, '@CHL/StringParser')
