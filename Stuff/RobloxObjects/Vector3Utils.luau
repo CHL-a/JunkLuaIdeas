@@ -2,7 +2,9 @@ local module = {}
 
 local Objects = script.Parent
 local Dash = require(Objects["@CHL/DashSingular"])
+local Math = require(Objects["@CHL/Math"])
 
+round = Math.round
 pi = math.pi
 
 function getRelativeVector(cf: CFrame, world: Vector3): Vector3
@@ -78,6 +80,11 @@ function between_magnitude_sum(a: {Vector3}): number
 	end
 	
 	return result
+end
+
+function to_string(a: Vector3, digits: number?): string
+	local d = digits or 3
+	return `{round(a.X,d)},{round(a.Y,d)},{round(a.Z,d)}`
 end
 
 module.between_magnitude_sum = between_magnitude_sum;
