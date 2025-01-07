@@ -2,6 +2,11 @@ module = {}
 
 module.epsilon = 9E-323
 
+function module.round(x: number, offset: number?)
+	local o = offset or 0
+	return math.round(x * 10 ^ o) / 10 ^ o
+end
+
 function module.isNan(x: number)return x ~= x end
 function module.isInfinity(x:number)return x+1==x;end
 
