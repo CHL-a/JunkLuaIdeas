@@ -87,6 +87,7 @@ function to_string(a: Vector3, digits: number?): string
 	return `{round(a.X,d)},{round(a.Y,d)},{round(a.Z,d)}`
 end
 
+module.to_string = to_string
 module.between_magnitude_sum = between_magnitude_sum;
 module.getRelativeVector = getRelativeVector
 module.getAbsolutePosition = getAbsolutePosition
