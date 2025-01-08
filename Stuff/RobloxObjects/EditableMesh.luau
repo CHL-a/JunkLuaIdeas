@@ -37,11 +37,13 @@ AssetService = game:GetService('AssetService')
 from = {}
 compose = Dash.compose
 
+-- returns an EditableMesh based on the mesh content of the meshpart
 function from.meshpart(m: MeshPart): editableMesh
 	return from.content(m.MeshContent)
 end
 
-function from.content(c:Content): editableMesh 
+function from.content(c:Content): editableMesh
+	assert(c.SourceType ~= Enum.ContentSourceType.None, 'content is nil.')
 	return AssetService:CreateEditableMeshAsync(c)
 end
 
@@ -63,7 +65,8 @@ local Vector2Utils = require(Objects["@CHL/Vector2Utils"])
 
 insert = table.insert
 
-function to.OBJ(e: editableMesh)
+-- returns OBJ object
+function to.OBJ(e: editableMesh): OBJ.object
 	local result = OBJ.obj.new()
 	
 	local faces = e:GetFaces()
@@ -144,10 +147,15 @@ function to.OBJ(e: editableMesh)
 	return result
 end
 
---##########################################################################################
---##########################################################################################
---##########################################################################################
+-- returns meshpart from editablemesh
+function to.meshpart(e: editableMesh)
+	return AssetService:CreateMeshPartAsync(Content.fromObject(e))
+end
 
 module.to = to
+
+--##########################################################################################
+--##########################################################################################
+--##########################################################################################
 
 return module
