@@ -30,12 +30,69 @@ local module = {}
 --##########################################################################################
 --##########################################################################################
 
+export type to_string_args = {
+	vertices: boolean?;
+	uvs: boolean?;
+	faces: boolean?;
+}
+
+function module.to_string(e: editableMesh, args: to_string_args): string
+	local lines = {`EditableMesh 0x{tostring(e)}`}
+	
+	if args.vertices then
+		insert(lines, 'Vertices:')
+		for _, v in e:GetVertices() do
+			insert(lines, `{tostring(v)} | {e:GetPosition(v)}`)
+		end
+	end
+
+	if args.uvs then
+		insert(lines, 'UVs:')
+		for _, v in e:GetUVs() do
+			insert(lines, `{tostring(v)} | {e:GetUV(v)}`)
+		end
+	end
+	
+	if args.faces then
+		insert(lines, 'Faces:')
+		for _, f in e:GetFaces() do
+			local s = tostring(f)
+			insert(lines, `{s} |`)
+			
+			local spaces = (' '):rep(#s)
+			if args.vertices then
+				insert(lines, `{spaces} | Vertices`)
+				
+				for _, v in e:GetFaceVertices(f) do
+					insert(lines, `{spaces} | > {v} | {e:GetPosition(v)}`)
+				end
+			end
+			
+			if args.uvs then
+				insert(lines, `{spaces} | UVs`)
+
+				for _, v in e:GetFaceUVs(f) do
+					insert(lines, `{spaces} | > {v} | {e:GetUV(v)}`)
+				end
+			end
+		end
+	end
+	
+	return table.concat(lines, '\n')
+end
+
+--##########################################################################################
+--##########################################################################################
+--##########################################################################################
+
 local Objects = script.Parent
 local Dash = require(Objects["@CHL/DashSingular"])
+local OBJ = require(Objects["@CHL/OBJ"])
 
 AssetService = game:GetService('AssetService')
 from = {}
 compose = Dash.compose
+map = Dash.map
 
 -- returns an EditableMesh based on the mesh content of the meshpart
 function from.meshpart(m: MeshPart): editableMesh
@@ -49,6 +106,30 @@ end
 
 function from.blank(): editableMesh return AssetService:CreateEditableMesh()end
 
+-- possibly buggy because points are often recreated for faces, o:compress() is suggested
+function from.obj(o: OBJ.object): editableMesh
+	local result = from.blank()
+	
+	local vertices=map(o.vertices,function(a0)return result:AddVertex(a0) end)
+	local uvs = map(o.textures, function(a0)return result:AddUV(a0)end)
+	
+	for _, f in o.faces do
+		local vertex_ids = map(
+			f.vertices, 
+			function(a0: number, a1: number)return result:FindClosestVertex(o.vertices[a0])end
+		)
+		local face_id = result:AddTriangle(unpack(vertex_ids))
+		local normal_id = result:AddNormal();
+		result:SetFaceNormals(face_id, table.create(3, normal_id))
+		
+		if f.textures then
+			result:SetFaceUVs(face_id, map(f.textures, function(a0)return uvs[a0]end))
+		end
+	end
+	
+	return result
+end
+
 from.asset_string = compose(Content.fromUri, from.content):: (string)->editableMesh
 
 module.from = from
@@ -59,7 +140,6 @@ module.from = from
 
 to = {}
 
-local OBJ = require(Objects["@CHL/OBJ"])
 local Vector3Utils = require(Objects["@CHL/Vector3Utils"])
 local Vector2Utils = require(Objects["@CHL/Vector2Utils"])
 
