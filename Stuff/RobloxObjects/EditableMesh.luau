@@ -30,26 +30,35 @@ local module = {}
 --##########################################################################################
 --##########################################################################################
 
+local Objects = script.Parent
+local Vector3Utils = require(Objects["@CHL/Vector3Utils"])
+local Vector2Utils = require(Objects["@CHL/Vector2Utils"])
+
 export type to_string_args = {
 	vertices: boolean?;
 	uvs: boolean?;
 	faces: boolean?;
 }
 
+insert = table.insert
+v3_to_string = Vector3Utils.to_string
+v2_to_string = Vector2Utils.to_string
+
 function module.to_string(e: editableMesh, args: to_string_args): string
+	assert(args, 'missing args set')
 	local lines = {`EditableMesh 0x{tostring(e)}`}
 	
 	if args.vertices then
 		insert(lines, 'Vertices:')
 		for _, v in e:GetVertices() do
-			insert(lines, `{tostring(v)} | {e:GetPosition(v)}`)
+			insert(lines, ` > {v} | {v3_to_string(e:GetPosition(v))}`)
 		end
 	end
 
 	if args.uvs then
 		insert(lines, 'UVs:')
 		for _, v in e:GetUVs() do
-			insert(lines, `{tostring(v)} | {e:GetUV(v)}`)
+			insert(lines, ` > {v} | {v2_to_string(assert(e:GetUV(v)))}`)
 		end
 	end
 	
@@ -57,14 +66,14 @@ function module.to_string(e: editableMesh, args: to_string_args): string
 		insert(lines, 'Faces:')
 		for _, f in e:GetFaces() do
 			local s = tostring(f)
-			insert(lines, `{s} |`)
+			insert(lines, ` > {s} |`)
 			
-			local spaces = (' '):rep(#s)
+			local spaces = (' '):rep(#s +3 )
 			if args.vertices then
-				insert(lines, `{spaces} | Vertices`)
+				insert(lines, `{spaces} | Vertices:`)
 				
 				for _, v in e:GetFaceVertices(f) do
-					insert(lines, `{spaces} | > {v} | {e:GetPosition(v)}`)
+					insert(lines, `{spaces} | > {v} | {v3_to_string(e:GetPosition(v))}`)
 				end
 			end
 			
@@ -72,7 +81,7 @@ function module.to_string(e: editableMesh, args: to_string_args): string
 				insert(lines, `{spaces} | UVs`)
 
 				for _, v in e:GetFaceUVs(f) do
-					insert(lines, `{spaces} | > {v} | {e:GetUV(v)}`)
+					insert(lines,`{spaces} | > {v} | {v2_to_string(assert(e:GetUV(v)))}`)
 				end
 			end
 		end
@@ -85,7 +94,6 @@ end
 --##########################################################################################
 --##########################################################################################
 
-local Objects = script.Parent
 local Dash = require(Objects["@CHL/DashSingular"])
 local OBJ = require(Objects["@CHL/OBJ"])
 
@@ -107,7 +115,7 @@ end
 function from.blank(): editableMesh return AssetService:CreateEditableMesh()end
 
 -- possibly buggy because points are often recreated for faces, o:compress() is suggested
-function from.obj(o: OBJ.object): editableMesh
+function from.OBJ(o: OBJ.object): editableMesh
 	local result = from.blank()
 	
 	local vertices=map(o.vertices,function(a0)return result:AddVertex(a0) end)
@@ -116,7 +124,7 @@ function from.obj(o: OBJ.object): editableMesh
 	for _, f in o.faces do
 		local vertex_ids = map(
 			f.vertices, 
-			function(a0: number, a1: number)return result:FindClosestVertex(o.vertices[a0])end
+			function(a0: number)return vertices[a0] end
 		)
 		local face_id = result:AddTriangle(unpack(vertex_ids))
 		local normal_id = result:AddNormal();
@@ -139,11 +147,6 @@ module.from = from
 --##########################################################################################
 
 to = {}
-
-local Vector3Utils = require(Objects["@CHL/Vector3Utils"])
-local Vector2Utils = require(Objects["@CHL/Vector2Utils"])
-
-insert = table.insert
 
 -- returns OBJ object
 function to.OBJ(e: editableMesh): OBJ.object
