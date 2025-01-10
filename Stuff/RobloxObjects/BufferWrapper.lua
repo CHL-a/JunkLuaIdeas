@@ -44,6 +44,7 @@ local LuaUTypes = require(Objects.LuaUTypes)
 local Dash = require(Objects["@CHL/DashSingular"])
 local Radix = require(Objects["@CHL/Radix"])
 local Iterator = require(Objects["@CHL/Iterator"])
+local Class = require(Objects.Class)
 
 module = {}
 from = {}
@@ -152,58 +153,27 @@ module.writeFloat = module.writef32
 module.readDouble = module.readf64
 module.writeDouble = module.writef64
 module.from = from
-module.__index = module
 module.raw_constructors = raw_constructors
 
---#####################################################################################
---#####################################################################################
---#####################################################################################
-local Class = require(Objects.Class)
+Class.makeProperClass(module, '@CHL/BufferWrapper')
 
-export type temp = {
-	--[[
-	readi8: (self: object) -> number;
-	readu8: (self: object) -> number;
-	readi16: (self: object) -> number;
-	readu16: (self: object) -> number;
-	readi32: (self: object) -> number;
-	readu32: (self: object) -> number;
-	readf32: (self: object) -> number;
-	readf64: (self: object) -> number;
-	readFloat: (self: object) -> number;
-	readDouble: (self: object) -> number;
-	--]]
-} & Class.subclass<object>
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
 
-local Temp = {}
+Temp = {}
 
 Temp.temp = nil
-Temp.__index = Temp
 
-function Temp.new(): temp return Class.inherit(from.size(8), Temp)end
+function Temp.new(): object return module.from.size(8) end
 
-function getTemp(): temp
+function getTemp(): object
 	if not Temp.temp then
 		Temp.temp = Temp.new()
 	end
 
 	return Temp.temp
 end
-
-function tempImpliedOffset(self: object, _, ...)return self, 0, ...end
-
---[[
-Temp.readi8 = compose(tempImpliedOffset, module.readi8)
-Temp.readu8 = compose(tempImpliedOffset, module.readu8)
-Temp.readi16 = compose(tempImpliedOffset, module.readi16)
-Temp.readu16 = compose(tempImpliedOffset, module.readu16)
-Temp.readi32 = compose(tempImpliedOffset, module.readi32)
-Temp.readu32 = compose(tempImpliedOffset, module.readu32)
-Temp.readf32 = compose(tempImpliedOffset, module.readf32)
-Temp.readf64 = compose(tempImpliedOffset, module.readf64)
-Temp.readFloat = Temp.readf32
-Temp.readDouble = Temp.readf64
---]]
 
 module.getTemp = getTemp
 
