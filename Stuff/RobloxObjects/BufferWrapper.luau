@@ -219,4 +219,133 @@ end
 Class.makeProperClass(BufferIterator, '@CHL/BufferWrapper/Iterator')
 module.BufferIterator = BufferIterator
 
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+local Object = require(Objects.Object)
+
+export type stream = {
+	referral: object;
+	i: number;
+	
+	increment: (self: stream, i: number?)->();
+
+	writeBytes: (self: stream, ...number) -> ();
+	getBytes: (self: stream,  len: number?) -> {number};
+	readFloat: (self: stream) -> number;
+	writeFloat: (self: stream,  val: number) -> ();
+	readDouble: (self: stream) -> number;
+	writeDouble: (self: stream,  val: number) -> ();
+
+	__len: (self: stream) -> number;
+	len: (self: stream) -> number;
+	readi8: (self: stream) -> number;
+	readu8: (self: stream) -> number;
+	readi16: (self: stream) -> number;
+	readu16: (self: stream) -> number;
+	readi32: (self: stream) -> number;
+	readu32: (self: stream) -> number;
+	readf32: (self: stream) -> number;
+	readf64: (self: stream) -> number;
+	writei8: (self: stream,  val: number) -> ();
+	writeu8: (self: stream,  val: number) -> ();
+	writei16: (self: stream,  val: number) -> ();
+	writeu16: (self: stream,  val: number) -> ();
+	writei32: (self: stream,  val: number) -> ();
+	writeu32: (self: stream,  val: number) -> ();
+	writef32: (self: stream,  val: number) -> ();
+	writef64: (self: stream,  val: number) -> ();
+	readstring: (self: stream,  len: number) -> string;
+	writestring: (self: stream,  val: string, count: number?) -> ();
+	fill: (self: stream,  val: number, count: number?) -> ();
+}
+
+Stream = {}
+
+function Stream.new(r: object): stream
+	return disguise(setmetatable({referral = r}, Stream))
+end
+
+function stream_f_inc(n: number, method: (object, ...any)->any)
+	return function(self: stream, ...)
+		local result = method(self.referral, self.i, ...)
+		self:increment(n)
+		return result
+	end
+end
+
+function stream_f_prx_call()
+	return function(self: stream, ...)
+		return self.referral, ...
+	end
+end
+
+function stream_f_deprecated(s: string?)
+	return function()
+		error(s or 'Method is deprecated')
+	end
+end
+
+function Stream.readstring(self: stream, len: number)
+	local result = self.referral:readstring(self.i, len)
+	self:increment(len)
+	return result
+end
+
+function Stream.writestring(self: stream, val: string, count: number?)
+	self.referral:writestring(self.i, val, count)
+	self:increment(count or #val)
+end
+
+function Stream.getBytes(self: stream, len: number?)
+	local result = self.referral:getBytes(self.i, len)
+	self:increment(#result)
+	return result
+end
+
+function Stream.writeBytes(self: stream, ...)
+	self.referral:writeBytes(self.i, ...)
+	self:increment(select('#', ...))
+end
+
+function Stream.fill(self: stream, val: number, count: number?)
+	self.referral:fill(self.i, val, count)
+	if count then
+		self:increment(count)
+	else
+		self.i = self:len()
+	end
+end
+
+function Stream.increment(self: stream, i: number)self.i+=(i or 1)end
+
+Stream.copy = stream_f_deprecated()
+Stream.len = compose(stream_f_prx_call, module.len)
+Stream.readi8 = stream_f_inc(1, module.readi8)
+Stream.readu8 = stream_f_inc(1, module.readu8)
+Stream.readi16 = stream_f_inc(2, module.readi16)
+Stream.readu16 = stream_f_inc(2, module.readu16)
+Stream.readi32 = stream_f_inc(4, module.readi32)
+Stream.readu32 = stream_f_inc(4, module.readu32)
+Stream.readf32 = stream_f_inc(4, module.readf32)
+Stream.readf64 = stream_f_inc(8, module.readf64)
+Stream.writei8 = stream_f_inc(1, module.writei8)
+Stream.writeu8 = stream_f_inc(1, module.writeu8)
+Stream.writei16 = stream_f_inc(2, module.writei16)
+Stream.writeu16 = stream_f_inc(2, module.writeu16)
+Stream.writei32 = stream_f_inc(4, module.writei32)
+Stream.writeu32 = stream_f_inc(4, module.writeu32)
+Stream.writef32 = stream_f_inc(4, module.writef32)
+Stream.writef64 = stream_f_inc(8, module.writef64)
+Stream.__len = Stream.len
+Stream.readFloat = Stream.readf32
+Stream.writeFloat = Stream.writef32
+Stream.readDouble = Stream.readf64
+Stream.writeDouble = Stream.writef64
+
+Class.makeProperClass(Stream, '@CHL/BufferWrapper/Stream')
+
+module.Stream = Stream
+
 return module
