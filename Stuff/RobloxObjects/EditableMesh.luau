@@ -38,6 +38,7 @@ export type to_string_args = {
 	vertices: boolean?;
 	uvs: boolean?;
 	faces: boolean?;
+	c3as: boolean?;
 }
 
 insert = table.insert
@@ -62,6 +63,15 @@ function module.to_string(e: editableMesh, args: to_string_args): string
 		end
 	end
 	
+	if args.c3as then
+		insert(lines, 'C3as:')
+		for _, v in e:GetColors() do
+			local c = e:GetColor(v)
+			local a = e:GetColorAlpha(v)
+			insert(lines, ` > {v} | {math.round(a*255)}/255 | {c.R*255},{c.G*255},{c.B*255}`)
+		end
+	end
+	
 	if args.faces then
 		insert(lines, 'Faces:')
 		for _, f in e:GetFaces() do
@@ -82,6 +92,13 @@ function module.to_string(e: editableMesh, args: to_string_args): string
 
 				for _, v in e:GetFaceUVs(f) do
 					insert(lines,`{spaces} | > {v} | {v2_to_string(assert(e:GetUV(v)))}`)
+				end
+			end
+			
+			if args.c3as then
+				insert(lines, `{spaces} | C3as`)
+				for _, v in e:GetFaceColors(f) do
+					insert(lines, `{spaces} | > {v}`)
 				end
 			end
 		end
