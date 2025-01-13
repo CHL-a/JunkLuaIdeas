@@ -223,8 +223,6 @@ module.BufferIterator = BufferIterator
 --#####################################################################################
 --#####################################################################################
 
-local Object = require(Objects.Object)
-
 export type stream = {
 	referral: object;
 	i: number;
@@ -264,7 +262,7 @@ export type stream = {
 Stream = {}
 
 function Stream.new(r: object): stream
-	return disguise(setmetatable({referral = r}, Stream))
+	return disguise(setmetatable({referral = r; i = 0}, Stream))
 end
 
 function stream_f_inc(n: number, method: (object, ...any)->any)
