@@ -7,7 +7,8 @@ export type object = {
 	normals: {Vector3};
 	textures: {Vector2};
 	faces: {face};
-
+	
+	get_center: (self: object) -> Vector3;
 	to_output: (self: object) -> iterator;
 	compress: (self: object) -> ();
 } & Object.object_inheritance
@@ -312,6 +313,7 @@ function from.string_parser(parser: StringParser.object): object
 	return self
 end
 
+-- warning: must be destroyed if completed
 function OBJ.new(): object
 	local self: object = Object.from.class(OBJ)
 
@@ -388,6 +390,10 @@ function OBJ.destroy(self: object)
 end
 
 function OBJ.to_output(self: object)return OutputIterator.new(self)end
+
+function OBJ.get_center(self: object)
+	return Dash.reduce(self.vertices,function(l,c)return l+c end, Vector3.zero) / #self.vertices
+end
 
 from.string = Dash.compose(StringParser.new,from.string_parser) :: (string)->object
 
