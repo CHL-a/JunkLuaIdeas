@@ -1,205 +1,144 @@
---// TYPES
 local Objects = script.Parent
-local Radix = require(Objects["@CHL/Radix"])
-local ByteStream = require(Objects["@CHL/ByteStream"])
-local Map = require(Objects["@CHL/Map"])
+local BufferWrapper = require(Objects["@CHL/BufferWrapper"])
+local Dash = require(Objects["@CHL/DashSingular"])
 
-type map<i, v> = Map.simple<i, v>
+type bufferw = BufferWrapper.object
+type stream = BufferWrapper.stream
 
-export type object = {
-	padding: string;
-	debugBytes: {number};
-	stream: ByteStream.object;
-	digits: {string};
-	digitMap: map<string, number>;
-	
-	get: (self: object, number?) -> string;
-	encode: (self: object, input: string) -> string;
-	decode: (self: object, input: string) -> string;
-}
+local module = {}
 
---// MAIN
-local Base64 = {}
-local LuaUTypes = require(Objects.LuaUTypes)
-local Math = require(Objects.Math)
-local TableUtils = require(Objects["@CHL/TableUtils"])
+band = bit32.band
+rshift = bit32.rshift
+lshift = bit32.lshift
+availible = 0
+alphabet = table.create(63, 0xFF)
+compose = Dash.compose
+from = {}
+to = {}
+map = Dash.map
 
-binary = Radix.charRadix.binary
-push = TableUtils.push
-getDigit = Math.getDigit
-disguise = LuaUTypes.disguise
+module.to = to
+module.from = from
+module.alphabet = alphabet
+module.padding = ('='):byte()
 
-Base64.defaultPadding = '='
-Base64.digits = {}
-Base64.__index = Base64;
-
-function addDigits(s: string)
-	for i = s:byte(1), s:byte(2)do
-		push(Base64.digits, string.char(i))
+function add_to_alphabet(range: string)
+	local l = range:byte(2)
+	for i = range:byte(1), l do
+		module.alphabet[availible] = i
+		availible += 1
 	end
 end
 
-function printBytes(n: {number})
-	local s = ''
+function transform_from(n1: number, n2: number, offset: number)
+	local index = lshift(band(n1, 2 ^ offset - 1), 6 - offset) + 
+		rshift(n2, 2 + offset)
+	return alphabet[index]
+end
+
+-- primary encoding function
+function from.bufferw(input: bufferw, len: number?): bufferw
+	local l = len or input:len()
+	local in_stream = BufferWrapper.Stream.new(input)
+	local padding_len = l % 3 * 2 % 3
+	local quadsets = l // 3
+	local result = BufferWrapper.from.size(quadsets * 4 + math.min(padding_len, 1) * 4)
+	local out_stream = BufferWrapper.Stream.new(result)
 	
-	for i = 1, #n do
-		local seq = Radix.charRadix.hexdecUpper:fromDecimal(n[i])
+	
+	for _ = 1, quadsets do
+		local bytes = in_stream:getBytes(3)
 		
-		if #seq == 1 then
-			s ..= '0'
-		end
-		
-		s..= seq
-	end
-	
-	local s2 = '0b'
-	
-	for i = 1, #s do
-		local c = s:sub(i,i)
-		local seq = Radix.charRadix.binary:fromDecimal(
-			Radix.charRadix.hexdecUpper:toDecimal(c)
-		)
-		
-		s2 ..= `{('0'):rep(4 - #seq)}{seq}_`
-	end
-	print(s2)
-end
-
-function create(
-	digitMap, 
-	digits: {string}, 
-	padding: string?): object
-	
-	local self: object = disguise(setmetatable({}, Base64))
-	
-	self.padding = padding or Base64.defaultPadding
-	self.debugBytes = {}
-	self.stream = ByteStream.from.array(self.debugBytes)
-	self.digits = digits
-	self.digitMap = digitMap
-	
-	return self
-end
-
-function Base64.get(self: object, n: number)
-	local i = self.stream:getBits(n or 6) + 1
-	
-	return self.digits[i]
-end
-
-function Base64.encode(self: object, s: string)
-	-- pre
-	assert(type(s) == 'string')
-
-	-- main
-	local result = ''
-	
-	local stream = self.stream
-	
-	-- input to stream
-	for i = 1, #s do
-		stream:appendBytes(s:byte(i))
-	end
-
-	-- extract from stream and construct from result
-	-- implementation varies
-
-	-- start with an iteration per 3 characters
-	for i = 1, (#s // 3) do
-		for i = 1, 4 do
-			result ..= self:get()
+		for j = 1, 4 do
+			out_stream:writeu8(
+				transform_from(bytes[j - 1] or 0, bytes[j] or 0, j * 2 - 2)
+			)
 		end
 	end
 	
-	-- any remaining characters should be managed by padding
-	if #s % 3 ~= 0 then
-		local r = #s % 3
+	if padding_len > 0 then
+		local byte1 = in_stream:readu8()
 		
-		for i = 1, r do
-			result ..= self:get()
-		end
+		out_stream:writeu8(transform_from(0, byte1, 0))
 		
-		local a = stream:getBits((r * 2)) * 2 ^ (6 - r * 2) + 1
-		
-		result ..= self.digits[a]
-		
-		-- add padding
-		result ..= self.padding:rep(3 - r)
-	end
-
-	return result
-end
-
-function Base64.decode(self: object, s: string)
-	-- pre
-	assert(type(s) == 'string')
-	assert(#s % 4 == 0, 'missing padding')
-
-	-- main
-	local result = ''
-	local padding = self.padding
-	local stream = self.stream
-	local sects = #s / 4
-	
-	-- insert to stream
-	for a = 1, sects do -- per set
-
-		-- insert 4 char set
-		for b = 1, 4 do
-			b += (a - 1) * 4
-			local c = s:sub(b, b)
-
-			if c == padding then continue end
+		if padding_len == 2 then
+			out_stream:writeBytes(
+				transform_from(byte1, 0, 2),
+				module.padding,
+				module.padding
+			)
+		else
+			local byte2 = in_stream:readu8()
 			
-			local d = self.digitMap[c] - 1
-			
-			for i = 5, 0, -1 do
-				local di = getDigit(d, 2, i)
-				--print(c, d, i, di)
-				stream:appendBits(di)
-			end
+			out_stream:writeBytes(
+				transform_from(byte1, byte2, 2),
+				transform_from(byte2, 0, 4),
+				module.padding
+			)
 		end
-
-		-- concat with 3 characters out
-		
-		if a ~= sects then
-			result ..= stream:getString(3)
-		end
-	end
-	
-	--printBytes(self.debugBytes)
-	
-	-- anything better?
-	local paddingLen = 
-		s:sub(-2) == padding:rep(2) and 2
-		or s:sub(-1) == padding and 1
-		or 0
-	
-	result ..= stream:getString(3 - paddingLen)
-	
-	if paddingLen ~= 0 then
-		-- empty stream
-		for _ = 1, 8 - 2 ^ paddingLen do
-			stream:appendBits(0)
-		end
-
-		stream:getString()
 	end
 	
 	return result
 end
 
-function Base64.new(digits: {string}?, padding: string?): object
-	local d = digits or Base64.digits
-	local map = Map.simple.flipArray(d)
-	
-	return create(map, d, padding or Base64.defaultPadding)
+function transform_to(n1: number, n2: number, offset: number)
+	return band(lshift(n1, offset) + rshift(n2, 6 - offset), 0xFF)
 end
 
-addDigits'AZ'
-addDigits'az'
-addDigits'09'
-push(Base64.digits, '+', '/')
-Base64.default = Base64.new()
+function transform_to_code(i)return inverse_alphabet[i]end
 
-return Base64
+-- primary decoding function
+function to.bufferw(input: bufferw): bufferw
+	local len = input:len()
+	assert(len % 4 == 0, `Attempting to offer an invalid base64 string, got len: {len}`)
+	local in_stream = BufferWrapper.Stream.new(input)
+	local padding_len = 0
+	
+	if input:readu8(len - 1) == module.padding then
+		padding_len += 1
+		
+		if input:readu8(len - 2) == module.padding then
+			padding_len += 1
+		end
+	end
+	
+	local out_size = len // 4 * 3 - padding_len
+	local result = BufferWrapper.from.size(out_size)
+	local out_stream = BufferWrapper.Stream.new(result)
+	
+	local main_its = result:len() // 3
+	
+	for _ = 1, main_its do
+		local codes = map(in_stream:getBytes(4),transform_to_code)
+		
+		for j = 1, 3 do
+			out_stream:writeu8(transform_to(codes[j],codes[j+1], j * 2))
+		end
+	end
+	
+	if padding_len > 0 then
+		local byte1, byte2 = unpack(map(in_stream:getBytes(2), transform_to_code))
+		
+		out_stream:writeu8(transform_to(byte1, byte2, 2))
+		
+		if padding_len == 1 then
+			local byte3 = transform_to_code(in_stream:readu8())
+			
+			out_stream:writeu8(transform_to(byte2, byte3, 4))
+		end
+	end
+	
+	return result
+end
+
+add_to_alphabet'AZ'
+add_to_alphabet'az'
+add_to_alphabet'09'
+module.alphabet[62] = ('+'):byte()
+module.alphabet[63] = ('/'):byte()
+
+inverse_alphabet = Dash.collect(alphabet, function(a0: number, a1: number)return a1, a0 end)
+from.string = compose(BufferWrapper.from.string, from.bufferw) :: (string) -> bufferw;
+to.string = compose(to.bufferw, BufferWrapper.toString) :: (bufferw)->string
+
+return module
