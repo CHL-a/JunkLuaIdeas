@@ -1,7 +1,7 @@
 local Objects = script.Parent
 local Object = require(Objects.Object)
 
-local InstanceUtils = require(Objects["@CHL/InstanceUtils"])
+local InstanceUtils = require('./@CHL>InstanceUtils')
 
 local module = {}
 
@@ -27,9 +27,8 @@ end
 --####################################################################################
 --####################################################################################
 
-local Class = require(Objects.Class)
-
-local Map = require(Objects["@CHL/Map"])
+local Class = require('./Class')
+local Map = require('./@CHL>Map')
 
 type map<I,V> = Map.simple<I,V>
 
@@ -44,15 +43,15 @@ export type observer_args = map<string, 'RemoteEvent' | 'RemoteFunction'>
 
 function module.new<A>(map: observer_args): observer<A>
 	local self: observer<A> = Object.from.class(module)
-	
+
 	module.construct()
-	
+
 	self.remotes = Proxy
-	
+
 	for i, v in next, map do
 		self:get(i, v)
 	end
-	
+
 	return self
 end
 
