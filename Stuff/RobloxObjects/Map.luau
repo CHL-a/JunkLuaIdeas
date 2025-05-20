@@ -1,6 +1,6 @@
 local Objects = script.Parent
 local module = {}
-local Dash = require(Objects["@CHL/DashSingular"])
+local Dash = require('./@CHL>DashSingular')
 module.__index = module
 
 --#####################################################################################
