@@ -1,12 +1,12 @@
 --// TYPES
 local Objects = script.Parent
-local Map = require(Objects["@CHL/Map"])
+local Map = require('./@CHL>Map')
 
 export type className = string
 export type properties<A> = Map.dictionary<any>
 
-local TableUtils = require(Objects['@CHL/TableUtils'])
-local Dash = require(Objects["@CHL/DashSingular"])
+local TableUtils = require('./@CHL>TableUtils')
+local Dash = require('./@CHL>DashSingular')
 
 --// MAIN
 local module = {} 
