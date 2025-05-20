@@ -1,7 +1,6 @@
 local module = {}
-local LuaUTypes = require(script.Parent.LuaUTypes)
 
-disguise = LuaUTypes.disguise
+disguise = require('./LuaUTypes').disguise
 
 function isEmpty(a: {[any]: any}): boolean return next(a) == nil end
 
@@ -81,7 +80,7 @@ end
 
 --[[do not use cyclic tables]]
 function deepClone<A>(t: A): A
-	local a = table.clone(disguise(t))
+	local a = table.clone(disguise(t) :: {}) 
 	
 	local list = {a}
 	
