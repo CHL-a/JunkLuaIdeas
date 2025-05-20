@@ -87,6 +87,12 @@ function to_string(a: Vector3, digits: number?): string
 	return `{round(a.X,d)},{round(a.Y,d)},{round(a.Z,d)}`
 end
 
+function flip(v3: Vector3, normal: Vector3): Vector3
+	normal = normal.Unit
+	return v3 + normal * -2 * v3:Dot(normal)
+end
+
+module.flip = flip
 module.to_string = to_string
 module.between_magnitude_sum = between_magnitude_sum;
 module.getRelativeVector = getRelativeVector
