@@ -1,8 +1,7 @@
 local module = {}
 
-local Objects = script.Parent
-local Dash = require(Objects["@CHL/DashSingular"])
-local Math = require(Objects["@CHL/Math"])
+local Dash = require('./@CHL>DashSingular')
+local Math = require('./@CHL>Math')
 
 round = Math.round
 pi = math.pi
