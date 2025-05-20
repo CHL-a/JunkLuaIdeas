@@ -27,6 +27,8 @@ function flip(cf: CFrame, normal: Vector3)
 
 	return CFrame.lookAlong(position, look, up)
 end
+
 module.from = from
+module.flip = flip
 
 return module
