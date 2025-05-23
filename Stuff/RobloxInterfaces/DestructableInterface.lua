@@ -1,20 +1,21 @@
-type __object = {
+export type object = {
 	isDestroyed: boolean;
-	destroy: (self: __object) -> nil;
-	Destroy: (self: __object) -> nil;
-	assertDestruction: (self: __object) -> nil;
+	destroy: (self: object) -> ();
+	Destroy: (self: object) -> ();
+	assertDestruction: (self: object) -> ();
 }
-export type object = __object
 
-local module = {}
+module = {}
 
-module.destroy = function(self: __object)self.isDestroyed = true;end
-module.Destroy = module.destroy
-module.assertDestruction = function(self: __object)
+function module.destroy(self: object)self.isDestroyed = true;end
+
+function module.assertDestruction(self: object)
 	assert(
 		not self.isDestroyed, 
 		'Attempting to destroy a destroyed object.'
 	)
 end
+
+module.Destroy = module.destroy
 
 return module
