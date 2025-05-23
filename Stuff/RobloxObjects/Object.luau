@@ -1,7 +1,6 @@
 -- TYPES
-local Objects = script.Parent
-local Class = require(Objects.Class)
-local Destructable = require(Objects["@CHL/Destructable"])
+local Class = require('./Class')
+local Destructable = require('./@CHL>Destructable')
 
 export type object = {-- typeof(setmetatable({}, module))
 	className: string;
@@ -38,8 +37,8 @@ type relationalMethod = method<(any), (boolean)>
 -- MAIN
 local module = {}
 
-local LuaUTypes = require(Objects.LuaUTypes)
-local EventPackage = require(Objects.EventPackage)
+local LuaUTypes = require('./LuaUTypes')
+local EventPackage = require('./EventPackage')
 
 disguise = LuaUTypes.disguise
 unimplemented = disguise(Class.unimplemented)
