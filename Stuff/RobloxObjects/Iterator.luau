@@ -36,6 +36,6 @@ end
 
 module.proceed = Class.abstractMethod
 module.canProceed = Class.abstractMethod
-Class.makeProperClass(module, '@CHL/Iterator')
+Class.makeProperClass(module, '@CHL>Iterator')
 
 return module
