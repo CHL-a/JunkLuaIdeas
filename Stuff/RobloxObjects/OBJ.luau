@@ -1,6 +1,6 @@
 local Objects = script.Parent
-local Object = require(Objects.Object)
-local Class = require(Objects.Class)
+local Object = require('./Object')
+local Class = require('./Class')
 
 export type object = {
 	vertices: {Vector3};
@@ -34,11 +34,11 @@ export type face_args = {
 --##############################################################################
 --##############################################################################
 
-local Destructable = require(Objects["@CHL/Destructable"])
+local Destructable = require('./@CHL>Destructable')
 local module = {}
 
 Face = {}
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 
 function Face.new(o: object, args: face_args): face
 	local self: face = Object.from.class(Face)
@@ -55,6 +55,8 @@ function Face.getTexture(self: face, j: number)
 	if not self.textures then return Vector2.yAxis end
 
 	return self.referral.textures[self.textures[j]]
+		
+		--.referral.textures[self.textures[j]]
 end
 
 function Face.getOBJLineArgs(self: face)
@@ -103,7 +105,7 @@ function Face.destroy(self: face)self.isDestroyed = true;self.referral = disguis
 Face.Destroy = Face.destroy
 Face.assertDestruction = Destructable.assertDestruction
 
-Class.makeProperClass(Face, 'OBJ/Face')
+Class.makeProperClass(Face, '@CHL>OBJ>Face')
 
 module.face = Face
 
@@ -111,7 +113,7 @@ module.face = Face
 --##############################################################################
 --##############################################################################
 
-local Iterator = require(Objects["@CHL/Iterator"])
+local Iterator = require('./@CHL>Iterator')
 
 export type iterator = {
 	referral: object;
@@ -185,15 +187,15 @@ function OutputIterator.proceed(self: iterator)
 	end
 end
 
-Class.makeProperClass(OutputIterator, 'OBJ/OutputIterator')
+Class.makeProperClass(OutputIterator, '@CHL>OBJ>OutputIterator')
 
 --##############################################################################
 --##############################################################################
 --##############################################################################
 
-local Map = require(Objects["@CHL/Map"])
-local StringParser = require(Objects["@CHL/StringParser"])
-local Dash = require(Objects["@CHL/DashSingular"])
+local Map = require('./@CHL>Map')
+local StringParser = require('./@CHL>StringParser')
+local Dash = require('./@CHL>DashSingular')
 
 type map<I, V> = Map.simple<I, V>
 type dict<A> = Map.dictionary<A>
@@ -400,7 +402,7 @@ from.string = Dash.compose(StringParser.new,from.string_parser) :: (string)->obj
 OBJ.from = from
 OBJ.Destroy = OBJ.destroy
 
-Class.makeProperClass(OBJ, 'OBJ')
+Class.makeProperClass(OBJ, '@CHL>OBJ')
 
 module.obj = OBJ
 
