@@ -1,5 +1,4 @@
-local Objects = script.Parent
-local Destructable = require(Objects["@CHL/Destructable"])
+local Destructable = require('./@CHL>Destructable')
 
 -- CLASS
 --###################################################################################
@@ -22,7 +21,7 @@ export type connection<a...> = {
 
 local connection = {}
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 
 function connection.new<a...>(
 	f: structFunc<a...>, id: number, q: queue<a...>): connection<a...>
@@ -77,7 +76,7 @@ export type event<a...> = {
 
 local event = {}
 
-local Class = require(Objects.Class)
+local Class = require('./Class')
 
 function event.new<a...>(): event<a...>
 	local object: event<a...> = disguise(setmetatable({}, event))
