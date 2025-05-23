@@ -1,8 +1,6 @@
 --// TYPES
-local Objects = script.Parent
-
-local Object = require(Objects.Object)
-local Class = require(Objects.Class)
+local Object = require('./Object')
+local Class = require('./Class')
 
 -- best definition but the parameters are made on the first call
 export type iterator_function<Init, U, T...> = (Init, U)->(U, T...)
@@ -17,7 +15,7 @@ export type object<A, B...> = {
 --// MAIN
 local module = {}
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 
 function module.new<A, B...>(): object<A, B...>
 	return Object.from.class(module)
