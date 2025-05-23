@@ -5,23 +5,26 @@
 	 * __proxy<a> and __method<a>
 ]]
 --// TYPES
-type __subclass<super> = super & {
+local Map = require('./@CHL>Map')
+
+type map<I,V> = Map.simple<I,V>
+type dictionary<A> = Map.dictionary<A>
+
+export type subclass<super> = super & {
 	__supers: {super};
 	__super: super;
 }
-export type subclass<A> = __subclass<A>
-
 type __function = (...any) -> ...any
 
 type __super<A> = {
-	__object: A & __subclass<A>;
-	__class: {[string]:__function};
+	__object: A & subclass<A>;
+	__class: dictionary<__function>;
 	__super: __super<A>;
 
-	__get_i: (self:__super<A>) -> nil;
+	__get_i: (self:__super<A>) -> ();
 }
 
-type __class = {[string]: __function}
+type __class = dictionary<__function>
 
 type __method<A> = {
 	__proxy: __proxy<A>;
@@ -46,8 +49,7 @@ type __proxy<A> = {
 
 --// MAIN
 local Class = {}
-local Objects = script.Parent
-local LuaUTypes = require(Objects.LuaUTypes)
+local LuaUTypes = require('./LuaUTypes')
 
 disguise = LuaUTypes.disguise
 find = table.find
@@ -57,7 +59,8 @@ insert = table.insert
 local Method = {}
 
 local Proxy = {}
-Proxy.__index = function<A>(self: __proxy<A>, i: string)
+
+function Proxy.__index<A>(self: __proxy<A>, i: string)
 	-- needs super and method handling
 	-- self.__super
 	if i == '__super' then
@@ -85,10 +88,12 @@ Proxy.__index = function<A>(self: __proxy<A>, i: string)
 
 	if val ~= nil then return val end
 end
-Proxy.__newindex = function<A>(self: __proxy<A>, i: string, v:any)
+
+function Proxy.__newindex<A>(self: __proxy<A>, i: string, v:any)
 	rawset(disguise(self).__object, i, v)
 end
-Proxy.new = function<A>(object: A, class)
+
+function Proxy.new<A>(object: A, class)
 	local self: __proxy<A> = disguise(setmetatable({
 		__object = object;
 		__class = class;
@@ -98,17 +103,16 @@ Proxy.new = function<A>(object: A, class)
 
 	return self
 end
-Proxy.__get_class_i = function<A>(self: __proxy<A>)
+
+function Proxy.__get_class_i<A>(self: __proxy<A>)
 	return assert(
 		find(
-			rawget(
-				disguise(self).__object, 
-				'__supers'
-			), 
+			rawget(disguise(self).__object, '__supers'), 
 			self.__class
 		)
 	)
 end
+
 function Proxy.__get_super_class<A>(self:__proxy<A>)
 	local i = self:__get_class_i()
 
@@ -120,6 +124,7 @@ function Proxy.__get_super_class<A>(self:__proxy<A>)
 		end
 	end
 end
+
 function Proxy.__get_method<A>(self:__proxy<A>,name: string)
 	local supers = disguise(self.__object).__supers
 	local start = self.__is_super and self:__get_class_i() or #supers
@@ -149,6 +154,7 @@ function Proxy.__get_method<A>(self:__proxy<A>,name: string)
 
 	return disguise(Method).new(clone,m,j,name)
 end
+
 function Proxy.__clone<A>(self:__proxy<A>)
 	return Proxy.new(self.__object, self.__class)
 end
@@ -175,7 +181,8 @@ function Proxy.__get_value<A, B>(self: __proxy<A>, name: string): B
 end
 
 Method.__index = Method
-Method.__call = function<A>(self: __method<A>,_ ,...)
+
+function Method.__call<A>(self: __method<A>,_ ,...)
 	--[[
 	local a, b = ...
 	if type(a) == 'number' and typeof(b) == 'Vector3' then
@@ -186,7 +193,7 @@ Method.__call = function<A>(self: __method<A>,_ ,...)
 	return self.__func(self.__proxy, ...)
 end
 
-Method.new = function<A>(object: A, func: __function, class:__class?,name: string?)
+function Method.new<A>(object: A, func: __function, class:__class?,name: string?)
 	local self: __method<A> = disguise(setmetatable({}, Method))
 	self.__proxy = disguise(object);
 	self.__func = func
@@ -200,7 +207,7 @@ end
 --##################################################################################
 --##################################################################################
 
-function getLatestFunction<A>(self: __subclass<A>, i: string)
+function getLatestFunction<A>(self: subclass<A>, i: string)
 	if i == '__supers' and not rawget(self,'__supers') then return end
 
 	local supers = self.__supers
@@ -256,7 +263,7 @@ mainMeta = {__index = getLatestFunction}
 specialMeta = ('__mode,__metatable,__newindex,__tostring,__index'):split(',')
 overwritableMeta = ('__newindex,__tostring'):split(',')
 
-for _, v in next,LuaUTypes.metamethods do
+for _, v in LuaUTypes.metamethods do
 	if find(specialMeta, v) then continue end
 	
 	mainMeta[v] = other(v)
@@ -268,7 +275,7 @@ function inherit<A, B>(t: A, methods, is_debugging): B-- __subclass<A>
 	end
 	
 	local _t = disguise(t)
-	local result: __subclass<A> = disguise(_t)
+	local result: subclass<A> = disguise(_t)
 	
 	local supers = rawget(result,'__supers') or {}; 
 	rawset(result,"__supers", supers)
