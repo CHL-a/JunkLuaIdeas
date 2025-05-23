@@ -1,6 +1,5 @@
-local Objects = script.Parent
-local Object = require(Objects.Object)
-local Class = require(Objects.Class)
+local Object = require('./Object')
+local Class = require('./Class')
 
 export type object = {
 	referral: string;
@@ -19,7 +18,7 @@ export type object = {
 } & Object.object_inheritance
 
 local module = {}
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 
 function module.new(s: string): object
 	local self: object = Object.from.class(module)
@@ -129,6 +128,6 @@ function module.test()
 	print('\n'.. a:get_snapshot())
 end
 
-Class.makeProperClass(module, '@CHL/StringParser')
+Class.makeProperClass(module, '@CHL>StringParser')
 
 return module
