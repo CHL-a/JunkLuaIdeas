@@ -1,7 +1,6 @@
 local module = {}
-local Objects = script.Parent
 
-local Dash = require(Objects["@CHL/DashSingular"])
+local Dash = require('./@CHL>DashSingular')
 
 type map<I,V> = Dash.Map<I,V>
 
@@ -18,7 +17,7 @@ export type struct = {
 	path_split: {string}
 }
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 last = Dash.last
 
 function module.parse(s: string): struct?
