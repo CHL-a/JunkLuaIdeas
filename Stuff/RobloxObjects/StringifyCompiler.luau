@@ -1,19 +1,17 @@
 --// TYPES
-local Objects = script.Parent
-local StringUtils = require(Objects["@CHL/StringUtils"])
-local Dash = require(Objects["@CHL/DashSingular"])
-local Object = require(Objects.Object)
+local StringUtils = require('./@CHL>StringUtils')
+local Dash = require('./@CHL>DashSingular')
 
 export type object = {
 	depth: number;
 	tableOptions: __options;
 	accessed: Dash.Set<Dash.Table>;
-
-	parseToLines: (self: object, v: any, __options) -> {string};
+	
+	parseToLines: (self: object, v: any, __options?) -> {string};
 	parse: (self: object, v: any, __options) -> string;
-	clearAccessed: (self: object) -> nil;
-	reset: (self: object) -> nil;
-} & Object.object_inheritance
+	clearAccessed: (self: object) -> ();
+	reset: (self: object) -> ();
+}
 
 type __options = {
 	maxDepth: number?;
@@ -24,12 +22,12 @@ export type options = __options
 
 --// MAIN
 local module = {}
-local LuaUTypes = require(Objects.LuaUTypes)
-local TableUtils = require(Objects["@CHL/TableUtils"])
+local LuaUTypes = require('./LuaUTypes')
+local disguise = LuaUTypes.disguise
+local TableUtils = require('./@CHL>TableUtils')
+local push = TableUtils.push
+local defaultify = TableUtils.defaultify
 
-push = TableUtils.push
-defaultify = TableUtils.defaultify
-disguise = LuaUTypes.disguise
 
 function assertType<A>(value: any | A, __type: string, msg: string?): A
 	Dash.assertEqual(typeof(value), __type, msg or `Attempting to pass value, {
@@ -47,18 +45,18 @@ module.defaultOptions = {
 } :: __options
 
 function module.new(options: __options?): object
-	local self: object = Objec
+	local self: object = disguise(setmetatable({}, module))
 	
 	self.tableOptions = defaultify(options, module.defaultOptions)
 	self.accessed = {}
-	self.depth = 0
+	self.depth = 1
 	
 	return self
 end
 
-module.parseToLines = function(self: object, v: any, op: __options): {string}
+function module.parseToLines(self: object, v: any, op: __options): {string}
 	-- pre
-	op = defaultify(op, self.tableOptions)
+	op = TableUtils.defaultify(op, self.tableOptions)
 	
 	-- main
 	if typeof(v) == 'table' then
@@ -117,18 +115,14 @@ module.parseToLines = function(self: object, v: any, op: __options): {string}
 	return {tostring(v)}
 end
 
-module.parse = function(self: object, v: any, override): string
+function module.parse(self: object, v: any, override): string
 	return table.concat(self:parseToLines(v, override), '\n')
 end
 
-module.clearAccessed = function(self:object)table.clear(self.accessed)end
+function module.clearAccessed(self:object)table.clear(self.accessed)end
 
-module.reset = function(self: object)
-	self:clearAccessed()
-	self.depth = 0
-end
+function module.reset(self: object) self:clearAccessed()self.depth = 1 end
 
-module.__index = module
-module.className = 'StringifyCompiler'
+require('./Class').makeProperClass(module, '@CHL>StringifyCompiler')
 
 return module
