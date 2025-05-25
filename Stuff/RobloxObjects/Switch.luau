@@ -1,6 +1,5 @@
 --// TYPES
-local Objects = script.Parent
-local EventPackage = require(Objects.EventPackage)
+local EventPackage = require('./EventPackage')
 
 type __object = {
 	isOn: boolean;
@@ -12,7 +11,7 @@ export type object = __object
 
 --// MAIN
 local module = {}
-local disguise = require(Objects.LuaUTypes).disguise
+local disguise = require('./LuaUTypes').disguise
 module.__index = module
 
 function module.new()
