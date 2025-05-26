@@ -13,7 +13,11 @@ function superOr(a, ...)
 	return false
 end
 
+function toBool(v)return not not v end
+
 module.superOr = superOr
 module.xor = xor
+module.toBool = toBool
+
 
 return module
