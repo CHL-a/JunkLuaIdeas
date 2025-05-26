@@ -28,19 +28,19 @@ function LocalPlayerScriptLoader.new(LocalScript: LocalScript): object
 	self.localScript = LocalScript
 	self.currentOwners = {}
 	
-	for _, v in next, game:GetService('Players'):GetPlayers() do
+	for _, v in game:GetService('Players'):GetPlayers() do
 		local playerGui = v:FindFirstChildWhichIsA('PlayerGui')
 		
-		if playerGui then
-			local sG = Instance.new('ScreenGui')
-			sG.ResetOnSpawn = false
-			
-			local clone = LocalScript:Clone()
-			
-			table.insert(self.currentOwners, clone)
-			clone.Parent = sG
-			sG.Parent = playerGui
-		end
+		if not playerGui then continue end
+	
+		local sG = Instance.new('ScreenGui')
+		sG.ResetOnSpawn = false
+		
+		local clone = LocalScript:Clone()
+		
+		table.insert(self.currentOwners, clone)
+		clone.Parent = sG
+		sG.Parent = playerGui
 	end
 	
 	LocalScript.Parent = game:GetService('StarterPlayer').StarterPlayerScripts
@@ -51,7 +51,7 @@ end
 function LocalPlayerScriptLoader.undo(self: object)
 	self.localScript.Parent = self.oldParent
 
-	for _, v in next, self.currentOwners do
+	for _, v in self.currentOwners do
 		if typeof(v) == 'Instance' and v.Parent then
 			v.Parent:Destroy()
 		end
