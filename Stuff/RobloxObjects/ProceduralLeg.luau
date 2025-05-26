@@ -1,10 +1,8 @@
 --// TYPES
-local Objects = script.Parent
-
-local Object = require(Objects.Object)
-local Class = require(Objects.Class)
-local Spring = require(Objects["@CHL/Spring"])
-local RuntimeUpdater = require(Objects.RuntimeUpdater)
+local Object = require('./Object')
+local Class = require('./Class')
+local Spring = require('./@CHL>Spring')
+local RuntimeUpdater = require('./@CHL>RuntimeUpdater')
 
 export type constructorArgs = {
 	legJoints: {Attachment};
@@ -37,10 +35,11 @@ export type object ={
 
 --// MAIN
 local module = {}
-local Dash = require(Objects["@CHL/DashSingular"])
-local Vector3Utils = require(Objects.Vector3Utils)
+local Dash = require('./@CHL>DashSingular')
+local Vector3Utils = require('./@CHL>Vector3Utils')
+local LuaUTypes = require('./LuaUTypes')
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = LuaUTypes.disguise
 
 function module.new(arg: constructorArgs): object
 	local self: object = Object.new():__inherit(module)
@@ -82,7 +81,7 @@ function module.new(arg: constructorArgs): object
 	return self
 end
 
-module.getNewStep = function(self: object)
+function module.getNewStep(self: object)
 	local down = Vector3.new(0,-50)
 	local resultRaycast = workspace:Raycast(
 		self.targetHover.WorldPosition, 
@@ -94,7 +93,7 @@ module.getNewStep = function(self: object)
 		resultRaycast and resultRaycast.Normal or Vector3.yAxis
 end
 
-module.getBigL = function(self: object)
+function module.getBigL(self: object)
 	local result = 0
 	local lJs = self.legJoints
 	
@@ -111,17 +110,17 @@ module.getBigL = function(self: object)
 	return result
 end
 
-module.getSmallD = function(self: object)
+function module.getSmallD(self: object)
 	return (self.hip.WorldPosition - self.footTarget.WorldPosition).Magnitude
 end
 
-module.updateStep = function(self: object)
+function module.updateStep(self: object)
 	local p, n = self:getNewStep()
 	self.positionSpring.t = p
 	self.normalSpring.t = n
 end
 
-module.update = function(self: object, dt: number)
+function module.update(self: object, dt: number)
 	local d = self:getSmallD()
 	
 	self.positionSpring:update(dt)
@@ -136,7 +135,6 @@ module.update = function(self: object, dt: number)
 	self.footTarget.WorldSecondaryAxis = self.normalSpring.p
 end
 
-module.__index = module;
-module.className = '@CHL/ProceduralLeg'
+Class.makeProperClass(module, '@CHL>ProceduralLeg')
 
 return module
