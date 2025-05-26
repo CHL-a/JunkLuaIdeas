@@ -1,6 +1,6 @@
 --// TYPES
-local Dash = require(script.Parent["@CHL/DashSingular"])
-local LuaUTypes = require(script.Parent.LuaUTypes)
+local Dash = require('./@CHL>DashSingular')
+local LuaUTypes = require('./LuaUTypes')
 
 export type simple<I> = Dash.Set<I>
 export type array_set<V> = {V}
