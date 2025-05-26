@@ -1,14 +1,13 @@
 -- SPEC
-local Objects = script.Parent
-local CharacterRig = require(Objects.CharacterRig)
-local Class = require(Objects.Class)
-local IKCollection = require(Objects['@CHL/IKCollection'])
-local ProceduralLeg = require(Objects["@CHL/ProceduralLeg"])
-local RuntimeUpdater = require(Objects.RuntimeUpdater)
-local Spring = require(Objects["@CHL/Spring"])
-local Destructable = require(Objects["@CHL/Destructable"])
-local ResponsiveCache = require(Objects.ResponsiveCache)
-local Dash = require(Objects["@CHL/DashSingular"])
+local CharacterRig = require('./@CHL>CharacterRig')
+local Class = require('./Class')
+local IKCollection = require('./@CHL>IKCollection')
+local ProceduralLeg = require('./@CHL>ProceduralLeg')
+local RuntimeUpdater = require('./@CHL>RuntimeUpdater')
+local Spring = require('./@CHL>Spring')
+local Destructable = require('./@CHL>Destructable')
+local ResponsiveCache = require('./@CHL>ResponsiveCache')
+local Dash = require('./@CHL>DashSingular')
 
 type map<I, V> = Dash.Map<I, V>
 type set<A> = Dash.Set<A>
@@ -104,11 +103,11 @@ export type constructorArgs = {
 
 -- CLASS
 local Rig15 = {}
-local LuaUTypes = require(Objects.LuaUTypes)
-local TableUtils = require(Objects["@CHL/TableUtils"])
-local InstanceUtils = require(Objects["@CHL/InstanceUtils"])
-local Vector3Utils = require(Objects.Vector3Utils)
-local StringUtils = require(Objects["@CHL/StringUtils"])
+local LuaUTypes = require('./LuaUTypes')
+local TableUtils = require('./@CHL>TableUtils')
+local InstanceUtils = require('./@CHL>InstanceUtils')
+local Vector3Utils = require('./@CHL>Vector3Utils')
+local StringUtils = require('./@CHL>StringUtils')
 
 camelCaseify = StringUtils.camelCaseify
 disguise = LuaUTypes.disguise
@@ -129,11 +128,9 @@ vFloor = Vector3.new(1,0,1)
 --#########################################################################################
 --#########################################################################################
 
-local Object = require(Objects.Object)
+local Object = require('./Object')
 
 type __walkState = 'idle' | 'forward' | 'backward' | 'left' | 'right'
-
-type inheritance = Class.subclass<Object.object>
 
 type __walker = {
 	leftLeg: ProceduralLeg.object;
@@ -146,7 +143,7 @@ type __walker = {
 	enabled: boolean;
 	enable: (self: __walker, boolean) -> ();
 } & RuntimeUpdater.updatable
-  & inheritance
+  & Object.object_inheritance
 
 local Walker = {}
 
@@ -159,7 +156,7 @@ Walker.hoverPositions = {
 }
 
 function Walker.new(rig: object): __walker
-	local self: __walker = Object.new():__inherit(Walker)
+	local self: __walker = Object.from.class(Walker)
 	local __self, __rig = disguise(self, rig)
 	
 	self.canUpdate = true
@@ -213,7 +210,7 @@ function convertHoverPosition(s: string, y: number)
 	return set.left + Vector3.new(0, y), set.right + Vector3.new(0, y)
 end
 
-Walker.enable = function(self:__walker, b: boolean)
+function Walker.enable(self:__walker, b: boolean)
 	local rig = self.rig :: object
 
 	self.enabled = b;
@@ -222,7 +219,7 @@ Walker.enable = function(self:__walker, b: boolean)
 	self.leftLeg.iKControl.Enabled = b
 end
 
-Walker.update = function(self: __walker, dt: number)
+function Walker.update(self: __walker, dt: number)
 	local rightLeg = self.rightLeg
 	local leftLeg = self.leftLeg
 	local rig = self.rig::object
@@ -309,8 +306,7 @@ Walker.update = function(self: __walker, dt: number)
 	end
 end
 
-Walker.__index = Walker
-Walker.className = 'Rig15/Walker'
+Class.makeProperClass(Walker, '@CHL>Rig15>Walker')
 
 --#########################################################################################
 --#########################################################################################
@@ -334,12 +330,12 @@ export type node = {
 	edges: map<string, edge>;
 	
 	repair: (self: node) -> boolean;
-} & inheritance
+} & Object.object_inheritance
 
 local Node = {}
 
 function Node.new(arg: node_arg) : node
-	local self: node = Object.new():__inherit(Node)
+	local self: node = Object.from.class(Node)
 	self.name = arg.name
 	self.attachments = {}
 	self.attachmentPresence = arg.attachmentPresence
@@ -351,7 +347,7 @@ function Node.new(arg: node_arg) : node
 	return self
 end
 
-Node.repair = function(self: node)
+function Node.repair(self: node)
 	local rig = self.rig;
 	local character = rig.character
 	local basePart = self.basePart
@@ -442,9 +438,8 @@ function soleAttachment(node: node, name: string)
 	return at
 end
 
-Node.__index = Node
 Rig15.Node = Node;
-Node.className = 'Rig15/Node'
+Class.makeProperClass(Node, '@CHL>Rig15>Node')
 
 presence.head.NeckConstraintAttachment = cloneAttachment90
 
@@ -505,7 +500,7 @@ export type edge = {
 	endPoints: {node};
 	
 	repair: (self: edge) -> boolean;
-} & inheritance
+} & Object.object_inheritance
 
 local Edge = {}
 
@@ -527,7 +522,7 @@ function Edge.new(arg: edge_constructor_arg): edge
 	return self
 end
 
-Edge.repair = function(self: edge)
+function Edge.repair(self: edge)
 	local result = true
 	local node0, node1 = unpack(self.endPoints)
 	local rig = self.rig
@@ -539,7 +534,7 @@ Edge.repair = function(self: edge)
 		result = false
 	end
 	
-	for a, ref: __constraintStruct in next, self.constraintReference do
+	for a, ref: __constraintStruct in self.constraintReference do
 		local con = self.constraints[a]
 		
 		if (con and con:IsDescendantOf(game)) then continue;end
@@ -627,9 +622,8 @@ local constraintInfo: map<string, map<string, __constraintStruct>> = {
 }
 
 Edge.constraintInfo = constraintInfo
-Edge.__index = Edge
 Rig15.Edge = Edge;
-Edge.className = 'Rig15/Edge'
+Class.makeProperClass(Edge, '@CHL>Rig15>Edge')
 
 --#########################################################################################
 --#########################################################################################
@@ -664,7 +658,7 @@ function GripEdge.new(args: grip_edge_args)
 	return self
 end
 
-GripEdge.repair = function(self: gripEdge)
+function GripEdge.repair(self: gripEdge)
 	local result = true
 	
 	if not (self.motor6D and self.motor6D:IsDescendantOf(game)) then
@@ -686,8 +680,7 @@ GripEdge.repair = function(self: gripEdge)
 	return result
 end
 
-GripEdge.__index = GripEdge
-GripEdge.className = 'Rig15/GripEdge'
+Class.makeProperClass(GripEdge, '@CHL>Rig15>GripEdge')
 Rig15.gripEdge = GripEdge
 
 --#########################################################################################
@@ -703,9 +696,9 @@ function __setGraph(self: object)
 		self:__setNode('HumanoidRootPart')
 	}
 	
-	for _, a in next, sides do
-		for _, b in next, sections do
-			for _, c in next, limbs do
+	for _, a in sides do
+		for _, b in sections do
+			for _, c in limbs do
 				push(self.nodes, self:__setNode(`{a}{b}{c}`))
 			end
 		end
@@ -723,7 +716,7 @@ function __setGraph(self: object)
 		self:__setEdge('LowerTorso.Root')
 	}
 	
-	for _, a in next, sides do
+	for _, a in sides do
 		push(self.edges, 
 			self:__setEdge(`{a}UpperArm.{a}Shoulder`),
 			self:__setEdge(`{a}LowerArm.{a}Elbow`),
@@ -815,7 +808,7 @@ function Rig15.new(char:Model, arg: constructorArgs?): object
 	self.ikCollection = IKCollection.new()
 	
 	-- other states
-	for _, a in next, sides do -- per side
+	for _, a in sides do -- per side
 		-- sole + inv kin + foot target + hand target
 		local highFootName = `{a}Foot`
 		local b = camelCaseify(a)
@@ -873,23 +866,24 @@ function Rig15.new(char:Model, arg: constructorArgs?): object
 	return self
 end
 
-getNillessArray = compose(table.clone,TableUtils.clearNils)
-getHumanoidRootPart=function(self:object,...)return self.humanoidRootPart.basePart,...end
-getPositionAndVelocity=function(p: Part,...)return p.CFrame,p.AssemblyLinearVelocity,...end
-getHrpPNV = compose(getHumanoidRootPart,getPositionAndVelocity)
-
-getWorldVectorFromRel = function(cf:CFrame,_,rel: Vector3, ...)
+function getWorldVectorFromRel(cf:CFrame,_,rel: Vector3, ...)
 	return cf.Position+Vector3Utils.getRelativeVector(cf, rel)
 end
 
-plusDefaultVect = function(a)
+function plusDefaultVect(a)
 	return function(self: object)return self:getWorldPosFromRelative(a)end
 end
 
-repairGraph_1 = function(last, current: node | edge)
+function repairGraph_1(last, current: node | edge)
 	local op = disguise(current):repair()
 	return last and op
 end
+
+function getHumanoidRootPart(self:object,...)return self.humanoidRootPart.basePart,...end
+function getPositionAndVelocity(p: Part,...)return p.CFrame,p.AssemblyLinearVelocity,...end
+
+getNillessArray = compose(table.clone,TableUtils.clearNils)
+getHrpPNV = compose(getHumanoidRootPart,getPositionAndVelocity)
 
 Rig15.getRelativeVelocity = compose(getHrpPNV,Vector3Utils.getRelativeVector)
 Rig15.getWorldPosFromRelative = compose(getHrpPNV,getWorldVectorFromRel)
@@ -899,30 +893,31 @@ Rig15.getRightReference = plusDefaultVect(Vector3.xAxis)
 Rig15.getLeftReference = plusDefaultVect(-Vector3.xAxis)
 Rig15.assertDestruction = Destructable.assertDestruction
 
-Rig15.getLimbs = function(self:object)
+function Rig15.getLimbs(self:object)
 	return Dash.collectArray(self.nodes, function(a0: number, a1: node)
 		return a1.name ~= 'HumanoidRootPart' and a1.basePart or nil
 	end)
 end
 
-Rig15.getMotor6Ds = function(self: object)
+function Rig15.getMotor6Ds(self: object)
 	return Dash.collectArray(self.edges, function(a0: number, a1: edge)
 		return a1.motor6D
 	end)
 end
 
-Rig15.__setNode = function(self: object, n: string)
+function Rig15.__setNode(self: object, n: string)
 	local low = camelCaseify(n)
-	
-	disguise(self)[low] = Node.new{
+	local node = Node.new{
 		name = n;
 		rig = self;
 		attachmentPresence = Node.attachmentPresences[low];
 	}
-	return disguise(self)[low]
+	
+	disguise(self)[low] = node
+	return node
 end
 
-Rig15.__setEdge = function(self: object, breadcrumb: string)
+function Rig15.__setEdge(self: object, breadcrumb: string)
 	local parent, name = unpack(breadcrumb:split('.'))
 	local __self = disguise(self)
 	local low = camelCaseify(name)
@@ -942,14 +937,14 @@ Rig15.__setEdge = function(self: object, breadcrumb: string)
 	return edge
 end
 
-Rig15.destroy = function(self: object)
+function Rig15.destroy(self: object)
 	cache:decache(self.character)
 	table.clear(self.nodes)
 	table.clear(self.edges)
 	self.isDestroyed = true;
 end
 
-Rig15.getAngleRelativeToFloor = function(self: object, epsilon: number)
+function Rig15.getAngleRelativeToFloor(self: object, epsilon: number)
 	local h = self.humanoidRootPart
 	local v = h.AssemblyLinearVelocity * vFloor
 	local c = h.CFrame
@@ -958,33 +953,32 @@ Rig15.getAngleRelativeToFloor = function(self: object, epsilon: number)
 		v.Magnitude > epsilon
 end
 
-Rig15.isAtFront = function(self: object, world: Vector3):boolean
+function Rig15.isAtFront(self: object, world: Vector3):boolean
 	local front = self:getFrontReference()
 
 	return Vector3Utils.getCloserVector3(world, front, self:getBackReference()) == front
 end
 
-Rig15.isAtRight = function(self: object, world: Vector3):boolean
+function Rig15.isAtRight(self: object, world: Vector3):boolean
 	local right = self:getRightReference()
 	
 	return Vector3Utils.getCloserVector3(world, right, self:getLeftReference()) == right
 end
 
-Rig15.getHRPElevation = function(self:object)
+function Rig15.getHRPElevation(self:object)
 	return self.humanoid.HipHeight + self.humanoidRootPart.basePart.Size.Y / 2
 end
 
-Rig15.repairGraph = function(self: object)
+function Rig15.repairGraph(self: object)
 	--print(self)
 	return Dash.reduce(self.nodes, repairGraph_1, true) and 
 		Dash.reduce(self.edges, repairGraph_1, true)
 end
 
-Rig15.getCoreSound = function(self: object, s: string)
+function Rig15.getCoreSound(self: object, s: string)
 	return self.humanoidRootPart.basePart:FindFirstChild(s)
 end
 
-Rig15.__index = Rig15
-Rig15.className = 'Rig15'
+Class.makeProperClass(Rig15, '@CHL>Rig15')
 
 return Rig15
