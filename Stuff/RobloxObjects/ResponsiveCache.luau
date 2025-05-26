@@ -4,16 +4,15 @@
 --]]
 
 -- SPEC
-local Objects = script.Parent
-
-local Object = require(Objects.Object)
-local Class = require(Objects.Class)
-local Map = require(Objects["@CHL/Map"])
+local Object = require('./Object')
+local Class = require('./Class')
+local Map = require('./@CHL>Map')
 
 type map<I, V> = Map.simple<I,V>
+type dict<A> = Map.dictionary<A>
 
 export type object<returns..., params...> = {
-	cache:  map<string, {any}>;
+	cache: dict<{any}>;
 	func: (params...) -> returns...;
 	
 	get: (self: object<returns..., params...>, params...) -> returns...;
@@ -24,8 +23,9 @@ export type object<returns..., params...> = {
 -- CLASS
 local ResponsiveCache = {}
 local availibleIndex = 0
+local LuaUTypes = require('./LuaUTypes')
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = LuaUTypes.disguise
 
 ResponsiveCache.nilRepresentitive = {} -- find something to replace this later
 -- ^ lua doesn't allow nil indexes but allows anything else
@@ -39,10 +39,7 @@ function ResponsiveCache.new<
 	assert(type(func) == 'function')
 
 	-- main
-	local self: object<returns..., params...> = 
-		Object.new():__inherit(ResponsiveCache)
-		
-		--disguise(setmetatable({}, ResponsiveCache))
+	local self: object<returns..., params...> = Object.from.class(ResponsiveCache)
 
 	self.cache = {}
 	self.func = func
@@ -80,7 +77,7 @@ end
 	Calls "func" with arguments and returns any cached values if the arguments are 
 	inputted twice
 ]]
-ResponsiveCache.get = function<r..., p...>(self: object<r... ,p...>, ...: p...)
+function ResponsiveCache.get<r..., p...>(self: object<r... ,p...>, ...: p...)
 	-- main
 	local result
 	local megaIndex = getMegaIndex(...)
@@ -94,7 +91,7 @@ ResponsiveCache.get = function<r..., p...>(self: object<r... ,p...>, ...: p...)
 	return unpack(result)
 end
 
-ResponsiveCache.exists = function<r...,p...> (self:object<r...,p...>, ...:p...)
+function ResponsiveCache.exists<r...,p...> (self:object<r...,p...>, ...:p...)
 	local mI = getMegaIndex(...)
 
 	local isExist = false
@@ -108,7 +105,7 @@ end
 	Decaches any entry to object.cachedResults based on the arguments, 
 	returns removed value
 ]]
-ResponsiveCache.decache = function<r..., p...>(self: object<r..., p...>, ...: p...)
+function ResponsiveCache.decache<r..., p...>(self: object<r..., p...>, ...: p...)
 	-- main
 	local result = {self:get(...)}
 
@@ -117,9 +114,9 @@ ResponsiveCache.decache = function<r..., p...>(self: object<r..., p...>, ...: p.
 	return unpack(result)
 end
 
-ResponsiveCache.__index = ResponsiveCache
 ResponsiveCache.getIndex = getIndex
 ResponsiveCache.getMegaIndex = getMegaIndex
-ResponsiveCache.className = 'ResponsiveCache'
+
+Class.makeProperClass(ResponsiveCache, '@CHL>ResponsiveCache')
 
 return ResponsiveCache
