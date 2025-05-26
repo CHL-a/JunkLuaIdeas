@@ -1,8 +1,6 @@
 --// TYPE
-local Objects = script.Parent
-
-local Object = require(Objects.Object)
-local Class = require(Objects.Class)
+local Object = require('./Object')
+local Class = require('./Class')
 
 export type object = {
 	character: Model;
@@ -13,7 +11,7 @@ export type object = {
 	waitDescendant: <A>(self: object, ...string) -> A;
 	__getDescendantFromArg: <A>(self: object, ...string) -> A;
 	__setLimbFromConstruction: <A>(self: object, ... string) -> A;
-} & Class.subclass<Object.object>
+} & Object.object_inheritance
 
 export type constructorArgs = {
 	shouldYield: boolean?;
@@ -24,7 +22,7 @@ type __anyFn = (...any) -> ...any
 -- CLASS
 local Rig = {}
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 
 function Rig.new(char: Model, arg: constructorArgs?): object
 	local self: object = Object.new():__inherit(Rig)
@@ -37,7 +35,7 @@ function Rig.new(char: Model, arg: constructorArgs?): object
 	return self
 end
 
-Rig.findDescendant = function(self:object, ...: string)
+function Rig.findDescendant(self:object, ...: string)
 	local result = self.character
 	
 	for i = 1, select('#', ...) do
@@ -49,7 +47,7 @@ Rig.findDescendant = function(self:object, ...: string)
 	return result
 end
 
-Rig.waitDescendant = function(self:object, ...: string)
+function Rig.waitDescendant(self:object, ...: string)
 	local result = self.character
 	
 	for i = 1, select('#', ...) do
@@ -61,7 +59,7 @@ Rig.waitDescendant = function(self:object, ...: string)
 	return result
 end
 
-Rig.__getDescendantFromArg = function(self:object, ...: string)
+function Rig.__getDescendantFromArg(self:object, ...: string)
 	local arg = self.__constructorArg
 	
 	return assert(
@@ -72,7 +70,7 @@ Rig.__getDescendantFromArg = function(self:object, ...: string)
 	)
 end
 
-Rig.__setLimbFromConstruction = function(self:object, ...: string)
+function Rig.__setLimbFromConstruction(self:object, ...: string)
 	local n = select(select('#', ...),...)
 	local obj = self:__getDescendantFromArg(...)
 	disguise(self)[n:sub(1,1):lower() .. n:sub(2)] = obj
@@ -80,7 +78,6 @@ Rig.__setLimbFromConstruction = function(self:object, ...: string)
 	return obj
 end
 
-Rig.__index = Rig
-Rig.className = 'RigBase'
+Class.makeProperClass(Rig, '@CHL>RigBase')
 
 return Rig
