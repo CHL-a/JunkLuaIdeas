@@ -8,8 +8,8 @@ export type object = {
 	localScript: LocalScript;
 	currentOwners: {LocalScript};
 	
-	undo: (self: object) -> nil;
-} & Class.subclass<Object.object>
+	undo: (self: object) -> ();
+} & Object.object_inheritance
 
 --##################################################################################
 --##################################################################################
@@ -22,7 +22,7 @@ disguise = LuaUTypes.disguise
 
 function LocalPlayerScriptLoader.new(LocalScript: LocalScript): object
 	-- main
-	local self: object = Object.new():__inherit(LocalPlayerScriptLoader)
+	local self: object = Object.from.class(LocalPlayerScriptLoader)
 	
 	self.oldParent = disguise(LocalScript.Parent)
 	self.localScript = LocalScript
@@ -58,7 +58,6 @@ function LocalPlayerScriptLoader.undo(self: object)
 	end
 end
 
-LocalPlayerScriptLoader.__index = LocalPlayerScriptLoader
-LocalPlayerScriptLoader.className = 'LocalPlayerScriptLoader'
+Class.makeProperClass(LocalPlayerScriptLoader, '@CHL>LocalPlayerScriptLoader')
 
 return LocalPlayerScriptLoader
