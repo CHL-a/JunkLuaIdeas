@@ -2,14 +2,11 @@
 -- https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua#L98
 
 -- type
-local Objects = script.Parent
-
-local Object = require(Objects.Object)
-
-local SpringInterface = require(Objects["@CHL/SpringInterfaces"])
-local NevermoreSpring = require(Objects.NevermoreSpring)
-local Class = require(Objects.Class)
-local RuntimeUpdater = require(Objects.RuntimeUpdater)
+local Object = require('./Object')
+local SpringInterface = require('./@CHL>SpringInterfaces')
+local NevermoreSpring = require('./NevermoreSpring')
+local Class = require('./Class')
+local RuntimeUpdater = require('./@CHL>RuntimeUpdater')
 
 export type clock_function = ()->number;
 
@@ -22,9 +19,10 @@ export type object<A> = {
 
 -- main
 local module = {}
+local LuaUTypes = require('./LuaUTypes')
 
 module.from = {}
-disguise = require(Objects.LuaUTypes).disguise
+disguise = LuaUTypes.disguise
 
 function module.new<A>(p: A, runtimer: clock_function?): object<A>
 	runtimer = runtimer or module.defaults.runtimer
