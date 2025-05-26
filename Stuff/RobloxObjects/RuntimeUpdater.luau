@@ -1,11 +1,9 @@
 -- TYPES
-local Objects = script.Parent
-local Class = require(Objects.Class)
-local Object = require(Objects.Object)
-local Set = require(Objects["@CHL/Set"])
-local Destructable = require(Objects["@CHL/Destructable"])
+local Object = require('./Object')
+local Class = require('./Class')
+local Set = require('./@CHL>Set')
+local Destructable = require('./@CHL>Destructable')
 
-type grandfather = Object.object
 type set<T> = Set.simple<T>
 
 export type updatable = {
@@ -27,13 +25,14 @@ export type object = {
 	removeObject: (self:object, updatable) -> ();
 	update: (self:object, delta: number) -> ();
 	getUpdatables: (self:object) -> {updatable};
-} & Class.subclass<grandfather>
+} & Object.object_inheritance
 
 -- MAIN
-local LuaUTypes = require(Objects.LuaUTypes)
+local LuaUTypes = require('./LuaUTypes')
 local abstract = {}
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = LuaUTypes.disguise
+insert = table.insert
 
 function abstract.new(): object
 	local self: object = Object.new():__inherit(abstract)
@@ -43,20 +42,20 @@ function abstract.new(): object
 	return self
 end
 
-abstract.insertIndex = function(self:object, i: number)
-	for j, v in next, self.indexCollection do
+function abstract.insertIndex(self:object, i: number)
+	for j, v in self.indexCollection do
 		if v > i then continue end
 		if v == i then return end;
 		
-		table.insert(self.indexCollection, j, i)
+		insert(self.indexCollection, j, i)
 		
 		return
 	end
 	
-	table.insert(self.indexCollection, i)
+	insert(self.indexCollection, i)
 end
 
-abstract.addObject = function(self:object, u:updatable, p: number?)
+function abstract.addObject(self:object, u:updatable, p: number?)
 	local p = p or u.updatablePriority or 1
 	self:insertIndex(p)
 	local collection = self.collection
@@ -69,27 +68,27 @@ abstract.addObject = function(self:object, u:updatable, p: number?)
 	map[u] = true;
 end
 
-abstract.removeObject = function(self:object, u:updatable)
+function abstract.removeObject(self:object, u:updatable)
 	local map = self.collection[u.updatablePriority or 1]
 	if not map then return end;
 	map[u] = nil;
 end
 
-abstract.getUpdatables = function(self:object)
+function abstract.getUpdatables(self:object)
 	local result = {}
 	
-	for _, v in next, self.collection do
-		for w in next, v do
-			table.insert(result, w)
+	for _, v in self.collection do
+		for w in v do
+			insert(result, w)
 		end
 	end
 	
 	return result
 end
 
-abstract.update = function(self:object, delta: number)
-	for _, v in next, self.indexCollection do
-		for u in next, self.collection[v] do
+function abstract.update(self:object, delta: number)
+	for _, v in self.indexCollection do
+		for u in self.collection[v] do
 			if u.shouldDisconnect then self:removeObject(u)continue;end
 			if not u.canUpdate then continue end;
 			u:update(delta)
@@ -97,9 +96,8 @@ abstract.update = function(self:object, delta: number)
 	end
 end
 
-abstract.__index = abstract
+Class.makeProperClass(abstract, '@CHL>RuntimeUpdater')
 abstract.commence = Class.abstractMethod
-abstract.className = '@CHL/RuntimeUpdater'
 
 local module = {}
 module.abstract = abstract
@@ -108,33 +106,39 @@ local RunService = game:GetService('RunService')
 
 -- heartbeat
 local heartBeatUpdater: object = abstract.new()
-heartBeatUpdater.commence = function(self:object)
+
+function heartBeatUpdater.commence(self:object)
 	if self.updateThread then return end
 	
 	self.updateThread = RunService.Heartbeat:Connect(function(d)self:update(d)end)
 end
-heartBeatUpdater.className = 'HeartBeatUpdater'
+
+heartBeatUpdater.className = '@CHL>RuntimeUpdater>HeartBeat'
 module.heartBeat = heartBeatUpdater
 
 -- stepped
 local steppedUpdater: object = abstract.new()
-steppedUpdater.commence = function(self:object)
+
+function steppedUpdater.commence(self:object)
 	if self.updateThread then return end
 	self.updateThread = RunService.Stepped:Connect(function(_, d)
 		self:update(d)
 	end)
 end
-steppedUpdater.className = 'SteppedUpdater'
+
+steppedUpdater.className = '@CHL>RuntimeUpdater>Stepped'
 module.stepped = steppedUpdater
 
 -- renderstepped
 local renderSteppedUpdater: object = abstract.new()
-renderSteppedUpdater.commence = function(self:object)
+
+function renderSteppedUpdater.commence(self:object)
 	assert(RunService:IsClient(), 'attempting to a client exclusive updater on a non client')
 	
 	self.updateThread = RunService.RenderStepped:Connect(function(d)self:update(d)end)
 end
-renderSteppedUpdater.className = 'RenderSteppedUpdater'
+
+renderSteppedUpdater.className = '@CHL>RuntimeUpdater>RenderStepped'
 module.renderStepped = renderSteppedUpdater
 
 return module
