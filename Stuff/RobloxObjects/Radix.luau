@@ -1,6 +1,7 @@
 --// TYPES
-local Objects = script.Parent
-local Map = require(Objects["@CHL/Map"]) 
+local Map = require('./@CHL>Map') 
+local Object = require('./Object')
+local Class = require('./Class')
 
 export type digitsMap<A> = Map.simple<A, number>
 
@@ -10,18 +11,18 @@ export type object<A> = {
 	
 	toDecimal: (self: object<A>, {A}) -> number;
 	fromDecimal: (self: object<A>, number) -> {A};
-}
+} & Object.object_inheritance
 
 --// MAIN
 local module = {}
-local LuaUTypes = require(Objects.LuaUTypes)
-module.__index = module
+local LuaUTypes = require('./LuaUTypes')
+
 
 disguise = LuaUTypes.disguise
 
 function create<A>(digits: {A}, dMap: digitsMap<A>): object<A>
-	local self: object<A> = disguise(setmetatable({}, module))
-	
+	local self: object<A> = Object.from.class(module)
+		
 	self.digits = digits
 	self.digitsMap = dMap
 	
@@ -33,7 +34,7 @@ from = {}
 function fromArray<A>(digits: {A}): object<A>
 	local map = Map.simple.flipArray(digits)
 	
-	for i in next, map do
+	for i in map do
 		map[i] -= 1
 	end
 	
@@ -52,7 +53,7 @@ function fromMap<A>(map: digitsMap<A>): object<A>
 end
 
 function fromOneBasedMap<A>(map: digitsMap<A>): object<A>
-	for i in next, map do
+	for i in map do
 		map[i] -= 1
 	end
 	
@@ -66,17 +67,19 @@ from.map = fromMap
 from.oneBasedMap = fromOneBasedMap
 from.chars = fromChars;
 module.from = from
+
 --[[
 <--- increases by base
 ABCDEF
 --]]
-module.toDecimal = function<A>(self: object<A>, sequence: {A})
+
+function module.toDecimal<A>(self: object<A>, sequence: {A})
 	local result = 0
 	local base = #self.digits
 	local map = self.digitsMap
 	local m = #sequence
 	
-	for i, v in next, sequence do
+	for i, v in sequence do
 		local mult = assert(map[v], `Attempting to use a non-digit: {v}`)
 		result += mult * base ^ (m - i)
 	end
@@ -84,7 +87,7 @@ module.toDecimal = function<A>(self: object<A>, sequence: {A})
 	return result
 end
 
-module.fromDecimal = function<A>(self: object<A>, n: number)
+function module.fromDecimal<A>(self: object<A>, n: number)
 	local result = {}
 	local base = #self.digits
 	local digits = 1 + math.log(math.max(1, n), base) // 1
@@ -101,11 +104,11 @@ module.fromDecimal = function<A>(self: object<A>, n: number)
 	return result
 end
 
---######################################################################################
---######################################################################################
---######################################################################################
+Class.makeProperClass(module, '@CHL>Radix')
 
-local Class = require(Objects.Class) 
+--######################################################################################
+--######################################################################################
+--######################################################################################
 
 export type charRadix = {
 	toDecimal: (self: charRadix, seq: string) -> number;
@@ -114,22 +117,24 @@ export type charRadix = {
 } & Class.subclass<object<string>>
 
 charRadix = {}
-charRadix.__index = charRadix
 
 function charRadix.new(s:string): charRadix
-	return Class.inherit(fromChars(s), charRadix)
+	return fromChars(s):__inherit(charRadix)
 end
 
-charRadix.toDecimal = function(self: charRadix, seq: string)
+function charRadix.toDecimal(self: charRadix, seq: string)
 	return self.__super:toDecimal(seq:split'')
 end
 
-charRadix.fromDecimal = function(self: charRadix, n: number)
+function charRadix.fromDecimal(self: charRadix, n: number)
 	return table.concat(self.__super:fromDecimal(n))
 end
 
+Class.makeProperClass(charRadix, '@CHL>Radix>Char')
+
 local binary = charRadix.new'01'
-binary.formatSequence = function(self: charRadix, n: number, len: number?)
+
+function binary.formatSequence(self: charRadix, n: number, len: number?)
 	local result = ''
 	local seq = self:fromDecimal(n)
 	
@@ -143,7 +148,8 @@ binary.formatSequence = function(self: charRadix, n: number, len: number?)
 end
 
 local hexlower = charRadix.new'0123456789abcdef'
-hexlower.formatSequence = function(self: charRadix, n: number, len: number?)
+
+function hexlower.formatSequence(self: charRadix, n: number, len: number?)
 	local result = ''
 	local seq = self:fromDecimal(n)
 
@@ -158,6 +164,10 @@ end
 
 local hexupper = charRadix.new'0123456789ABCDEF'
 hexupper.formatSequence = hexlower.formatSequence
+
+binary.className = '@CHL>Radix>Char>Binary'
+hexlower.className = '@CHL>Radix>Char>HexLower'
+hexupper.className = '@CHL>Radix>Char>HexUpper'
 
 charRadix.binary = binary
 charRadix.hexdecLower = hexlower
