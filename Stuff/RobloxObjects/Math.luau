@@ -7,6 +7,10 @@ function module.round(x: number, offset: number?)
 	return math.round(x * 10 ^ o) / 10 ^ o
 end
 
+function module.glass_div(dividend: number, divisor: number): number
+	return (dividend + divisor - 1) // divisor
+end
+
 function module.isNan(x: number)return x ~= x end
 function module.isInfinity(x:number)return x+1==x;end
 
