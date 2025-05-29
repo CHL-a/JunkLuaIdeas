@@ -1,7 +1,7 @@
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 	<External>null</External>
 	<External>nil</External>
-	<Item class="Folder" referent="RBX3B68C1054C724DBCB6BC93B4CA691F94">
+	<Item class="Folder" referent="RBXD8409E994A74455BBEAF12B48679E93D">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10,7 +10,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="Script" referent="RBX58958216F1874BC48520022F454DA5E4">
+		<Item class="Script" referent="RBX7A2E3D6C10A24820BDD20C85AF145FD9">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -303,7 +303,7 @@ end]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX50B0DE097683483D89E214778274BEF9">
+			<Item class="ModuleScript" referent="RBX1F66D13B8FA54F63882EE5107F7DA05C">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -345,7 +345,7 @@ return UIInterface
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ScreenGui" referent="RBXFB3C06DE28F84324A3F73E006CA53768">
+				<Item class="ScreenGui" referent="RBXC74E90C0839A4335970F672D614B810A">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<bool name="AutoLocalize">true</bool>
@@ -368,7 +368,7 @@ return UIInterface
 						<BinaryString name="Tags"></BinaryString>
 						<token name="ZIndexBehavior">1</token>
 					</Properties>
-					<Item class="Frame" referent="RBX1F54AE9C659E4D1BB6263ADEEE442140">
+					<Item class="Frame" referent="RBXACC7BFA0ADFF4609B70C652921D6DF2F">
 						<Properties>
 							<bool name="Active">true</bool>
 							<Vector2 name="AnchorPoint">
@@ -431,7 +431,7 @@ return UIInterface
 							<bool name="Visible">true</bool>
 							<int name="ZIndex">1</int>
 						</Properties>
-						<Item class="UICorner" referent="RBXD02923844AAA47E196DE649A4CAB28BD">
+						<Item class="UICorner" referent="RBX4ADB78152402434BB7F0EA5E25CCE594">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -445,7 +445,7 @@ return UIInterface
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
 						</Item>
-						<Item class="TextLabel" referent="RBXBD663A3749E14853AC46D03F9B42023F">
+						<Item class="TextLabel" referent="RBX92AC15C5929C42BCB92C3F05C6871EDD">
 							<Properties>
 								<bool name="Active">false</bool>
 								<Vector2 name="AnchorPoint">
@@ -539,7 +539,7 @@ return UIInterface
 								<bool name="Visible">true</bool>
 								<int name="ZIndex">1</int>
 							</Properties>
-							<Item class="UICorner" referent="RBXE7AE1D871C5549049DDAF189A5B408F8">
+							<Item class="UICorner" referent="RBX0CFB0272C1D44804873229E6A5CAC7A6">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -553,7 +553,7 @@ return UIInterface
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ImageButton" referent="RBX8EAD282A92FB48B08927D614649DC0B1">
+							<Item class="ImageButton" referent="RBX2DD5E4C2B945427D99AE09BC998F36A3">
 								<Properties>
 									<bool name="Active">false</bool>
 									<Vector2 name="AnchorPoint">
@@ -659,7 +659,7 @@ return UIInterface
 								</Properties>
 							</Item>
 						</Item>
-						<Item class="Frame" referent="RBXB2482AE5D005484E86769EF07ECD556D">
+						<Item class="Frame" referent="RBX2CA1C92A7BC74B19A8AF7EC48C062E8D">
 							<Properties>
 								<bool name="Active">false</bool>
 								<Vector2 name="AnchorPoint">
@@ -722,7 +722,7 @@ return UIInterface
 								<bool name="Visible">true</bool>
 								<int name="ZIndex">1</int>
 							</Properties>
-							<Item class="Frame" referent="RBX6EA43D20F7AB4A72BA462BB6A0F7F3BD">
+							<Item class="Frame" referent="RBX79B5A700E8744B5AAB91AA7B4726D004">
 								<Properties>
 									<bool name="Active">true</bool>
 									<Vector2 name="AnchorPoint">
@@ -785,7 +785,7 @@ return UIInterface
 									<bool name="Visible">true</bool>
 									<int name="ZIndex">3</int>
 								</Properties>
-								<Item class="Frame" referent="RBX4CD37656D8104AF4B4D012B34CC6CE0A">
+								<Item class="Frame" referent="RBXB3D698B30FF942E8B3E14729CE9C124C">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -848,7 +848,7 @@ return UIInterface
 										<bool name="Visible">false</bool>
 										<int name="ZIndex">3</int>
 									</Properties>
-									<Item class="ScrollingFrame" referent="RBX4FEDF6337DD9409BBC57EF0BBA4E0E39">
+									<Item class="ScrollingFrame" referent="RBX522ADC4EA161429294A902E1B3988D67">
 										<Properties>
 											<bool name="Active">true</bool>
 											<Vector2 name="AnchorPoint">
@@ -937,7 +937,7 @@ return UIInterface
 											<bool name="Visible">true</bool>
 											<int name="ZIndex">3</int>
 										</Properties>
-										<Item class="Frame" referent="RBXB9200EDBFB6B4E4A90A8F15FC5181CD6">
+										<Item class="Frame" referent="RBXB7DCA616F03D456DA73999157EFAD716">
 											<Properties>
 												<bool name="Active">true</bool>
 												<Vector2 name="AnchorPoint">
@@ -1000,7 +1000,7 @@ return UIInterface
 												<bool name="Visible">true</bool>
 												<int name="ZIndex">4</int>
 											</Properties>
-											<Item class="TextButton" referent="RBX6CD5679BDFB44CFEA4F35D9A3515669D">
+											<Item class="TextButton" referent="RBXD478810D5A2B4C2E9BEBF2A9A0E73D92">
 												<Properties>
 													<bool name="Active">true</bool>
 													<Vector2 name="AnchorPoint">
@@ -1101,7 +1101,7 @@ return UIInterface
 													<int name="ZIndex">1</int>
 												</Properties>
 											</Item>
-											<Item class="TextButton" referent="RBXF499532D58CA453584D4F3629BE2FEA0">
+											<Item class="TextButton" referent="RBX2804D12F1AFD41FEBEB3C568FAC0C5B7">
 												<Properties>
 													<bool name="Active">true</bool>
 													<Vector2 name="AnchorPoint">
@@ -1202,7 +1202,7 @@ return UIInterface
 													<int name="ZIndex">1</int>
 												</Properties>
 											</Item>
-											<Item class="UICorner" referent="RBXD4C6DD3075D34FC8A9834845418B9FF3">
+											<Item class="UICorner" referent="RBX927FB329DDF04A0D98870C5C53A62487">
 												<Properties>
 													<BinaryString name="AttributesSerialize"></BinaryString>
 													<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1216,7 +1216,7 @@ return UIInterface
 													<BinaryString name="Tags"></BinaryString>
 												</Properties>
 											</Item>
-											<Item class="ImageButton" referent="RBXA356CB0BBBA84082931A2109CFBB5648">
+											<Item class="ImageButton" referent="RBXB2C77C10619C4301A09069738620CC71">
 												<Properties>
 													<bool name="Active">true</bool>
 													<Vector2 name="AnchorPoint">
@@ -1322,7 +1322,7 @@ return UIInterface
 												</Properties>
 											</Item>
 										</Item>
-										<Item class="UIGridLayout" referent="RBXF7B3E32D12224AFA8A12257F0115EF10">
+										<Item class="UIGridLayout" referent="RBX061E1D82B50D4118A30529B66BCEEE03">
 											<Properties>
 												<BinaryString name="AttributesSerialize"></BinaryString>
 												<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1351,7 +1351,7 @@ return UIInterface
 											</Properties>
 										</Item>
 									</Item>
-									<Item class="UICorner" referent="RBX43BED6360D4A4A9F9411F821250B15BE">
+									<Item class="UICorner" referent="RBX4043373D0DF141B6888BDAD3F90C7A1A">
 										<Properties>
 											<BinaryString name="AttributesSerialize"></BinaryString>
 											<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1366,7 +1366,7 @@ return UIInterface
 										</Properties>
 									</Item>
 								</Item>
-								<Item class="Frame" referent="RBX49495C51BDBD4288A280711AFEA5BA22">
+								<Item class="Frame" referent="RBX8C58656BF21E4CA28170FEE40D403B25">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -1429,7 +1429,7 @@ return UIInterface
 										<bool name="Visible">true</bool>
 										<int name="ZIndex">3</int>
 									</Properties>
-									<Item class="UICorner" referent="RBX1884FE72860F4997B73B607C0F9BD4FB">
+									<Item class="UICorner" referent="RBXC33E8368B8484297BF795A0AF1E10603">
 										<Properties>
 											<BinaryString name="AttributesSerialize"></BinaryString>
 											<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1443,7 +1443,7 @@ return UIInterface
 											<BinaryString name="Tags"></BinaryString>
 										</Properties>
 									</Item>
-									<Item class="Frame" referent="RBX7DDEA4166DC145249D5811ACAB0B4C5B">
+									<Item class="Frame" referent="RBX7DD2E4DA49E2468385C70733A1720F1A">
 										<Properties>
 											<bool name="Active">false</bool>
 											<Vector2 name="AnchorPoint">
@@ -1506,7 +1506,7 @@ return UIInterface
 											<bool name="Visible">true</bool>
 											<int name="ZIndex">1</int>
 										</Properties>
-										<Item class="UICorner" referent="RBXEE919B588E0A4F5D8D864C05BBBACFDE">
+										<Item class="UICorner" referent="RBXAC0ED581872348C890D2041E03D6B048">
 											<Properties>
 												<BinaryString name="AttributesSerialize"></BinaryString>
 												<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1520,7 +1520,7 @@ return UIInterface
 												<BinaryString name="Tags"></BinaryString>
 											</Properties>
 										</Item>
-										<Item class="Frame" referent="RBX5A129BC8DBFC4786838638FAE886266B">
+										<Item class="Frame" referent="RBX5C223B967B454576BE9B4E5AD133F624">
 											<Properties>
 												<bool name="Active">false</bool>
 												<Vector2 name="AnchorPoint">
@@ -1583,7 +1583,7 @@ return UIInterface
 												<bool name="Visible">true</bool>
 												<int name="ZIndex">1</int>
 											</Properties>
-											<Item class="UICorner" referent="RBX3DBDF190005B4DB39C517C2613CAFDC4">
+											<Item class="UICorner" referent="RBX84DF0A2BFAFA449591D790CD9FDB4B8A">
 												<Properties>
 													<BinaryString name="AttributesSerialize"></BinaryString>
 													<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1597,7 +1597,7 @@ return UIInterface
 													<BinaryString name="Tags"></BinaryString>
 												</Properties>
 											</Item>
-											<Item class="UIListLayout" referent="RBX8A74FD5A32E14EF9B6E39F8643CA9C8D">
+											<Item class="UIListLayout" referent="RBX378934AE122343DC8BC1384FE780DB7E">
 												<Properties>
 													<BinaryString name="AttributesSerialize"></BinaryString>
 													<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1619,7 +1619,7 @@ return UIInterface
 													<bool name="Wraps">false</bool>
 												</Properties>
 											</Item>
-											<Item class="ImageButton" referent="RBX5260D3F2211C4757A6A4865550AFADBC">
+											<Item class="ImageButton" referent="RBX1025DFABC8724BFE92819D8C150392D4">
 												<Properties>
 													<bool name="Active">false</bool>
 													<Vector2 name="AnchorPoint">
@@ -1723,7 +1723,7 @@ return UIInterface
 													<bool name="Visible">true</bool>
 													<int name="ZIndex">1</int>
 												</Properties>
-												<Item class="UICorner" referent="RBX600185E78E574A85A3BC589FF04D46A3">
+												<Item class="UICorner" referent="RBXBC657AAE7ACF47FDA030C595D1490B2E">
 													<Properties>
 														<BinaryString name="AttributesSerialize"></BinaryString>
 														<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1738,7 +1738,7 @@ return UIInterface
 													</Properties>
 												</Item>
 											</Item>
-											<Item class="ImageButton" referent="RBXD2FBD8DB25F342149A88486A79884E9F">
+											<Item class="ImageButton" referent="RBX263A2989E9C5429DB676A12BD5079C1E">
 												<Properties>
 													<bool name="Active">false</bool>
 													<Vector2 name="AnchorPoint">
@@ -1842,7 +1842,7 @@ return UIInterface
 													<bool name="Visible">true</bool>
 													<int name="ZIndex">1</int>
 												</Properties>
-												<Item class="UICorner" referent="RBX7A1D44014BE94FDA8C47CA065476F9F9">
+												<Item class="UICorner" referent="RBXF3D8D8E3959B4541BCADE48AF758E943">
 													<Properties>
 														<BinaryString name="AttributesSerialize"></BinaryString>
 														<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1857,7 +1857,7 @@ return UIInterface
 													</Properties>
 												</Item>
 											</Item>
-											<Item class="ImageButton" referent="RBXE73617685676467B8A7179AC776DECD4">
+											<Item class="ImageButton" referent="RBXF2D69AC6C12B4F46A14F3C1F2B7BF25E">
 												<Properties>
 													<bool name="Active">false</bool>
 													<Vector2 name="AnchorPoint">
@@ -1961,7 +1961,7 @@ return UIInterface
 													<bool name="Visible">true</bool>
 													<int name="ZIndex">1</int>
 												</Properties>
-												<Item class="UICorner" referent="RBX8530D6613AC5470BB15A99D2CEE62657">
+												<Item class="UICorner" referent="RBX905B66BDD55348D59EA4FA864FECCD00">
 													<Properties>
 														<BinaryString name="AttributesSerialize"></BinaryString>
 														<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1978,7 +1978,7 @@ return UIInterface
 											</Item>
 										</Item>
 									</Item>
-									<Item class="Frame" referent="RBX95091FDD41DB41E7AE8197F4D597B7E0">
+									<Item class="Frame" referent="RBX7BAA60AE3AE44596AB9377A8627B6ED4">
 										<Properties>
 											<bool name="Active">true</bool>
 											<Vector2 name="AnchorPoint">
@@ -2041,7 +2041,7 @@ return UIInterface
 											<bool name="Visible">true</bool>
 											<int name="ZIndex">3</int>
 										</Properties>
-										<Item class="UICorner" referent="RBX91474F9A2C444D0D8839A86FE1764816">
+										<Item class="UICorner" referent="RBXAD6ACC443B014B10B5376A2654425846">
 											<Properties>
 												<BinaryString name="AttributesSerialize"></BinaryString>
 												<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2055,7 +2055,7 @@ return UIInterface
 												<BinaryString name="Tags"></BinaryString>
 											</Properties>
 										</Item>
-										<Item class="ScrollingFrame" referent="RBX51DC314A53C34F5C91A0BEAE05AD2942">
+										<Item class="ScrollingFrame" referent="RBX59FA74A1947B407B8AFA9E77DC06CF05">
 											<Properties>
 												<bool name="Active">true</bool>
 												<Vector2 name="AnchorPoint">
@@ -2144,7 +2144,7 @@ return UIInterface
 												<bool name="Visible">true</bool>
 												<int name="ZIndex">3</int>
 											</Properties>
-											<Item class="UIListLayout" referent="RBX0FBEFC93B9514FF7B4ACDEC65E5669A1">
+											<Item class="UIListLayout" referent="RBX6F58E03356B4417982741D72D96FE3B6">
 												<Properties>
 													<BinaryString name="AttributesSerialize"></BinaryString>
 													<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2166,7 +2166,7 @@ return UIInterface
 													<bool name="Wraps">false</bool>
 												</Properties>
 											</Item>
-											<Item class="Frame" referent="RBX5EECAED264E149EBB8BD294C779E26E1">
+											<Item class="Frame" referent="RBXFC8F8F9FE7A54E5ABEE2AA9C0F122B39">
 												<Properties>
 													<bool name="Active">true</bool>
 													<Vector2 name="AnchorPoint">
@@ -2229,7 +2229,7 @@ return UIInterface
 													<bool name="Visible">true</bool>
 													<int name="ZIndex">4</int>
 												</Properties>
-												<Item class="TextButton" referent="RBX51D28915C9E348C7A488227D5475F06B">
+												<Item class="TextButton" referent="RBXC29A9F3253474FD7A5844162DB5D89CF">
 													<Properties>
 														<bool name="Active">true</bool>
 														<Vector2 name="AnchorPoint">
@@ -2330,7 +2330,7 @@ return UIInterface
 														<int name="ZIndex">1</int>
 													</Properties>
 												</Item>
-												<Item class="UICorner" referent="RBX7BC3B83BE3BE4D2A849C505F1F23F7B6">
+												<Item class="UICorner" referent="RBXD5073D764A454FE4BCF1EAD76518B0E5">
 													<Properties>
 														<BinaryString name="AttributesSerialize"></BinaryString>
 														<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2344,7 +2344,7 @@ return UIInterface
 														<BinaryString name="Tags"></BinaryString>
 													</Properties>
 												</Item>
-												<Item class="Frame" referent="RBX914693906B5D4ED88D7D4CF2DBA1DF66">
+												<Item class="Frame" referent="RBX78D94B796A42436BB658D00669E653E7">
 													<Properties>
 														<bool name="Active">true</bool>
 														<Vector2 name="AnchorPoint">
@@ -2407,7 +2407,7 @@ return UIInterface
 														<bool name="Visible">true</bool>
 														<int name="ZIndex">1</int>
 													</Properties>
-													<Item class="ImageButton" referent="RBX9B80CEE070A4429BB138FA55B1AE78E8">
+													<Item class="ImageButton" referent="RBX9901F8E46F554ADEAACE9D336F6D16F0">
 														<Properties>
 															<bool name="Active">true</bool>
 															<Vector2 name="AnchorPoint">
@@ -2512,7 +2512,7 @@ return UIInterface
 															<int name="ZIndex">1</int>
 														</Properties>
 													</Item>
-													<Item class="ImageButton" referent="RBXBBD47C694D754956A57524F65351A310">
+													<Item class="ImageButton" referent="RBX2FB2C21D140A4A0AA7D14D8EFE557B14">
 														<Properties>
 															<bool name="Active">true</bool>
 															<Vector2 name="AnchorPoint">
@@ -2622,7 +2622,7 @@ return UIInterface
 										</Item>
 									</Item>
 								</Item>
-								<Item class="Frame" referent="RBXE9C4614A5BF249AFA124829EBE6B7010">
+								<Item class="Frame" referent="RBXD3BD27915C7E4687A8F8F4D9A3BCD448">
 									<Properties>
 										<bool name="Active">false</bool>
 										<Vector2 name="AnchorPoint">
@@ -2685,7 +2685,7 @@ return UIInterface
 										<bool name="Visible">true</bool>
 										<int name="ZIndex">1</int>
 									</Properties>
-									<Item class="UICorner" referent="RBXB474D2A83D974F1981AD07B3E95D7D3A">
+									<Item class="UICorner" referent="RBXEC304F6EF9914C61B38C8F520EF9364C">
 										<Properties>
 											<BinaryString name="AttributesSerialize"></BinaryString>
 											<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2699,7 +2699,7 @@ return UIInterface
 											<BinaryString name="Tags"></BinaryString>
 										</Properties>
 									</Item>
-									<Item class="TextBox" referent="RBXA2F130321468484FBB27E0A2B4CD6A9A">
+									<Item class="TextBox" referent="RBX952A32DA0F2842DB8E72F8CEA6D77566">
 										<Properties>
 											<bool name="Active">false</bool>
 											<Vector2 name="AnchorPoint">
@@ -2803,7 +2803,7 @@ return UIInterface
 											<bool name="Visible">true</bool>
 											<int name="ZIndex">1</int>
 										</Properties>
-										<Item class="UICorner" referent="RBX72CA81A2741C413086D0DE45FA36310E">
+										<Item class="UICorner" referent="RBX33940E8FD34448A0939F521E57BEE703">
 											<Properties>
 												<BinaryString name="AttributesSerialize"></BinaryString>
 												<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2818,7 +2818,7 @@ return UIInterface
 											</Properties>
 										</Item>
 									</Item>
-									<Item class="ImageButton" referent="RBXB1426287E37F4948A9BA8245473B2422">
+									<Item class="ImageButton" referent="RBX9B4C24DB8254496EA9790E8AFB82146F">
 										<Properties>
 											<bool name="Active">false</bool>
 											<Vector2 name="AnchorPoint">
@@ -2922,7 +2922,7 @@ return UIInterface
 											<bool name="Visible">true</bool>
 											<int name="ZIndex">1</int>
 										</Properties>
-										<Item class="UICorner" referent="RBXD21183720F9041B6A1FB3D9A81216128">
+										<Item class="UICorner" referent="RBX5A5A65A608B049FB8AB0BBD9657FE57B">
 											<Properties>
 												<BinaryString name="AttributesSerialize"></BinaryString>
 												<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2939,7 +2939,7 @@ return UIInterface
 									</Item>
 								</Item>
 							</Item>
-							<Item class="Frame" referent="RBXE254EAA9F6D54ED18E70347684660190">
+							<Item class="Frame" referent="RBXCA9A8CA62533478AA278B633EEA40863">
 								<Properties>
 									<bool name="Active">true</bool>
 									<Vector2 name="AnchorPoint">
@@ -3002,7 +3002,7 @@ return UIInterface
 									<bool name="Visible">false</bool>
 									<int name="ZIndex">1</int>
 								</Properties>
-								<Item class="UIListLayout" referent="RBXE4CE0DDB23BB43519DB173B1474DEEC6">
+								<Item class="UIListLayout" referent="RBXEB461B0CEF124894BBB8DF8885D9CE63">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -3024,7 +3024,7 @@ return UIInterface
 										<bool name="Wraps">false</bool>
 									</Properties>
 								</Item>
-								<Item class="TextButton" referent="RBX99CDCFEA5B8E40DCA22999C502268885">
+								<Item class="TextButton" referent="RBX0FC6548884C440598551B819F400D41D">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -3125,7 +3125,7 @@ return UIInterface
 										<int name="ZIndex">1</int>
 									</Properties>
 								</Item>
-								<Item class="UICorner" referent="RBX70C01E31F9614832B8B026ADD6583A37">
+								<Item class="UICorner" referent="RBX534542C0F0DE469CAB8DC3EE54CB236A">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -3140,7 +3140,7 @@ return UIInterface
 									</Properties>
 								</Item>
 							</Item>
-							<Item class="Frame" referent="RBXCE8177C26C484868A1C55D1CC1E53F22">
+							<Item class="Frame" referent="RBX13A082CA955C4B0E8BF73BA544A8572F">
 								<Properties>
 									<bool name="Active">true</bool>
 									<Vector2 name="AnchorPoint">
@@ -3203,7 +3203,7 @@ return UIInterface
 									<bool name="Visible">false</bool>
 									<int name="ZIndex">1</int>
 								</Properties>
-								<Item class="UIListLayout" referent="RBX985EE2880AB7410095EC4086C9AF92C4">
+								<Item class="UIListLayout" referent="RBX05B56B654BAD4057B817C4AE8C39983E">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -3225,7 +3225,7 @@ return UIInterface
 										<bool name="Wraps">false</bool>
 									</Properties>
 								</Item>
-								<Item class="TextButton" referent="RBX5340CE6DC76A4C11B46C205B41C0AFAF">
+								<Item class="TextButton" referent="RBXDFE76A4D74E241D9B54119C7D895DAE7">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -3326,7 +3326,7 @@ return UIInterface
 										<int name="ZIndex">1</int>
 									</Properties>
 								</Item>
-								<Item class="TextBox" referent="RBX43A7889152024CE6AF68FA2ABA3DBE46">
+								<Item class="TextBox" referent="RBX6BC407CA21624314ADB40FD0AAEA72F7">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -3431,7 +3431,7 @@ return UIInterface
 										<int name="ZIndex">1</int>
 									</Properties>
 								</Item>
-								<Item class="UICorner" referent="RBX09716DF4A6F3450EA33D7756C09AAD8A">
+								<Item class="UICorner" referent="RBX278132B96116469B93598FE26E260E45">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -3446,7 +3446,7 @@ return UIInterface
 									</Properties>
 								</Item>
 							</Item>
-							<Item class="Frame" referent="RBXFE2EDD07B3DB4D59B1997B0F2D8383E5">
+							<Item class="Frame" referent="RBXD2561FBFBCD74D7281C7A4DCF72197DE">
 								<Properties>
 									<bool name="Active">true</bool>
 									<Vector2 name="AnchorPoint">
@@ -3509,7 +3509,7 @@ return UIInterface
 									<bool name="Visible">false</bool>
 									<int name="ZIndex">1</int>
 								</Properties>
-								<Item class="UIListLayout" referent="RBXDDA621DC03064BBB85E1D48EC6A98061">
+								<Item class="UIListLayout" referent="RBX669306148DD64A1DB3637B4FCD6389FD">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -3531,7 +3531,7 @@ return UIInterface
 										<bool name="Wraps">false</bool>
 									</Properties>
 								</Item>
-								<Item class="TextButton" referent="RBX16253B87431A45D5BE772111D8C24DE1">
+								<Item class="TextButton" referent="RBXB9562B762459440C8AD0C4141003F70C">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -3632,7 +3632,7 @@ return UIInterface
 										<int name="ZIndex">1</int>
 									</Properties>
 								</Item>
-								<Item class="UICorner" referent="RBXB03A542F418C406B94F369ECEDE7451A">
+								<Item class="UICorner" referent="RBX381581753A3A454688D576850F568742">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -3646,7 +3646,7 @@ return UIInterface
 										<BinaryString name="Tags"></BinaryString>
 									</Properties>
 								</Item>
-								<Item class="TextButton" referent="RBX1160905ECAC440B18CAF516BEACE8229">
+								<Item class="TextButton" referent="RBX12F22812DE824B1FBBA338506DEBBFFB">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -3748,7 +3748,7 @@ return UIInterface
 									</Properties>
 								</Item>
 							</Item>
-							<Item class="Frame" referent="RBX8B9312E3575D4F36A1FA4E6BAE37B412">
+							<Item class="Frame" referent="RBXC8F11FC5356F429C9741D875B15B72D4">
 								<Properties>
 									<bool name="Active">true</bool>
 									<Vector2 name="AnchorPoint">
@@ -3811,7 +3811,7 @@ return UIInterface
 									<bool name="Visible">false</bool>
 									<int name="ZIndex">1</int>
 								</Properties>
-								<Item class="UIListLayout" referent="RBXF84A0CA39CE74C019644E86A25385369">
+								<Item class="UIListLayout" referent="RBX56F7DB2B3EF3463CAD9BE52EA5A573CE">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -3833,7 +3833,7 @@ return UIInterface
 										<bool name="Wraps">false</bool>
 									</Properties>
 								</Item>
-								<Item class="TextButton" referent="RBX57FAFA13E4CF492391990709871C267B">
+								<Item class="TextButton" referent="RBX3DFF06FBF3E5494FB2CF1E0554B03C39">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -3934,7 +3934,7 @@ return UIInterface
 										<int name="ZIndex">1</int>
 									</Properties>
 								</Item>
-								<Item class="UICorner" referent="RBX06E7A98976DE4B2EAA028E102BF0B357">
+								<Item class="UICorner" referent="RBX196F02DB48064F76811927062435C882">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -3949,7 +3949,7 @@ return UIInterface
 									</Properties>
 								</Item>
 							</Item>
-							<Item class="Frame" referent="RBX9E8640F418DE489BA9986DCC0BC82258">
+							<Item class="Frame" referent="RBX3CFDB8E9331742E49ADFA81FC6130C28">
 								<Properties>
 									<bool name="Active">true</bool>
 									<Vector2 name="AnchorPoint">
@@ -4012,7 +4012,7 @@ return UIInterface
 									<bool name="Visible">false</bool>
 									<int name="ZIndex">3</int>
 								</Properties>
-								<Item class="ScrollingFrame" referent="RBX45E83265C0374487B7975A63F1D593DD">
+								<Item class="ScrollingFrame" referent="RBX255AE4EF1098437EA4A9023BC5FC8CFF">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -4101,7 +4101,7 @@ return UIInterface
 										<bool name="Visible">true</bool>
 										<int name="ZIndex">4</int>
 									</Properties>
-									<Item class="UIListLayout" referent="RBXF59E6375FE5E41F4906B3F36FFC2EFF5">
+									<Item class="UIListLayout" referent="RBXF26C0EBDF0F04ACA9BEEC5CE0913F948">
 										<Properties>
 											<BinaryString name="AttributesSerialize"></BinaryString>
 											<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -4123,7 +4123,7 @@ return UIInterface
 											<bool name="Wraps">false</bool>
 										</Properties>
 									</Item>
-									<Item class="TextButton" referent="RBX3D01CD4056A04827A3F6A22827A8BF50">
+									<Item class="TextButton" referent="RBXCADF916DEC4249BB95004894BE8433F9">
 										<Properties>
 											<bool name="Active">true</bool>
 											<Vector2 name="AnchorPoint">
@@ -4224,7 +4224,7 @@ return UIInterface
 											<int name="ZIndex">4</int>
 										</Properties>
 									</Item>
-									<Item class="TextButton" referent="RBX24EBB8793D664650918AE9444170B1EA">
+									<Item class="TextButton" referent="RBX55496DCCDB1545E18257D42BC79EE182">
 										<Properties>
 											<bool name="Active">true</bool>
 											<Vector2 name="AnchorPoint">
@@ -4325,7 +4325,7 @@ return UIInterface
 											<int name="ZIndex">4</int>
 										</Properties>
 									</Item>
-									<Item class="TextButton" referent="RBX6A4E7E10B5F94256929D3E4BE578909F">
+									<Item class="TextButton" referent="RBXDAA577EB63424BFCB88370D1BB396F8F">
 										<Properties>
 											<bool name="Active">true</bool>
 											<Vector2 name="AnchorPoint">
@@ -4426,7 +4426,7 @@ return UIInterface
 											<int name="ZIndex">4</int>
 										</Properties>
 									</Item>
-									<Item class="TextButton" referent="RBXCF344B5A9B3C40188A8CC06C2C53DBF2">
+									<Item class="TextButton" referent="RBX68F189F8E16E4DEFAD3C07CF023D4DC6">
 										<Properties>
 											<bool name="Active">true</bool>
 											<Vector2 name="AnchorPoint">
@@ -4527,7 +4527,7 @@ return UIInterface
 											<int name="ZIndex">4</int>
 										</Properties>
 									</Item>
-									<Item class="TextButton" referent="RBXC740DEB82641468AB1F074AFADC939BD">
+									<Item class="TextButton" referent="RBXFFAE8EEE87654EBC943BF054F5871FD0">
 										<Properties>
 											<bool name="Active">true</bool>
 											<Vector2 name="AnchorPoint">
@@ -4628,7 +4628,7 @@ return UIInterface
 											<int name="ZIndex">4</int>
 										</Properties>
 									</Item>
-									<Item class="TextButton" referent="RBX98D2D2F290014ED68BC4280165BECE52">
+									<Item class="TextButton" referent="RBXC22A1C7E62AC46A58601C907C0FCEAB4">
 										<Properties>
 											<bool name="Active">true</bool>
 											<Vector2 name="AnchorPoint">
@@ -4730,7 +4730,7 @@ return UIInterface
 										</Properties>
 									</Item>
 								</Item>
-								<Item class="UICorner" referent="RBX441D51A3755F454E8B98010B838ACEB2">
+								<Item class="UICorner" referent="RBXCC3827F0B2B34CCEB69011ED91F6FF24">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -4745,7 +4745,7 @@ return UIInterface
 									</Properties>
 								</Item>
 							</Item>
-							<Item class="Frame" referent="RBXFD8E140399A341579C95095B5A980CB2">
+							<Item class="Frame" referent="RBX864F9DDFF3B5434DB8CF2D9FF80C4652">
 								<Properties>
 									<bool name="Active">true</bool>
 									<Vector2 name="AnchorPoint">
@@ -4808,7 +4808,7 @@ return UIInterface
 									<bool name="Visible">false</bool>
 									<int name="ZIndex">1</int>
 								</Properties>
-								<Item class="UIListLayout" referent="RBX6CB4680822FA425EA4276ECE48950664">
+								<Item class="UIListLayout" referent="RBX7B198262286F4495BE5327D902D072CB">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -4830,7 +4830,7 @@ return UIInterface
 										<bool name="Wraps">false</bool>
 									</Properties>
 								</Item>
-								<Item class="TextButton" referent="RBX306F40C759BC465B80E71DC95C0FC02C">
+								<Item class="TextButton" referent="RBX465BDD47040F4E0B825754EFAC5BB185">
 									<Properties>
 										<bool name="Active">true</bool>
 										<Vector2 name="AnchorPoint">
@@ -4931,7 +4931,7 @@ return UIInterface
 										<int name="ZIndex">1</int>
 									</Properties>
 								</Item>
-								<Item class="UICorner" referent="RBX02AB9A91962947DA973293F35E367D5B">
+								<Item class="UICorner" referent="RBXDF9AA560A3E04737AF8CEA2181A19186">
 									<Properties>
 										<BinaryString name="AttributesSerialize"></BinaryString>
 										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -4948,7 +4948,7 @@ return UIInterface
 							</Item>
 						</Item>
 					</Item>
-					<Item class="Folder" referent="RBX9318C275B49040A5BC2E0DE8093FA9A9">
+					<Item class="Folder" referent="RBX0B53ECF374A14D46A4DD325C9D6603B1">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -4957,7 +4957,7 @@ return UIInterface
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
-						<Item class="Sound" referent="RBX5427963502584D5BA601409B4682311E">
+						<Item class="Sound" referent="RBX5975EACC55CC46419919F52ABF5DF49B">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -4981,7 +4981,7 @@ return UIInterface
 								<float name="Volume">10</float>
 							</Properties>
 						</Item>
-						<Item class="Sound" referent="RBX39ABB68740194B29B6FC8C29D527327C">
+						<Item class="Sound" referent="RBX978A2778BB3E4487850832214DB0B81C">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -5008,7 +5008,7 @@ return UIInterface
 					</Item>
 				</Item>
 			</Item>
-			<Item class="ModuleScript" referent="RBXEE1F47DDE3AB438C9C233D522BB8D39D">
+			<Item class="ModuleScript" referent="RBX8F034CF677854E95817DC7174E9ACCD0">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -5100,8 +5100,7 @@ local disguise = require('./LuaUTypes').disguise
 local PMPS = require('./PMPlaceSave')
 local Dash = require('./@CHL>DashSingular')
 local SourceMapBuilder = require('./@CHL>SourceMapBuilder')
-
-HttpService = game:GetService('HttpService')
+local HttpService = require('./@CHL>HttpServiceWrapper')
 
 local module = {}
 
@@ -5191,7 +5190,14 @@ function module.loadPackage(self:object, i: string, isRoot: boolean?)
 		local source
 		
 		local didWork, err = pcall(function()
-			source = HttpService:GetAsync(url)
+			local response = HttpService.request{
+				Url = url;
+				Method = 'GET'
+			}
+			
+			if response.Success then
+				source = response.Body
+			end
 		end)
 		
 		assert(source and didWork, `error: {err}`)
@@ -5273,6 +5279,29 @@ function module.loadPackage(self:object, i: string, isRoot: boolean?)
 			assert(_p.suffix, 'missing suffix'),
 			_p.branch
 		)
+		moduleScript.Name = package.name
+	elseif pType == 'rbxm' then
+		local _p = package :: url_package
+		local file: buffer = nil
+		
+		local suc, msg = pcall(function(...)
+			local request: HttpService.request = {
+				Url = _p.url;
+				Method = 'GET';
+			}
+			local response = HttpService.request(request)
+			
+			if response.Success then
+				file = buffer.fromstring(response.Body)
+			else
+				print(response)
+			end
+		end)
+		
+		assert(suc and file, msg or 'http good, success bad')
+		
+		local objects = game:GetService('SerializationService'):DeserializeInstancesAsync(file)
+		moduleScript = objects[1]
 		moduleScript.Name = package.name
 	else
 		error(`bad packageType (not availible): {pType}`)
@@ -5385,7 +5414,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXD37A89AF242340B28CA236E1CB993361">
+			<Item class="ModuleScript" referent="RBX728175701DC74B8D9240571A6B02625E">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -5539,7 +5568,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX339B3A607CD5414DA611A562DCE73022">
+			<Item class="ModuleScript" referent="RBX7A02761CFA18416D97D8A075EB76DB6B">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -5597,7 +5626,7 @@ return module]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXD299E6E3E8F54A0F974FD93605C61F4F">
+			<Item class="ModuleScript" referent="RBX65501A40FAE546CA9C04C9E743ECDC1B">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -5669,7 +5698,7 @@ return module
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="UIPageLayout" referent="RBXAC52723D8E554E049096E2BC86A99E86">
+				<Item class="UIPageLayout" referent="RBX2CCF7AFF3E64459886ADD9F2A3A8A83C">
 					<Properties>
 						<bool name="Animated">true</bool>
 						<BinaryString name="AttributesSerialize"></BinaryString>
@@ -5696,7 +5725,7 @@ return module
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="ModuleScript" referent="RBX1D03138EB5D341F2A08F95A68DBEB6C7">
+			<Item class="ModuleScript" referent="RBX71FC97C3BD6E437F88CB0DBC31C04449">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -5744,7 +5773,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX07D22FA33FD2490AB92B5254EFE6A017">
+			<Item class="ModuleScript" referent="RBXDDF9830FC6B44446A396ED019C886E7D">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -5791,7 +5820,7 @@ return module]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXC8E902BDD5444023BE78B6140FCD907A">
+			<Item class="ModuleScript" referent="RBX55CB4C3F7C64470696DD6CC6BECF851D">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6023,7 +6052,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX5F16310043764CEB8D5F702E225ADAC0">
+			<Item class="ModuleScript" referent="RBX33B60A5392E94E1A99B8D4C617C65245">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6187,7 +6216,7 @@ return rbxm]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBXDC38537D8C1E4E689F3A21DFEC60F0A3">
+				<Item class="ModuleScript" referent="RBX8559795FA58C469F886A1DEE10C4393B">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6322,7 +6351,7 @@ return basicTypes]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXC6A29E11C5914796A198246FF166C3C0">
+				<Item class="ModuleScript" referent="RBXB82BE37EE41E4ED2949C13E505C68E6B">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6400,7 +6429,7 @@ return Buffer]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="Folder" referent="RBX22486BEE05F34954A71790DA0BBF0583">
+				<Item class="Folder" referent="RBX720AE1711DBB4A34BEBB85F7C64A7B05">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6409,7 +6438,7 @@ return Buffer]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="ModuleScript" referent="RBX125006A9E7884F548CEC57CD7030CD62">
+					<Item class="ModuleScript" referent="RBX18C147283FE24922B5960D9561192225">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6463,7 +6492,7 @@ return INST]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX6156DDB61DFF4F75AAE2DE556D602770">
+					<Item class="ModuleScript" referent="RBX7C896BFDEF294D3586DF55EEE728E5CB">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6489,7 +6518,7 @@ return META]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXB5B2C1ACE341493483E8DCA860E3B090">
+					<Item class="ModuleScript" referent="RBXF64BA81B3CAB4FCF9031A1D2F35C756C">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6538,7 +6567,7 @@ return PRNT]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXF13A74630453475EAA7406755673BBAC">
+					<Item class="ModuleScript" referent="RBX18E477C8863741379DBF00B75D592839">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6952,7 +6981,7 @@ return PROP]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX64D3D25B8CF04A2FABA06290C0E7955B">
+					<Item class="ModuleScript" referent="RBXABC5ABC82A7C431698A3C6771388EAEE">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -6983,7 +7012,7 @@ return SSTR]]></ProtectedString>
 						</Properties>
 					</Item>
 				</Item>
-				<Item class="ModuleScript" referent="RBX8075495E4A2E49BDB17D7772FF2AA6F3">
+				<Item class="ModuleScript" referent="RBXDB614CB0EA7C4F3793493135B0CD6665">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7041,7 +7070,7 @@ return nil]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXA0BCB1E7B5E6441DB703879B9108759C">
+				<Item class="ModuleScript" referent="RBX57D33018B3BD43E5BED71DD2803BAB91">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7125,7 +7154,7 @@ return lz4
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="ModuleScript" referent="RBX8CEAABFBC4D9451A90BB237D4811BB6E">
+			<Item class="ModuleScript" referent="RBXC17BBD3D4AA845E1B052D041D4D0605C">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7429,7 +7458,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX11EF2C1460124A0DA622DE2E64CE2F31">
+			<Item class="ModuleScript" referent="RBX109FB8A12E1B4819B2301C8E0F739748">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7473,7 +7502,7 @@ return module]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXCE80F8A154E54C1C9457833E23CE7ABA">
+			<Item class="ModuleScript" referent="RBX07E0066ACCAB43FEA3B8A5ADF81E8504">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7628,7 +7657,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXE1F327D5C3454FEDB60BEB454753DAFF">
+			<Item class="ModuleScript" referent="RBX27F73297675D4C0BAD3516296E8F0DF5">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7696,7 +7725,7 @@ end
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBX22D169B1308647729A7F8D1C559F4EFD">
+				<Item class="ModuleScript" referent="RBXC06A8A0FE7614CB58166D46FC6F47229">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -8838,7 +8867,7 @@ return function(a) luaY = a return luaK end]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXFA457D7C0F01491797665E3C0E2FED89">
+				<Item class="ModuleScript" referent="RBX695FAC41F9534B6AA939AA2951C639BD">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -9284,7 +9313,7 @@ return luaP]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXE442FA7E090449899E4F0A8E4EDD1EF2">
+				<Item class="ModuleScript" referent="RBXE20F2236F3A54366B8B859D9D54E9FFE">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -9674,7 +9703,7 @@ return luaU]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXFE7F58C39B9D4274A98F5496B5E9734F">
+				<Item class="ModuleScript" referent="RBX66206C1A75904E189CFB76D58891B0C1">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -10387,7 +10416,7 @@ return luaX]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX707F3FB500C345A58BF3DFE6294D5BDB">
+				<Item class="ModuleScript" referent="RBX6DE5B9798906455EA0D89FCFD05724C0">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12160,7 +12189,7 @@ return luaY]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXD106E47624B54EA697BAFD1C1749F8AE">
+				<Item class="ModuleScript" referent="RBX99A934D67E354C368C67810C569FF6DF">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -12301,7 +12330,7 @@ return luaZ]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX032C09E40C044714B465123933AEB5D7">
+				<Item class="ModuleScript" referent="RBX7A9E3EFF4BB24F8AA43CAEF0FFEE0BD5">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13407,7 +13436,7 @@ end
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="ModuleScript" referent="RBXB1BB6DBC45F34236BA397676B6FDDE68">
+			<Item class="ModuleScript" referent="RBX0833EBA69A6847CBADE4CEB015D50511">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -13442,7 +13471,7 @@ return true]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX51E1053E3FC64FBB8353E087527672D1">
+			<Item class="ModuleScript" referent="RBX9A2F3CB2A8DE451A97CD4A0793F45E39">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -14892,7 +14921,7 @@ return DashSingular :: __module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX5116B005F8FA49BCAC214D7D4F5D1AA4">
+			<Item class="ModuleScript" referent="RBX1C3984444EC9460181112400E279A9AA">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15005,7 +15034,7 @@ return module
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBX64BBE457AE2C42F48E359A478B25D1D2">
+				<Item class="ModuleScript" referent="RBX7946BDD60B8A459FB62E38C4733E0214">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15051,7 +15080,7 @@ return true
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX83DADDF9EA93416FB9ED50ABC1F7887E">
+				<Item class="ModuleScript" referent="RBX7822E6F440BD49D6BB5B16905D7F4131">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15161,7 +15190,7 @@ return module
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="ModuleScript" referent="RBXF8F65CC1D26E40EF9BE98BB4180E7A40">
+			<Item class="ModuleScript" referent="RBX1334A204A85F48AE959FBB3DA1FA1B30">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15200,7 +15229,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXFFD3906A1B004950A9D8AEE6F2CD5E6B">
+			<Item class="ModuleScript" referent="RBXAEDCAE56180141DB8208236BD3D2AAF7">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15254,7 +15283,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX8BF2717A7D34470596FDED0676CF77A4">
+			<Item class="ModuleScript" referent="RBX7BD70953464F480D81861BE00C5E7B11">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15415,7 +15444,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXEBF529CF344C474690EAE1EE3CA1BD18">
+			<Item class="ModuleScript" referent="RBX1FD619E7D03E46049E7960BBA5C25F9C">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15555,7 +15584,7 @@ return module]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX487E50B37E004ABDB7A6FB236CD4310E">
+			<Item class="ModuleScript" referent="RBX4B5F5CDA46EA46589F13CAC0D95FBF3A">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15700,7 +15729,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX85373DE67BE1499BACCF1B4CBC62B4F5">
+			<Item class="ModuleScript" referent="RBXC9EEFCE50A1B47F08AFE79B1B2992745">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15817,7 +15846,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXA75139B15DE04707A658EAB2F7FD0CC9">
+			<Item class="ModuleScript" referent="RBX8BFC15538CCE4E168006F5506B89C254">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15867,7 +15896,7 @@ return module]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX204E000B77184660B4979B5471DD5FD4">
+			<Item class="ModuleScript" referent="RBX792EDC5BF12E465B8796BC1C2AD76A62">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -15930,7 +15959,7 @@ return module]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXBA4CC47425D24BBFA58D7FE3E0941C13">
+			<Item class="ModuleScript" referent="RBX4EB95A44FB11405F8E2DC8118661A2D8">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16120,7 +16149,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX2F9F6A169CDB4409B0538D3F3FA20BE0">
+			<Item class="ModuleScript" referent="RBX0523C47BC3A642DAAE0578A6853ED283">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16164,7 +16193,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX9D38D842326C42ED9F005CD81F9CC22A">
+			<Item class="ModuleScript" referent="RBX10BE2F690FC84FDAB44F0462EC84236E">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16249,7 +16278,7 @@ return module]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXF6D040F55102484B9010BF9FC1825353">
+			<Item class="ModuleScript" referent="RBX509CDE8314AC4C48A7E9345D0A0CBF23">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16283,7 +16312,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXC98CC02335934CF1A3C538337207ACD6">
+			<Item class="ModuleScript" referent="RBX71A617FD125243BB9C5DA3C2D19135D2">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16418,7 +16447,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="Folder" referent="RBX7258F46BB2854A8FB860EEE4F9285DAA">
+			<Item class="Folder" referent="RBX9280F63BED3942A28E045E45E3866D68">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16427,7 +16456,7 @@ return module
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBX59C5E67D2ACA4539A68199A9256BEA14">
+				<Item class="ModuleScript" referent="RBXC0C5C10A1DFE4369AA1E8ED7325CF2C9">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16856,7 +16885,7 @@ gui.LayoutManager.RecallSave()]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="Folder" referent="RBX2AEA438A677D4E9D958183B19F294728">
+				<Item class="Folder" referent="RBX543AE92D37734DE895BF7BB007DF0034">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16865,7 +16894,7 @@ gui.LayoutManager.RecallSave()]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="ModuleScript" referent="RBX402D2194AAEA4A8D8F75B186766C66C3">
+					<Item class="ModuleScript" referent="RBX4A6608CB3779401C8EBAD0A74CCD2072">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16890,7 +16919,7 @@ return requireall]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="Folder" referent="RBXA92193A08A9E46E5A867615DBFEC4745">
+					<Item class="Folder" referent="RBX1CF8EA169AE4497BB8968A3866324AC6">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16899,7 +16928,7 @@ return requireall]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
-						<Item class="Folder" referent="RBX2AD8235E040E418E9DC97C5A8FFEF86C">
+						<Item class="Folder" referent="RBXA2C4F6E0595542BFA48E868CB5186464">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16908,7 +16937,7 @@ return requireall]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX6A3E9A5A57B440CB82A94938AB43C1DB">
+							<Item class="ModuleScript" referent="RBX2694106D02AC4E68B8EC09743102E705">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16943,7 +16972,7 @@ return BackgroundFrame]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXF34871569C81485487712FFECA953ACA">
+							<Item class="ModuleScript" referent="RBX7F2F1A6485B24463BFA633420A385FAE">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -16975,7 +17004,7 @@ return GUIFrame]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX03ACAAAA88CE4285B35EC846ABDF422A">
+							<Item class="ModuleScript" referent="RBX63C2AFB1F76641BD959B8BD9A6632B4C">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17023,7 +17052,7 @@ return ListFrame]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX08FB13428DF346E2822214DD1CFDF0ED">
+							<Item class="ModuleScript" referent="RBXDFB4DFDDC2BB49BA9C0B570F20D1AC28">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17162,7 +17191,7 @@ return Page]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX99292F9D3E7D47F5BC47C96E90BBE96A">
+							<Item class="ModuleScript" referent="RBXDF9D26A856C04A3CB84C94DA55BDD2EE">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17289,7 +17318,7 @@ return Widget]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX0E16A488B2F243D7A3AA730A3458D0F3">
+							<Item class="ModuleScript" referent="RBX3EF0EE11E48D4DE59174B924E8AD0EC0">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17363,7 +17392,7 @@ return ScrollingFrame]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX586C1300570F4639A8BA0BBE25CFBFCB">
+							<Item class="ModuleScript" referent="RBX2906D465030040B48D7C7B10F260EC79">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17489,7 +17518,7 @@ return Section]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX035050313AD647E492C1E33F848314AD">
+							<Item class="ModuleScript" referent="RBX9E1DCDDD866D49C2B75DF4022C1F7468">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17653,7 +17682,7 @@ return TitlebarMenu]]></ProtectedString>
 								</Properties>
 							</Item>
 						</Item>
-						<Item class="ModuleScript" referent="RBXCAE5016804B54166BA1D8D65A931C27D">
+						<Item class="ModuleScript" referent="RBXDB0EC203E1DF45A7A2F672F9E3E76051">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17679,7 +17708,7 @@ return GUIElement]]></ProtectedString>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
 						</Item>
-						<Item class="Folder" referent="RBX10203C9A40314318BFE80634BC6660FE">
+						<Item class="Folder" referent="RBXEF7B071DA9CB4733ADF30D164620247F">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17688,7 +17717,7 @@ return GUIElement]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX1B2543FE81A64B2BB222731C410B8640">
+							<Item class="ModuleScript" referent="RBX7D9E911A9667496787FEFB404A8BBC9B">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17716,7 +17745,7 @@ return m]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX31F916FC95124054BA83414B92C2018A">
+							<Item class="ModuleScript" referent="RBX765753FE6C2344E28E1E30EBAB04D7BF">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17750,7 +17779,7 @@ return m]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX4CC4615D84FC40E9BC1A7D676F60C486">
+							<Item class="ModuleScript" referent="RBX32BFE87714D2436C84C17DE7724EF42F">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -17972,7 +18001,7 @@ return m]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXE1F4C4C8F69F4091975288FB746930AD">
+							<Item class="ModuleScript" referent="RBX29D0B6B887D049789DDFC95A94E6446B">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18062,7 +18091,7 @@ return m]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX8B01081B9A76491E8657C2DF61F61153">
+							<Item class="ModuleScript" referent="RBX4E6E538E86BF4DC8B74E01DFF7CF208C">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18136,7 +18165,7 @@ return m]]></ProtectedString>
 								</Properties>
 							</Item>
 						</Item>
-						<Item class="Folder" referent="RBX80D4DCF030B346018260C3C3DB9D2D90">
+						<Item class="Folder" referent="RBX06BA302253E04755A8FA9B229A41F49C">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18145,7 +18174,7 @@ return m]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX8C1F4EF34C7C4DFFBBF55C800919F74D">
+							<Item class="ModuleScript" referent="RBX157A2D558D224B88981AFF608D6319D8">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18276,7 +18305,7 @@ return m]]></ProtectedString>
 								</Properties>
 							</Item>
 						</Item>
-						<Item class="Folder" referent="RBX56ECABBBCBC54FCDA01CA93D73D3ACC2">
+						<Item class="Folder" referent="RBX401022F4DFF1446DAB2A9DEB6D9080C0">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18285,7 +18314,7 @@ return m]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX3175FE4FF6464110BFCADFDCA0AFE97B">
+							<Item class="ModuleScript" referent="RBX23E788731A3A42D5B24BD0EEC000EDC6">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18440,7 +18469,7 @@ return Button]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXCAF53AA3571841378FDE0066A8E97C64">
+							<Item class="ModuleScript" referent="RBX57D3EE8E0E2848AA8381E29551F4F229">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18549,7 +18578,7 @@ return Checkbox]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX22A285827F1A404CB98BA0487A7B8D11">
+							<Item class="ModuleScript" referent="RBX65CC40A398664A4E959FF724CDE3EE1D">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18676,7 +18705,7 @@ return ColorInput]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX351DE198F1C7401CBB9F327BDED6892E">
+							<Item class="ModuleScript" referent="RBX733140E6E4614595BDE86958B5442B68">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -18722,7 +18751,7 @@ return GUIObject]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX4E3592BF0CD347AFBD7358E33E6FD77A">
+							<Item class="ModuleScript" referent="RBXF28486A015F941F9B194E096194E0D38">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19112,7 +19141,7 @@ return InputField]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXFEC9374C697D49A8A2C885895878E5ED">
+							<Item class="ModuleScript" referent="RBX531007ABC1AC44A69496C0A914D4D7C8">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19159,7 +19188,7 @@ return InstanceInputField]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXBFDEE4136332493A96C835F4119C132F">
+							<Item class="ModuleScript" referent="RBX8F3969938C4843809362A0001956C8C4">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19294,7 +19323,7 @@ return KeybindInputField]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX3049937B59944C89BADAE5C1913E3DD3">
+							<Item class="ModuleScript" referent="RBX9BA432DCBA914C6FA8477793FF0D24E5">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19396,7 +19425,7 @@ return LabeledObject]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXB454FFA808614E1E9771CF7711872522">
+							<Item class="ModuleScript" referent="RBX2F043C9A0229426A8254467F3EBFAE56">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19425,7 +19454,7 @@ return temp]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX73246708C8BD4518A811A527E227D321">
+							<Item class="ModuleScript" referent="RBX9ACBC4D8530C495DA0E63647B767639D">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19492,7 +19521,7 @@ return ProgressBar]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX45F455C6CAB84D54AEE28377AC420DF1">
+							<Item class="ModuleScript" referent="RBX2C0144E41E4A452A9A9E43971A61802F">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19627,7 +19656,7 @@ return Slider]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX29657EF608F64D978EF21527D0B340D2">
+							<Item class="ModuleScript" referent="RBX37094E9CF0B340A1A46EDD775BB87F78">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19682,7 +19711,7 @@ return Textbox]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX207922EF03AC470BAE25D72EFCC0B4CF">
+							<Item class="ModuleScript" referent="RBX5759FCAA195F4C26B9ADD69F17F9EB91">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19794,7 +19823,7 @@ return TitlebarButton]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX94FF2CBABB4C4C9FB2222E83DFD31350">
+							<Item class="ModuleScript" referent="RBX41E5EE61A5494FC18A23CB1C70DD123D">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -19888,7 +19917,7 @@ return ToggleableButton]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX16E96E3FF50140E097932CD1013F045B">
+							<Item class="ModuleScript" referent="RBX6F1628A4A8A141E281EFF4A08F453DFF">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20192,7 +20221,7 @@ return ViewButton]]></ProtectedString>
 								</Properties>
 							</Item>
 						</Item>
-						<Item class="ModuleScript" referent="RBX3CC4C93554E04F6A882C5F76CE5C4207">
+						<Item class="ModuleScript" referent="RBX019912F261454C87A3B430795B2F101A">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20213,7 +20242,7 @@ return m]]></ProtectedString>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
 						</Item>
-						<Item class="Folder" referent="RBX72D9128AA7154FDCB8541B303BFF9315">
+						<Item class="Folder" referent="RBXC50B981F7C49450B87A35E7ABBB92F3C">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20222,7 +20251,7 @@ return m]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
-							<Item class="ModuleScript" referent="RBX67B3D05B010D446FB7F0792CFC095703">
+							<Item class="ModuleScript" referent="RBX14708C922A8F4F1BAD69FE877DCE18F9">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20498,7 +20527,7 @@ return ColorPrompt]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX1118A5386605441F8A55D099DD3788D3">
+							<Item class="ModuleScript" referent="RBX83F4E50E7F164AAFA2286364AAEC0938">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20541,7 +20570,7 @@ return InputPrompt]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBX98EA02B2844E4359BAC8F3ABDC3E00AD">
+							<Item class="ModuleScript" referent="RBXF6D4C17C97A44195A291D4E568A7CBA9">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20612,7 +20641,7 @@ return Prompt]]></ProtectedString>
 									<BinaryString name="Tags"></BinaryString>
 								</Properties>
 							</Item>
-							<Item class="ModuleScript" referent="RBXC1ADC991DB744AAD9CF4695AF8FA17A5">
+							<Item class="ModuleScript" referent="RBX5B06C5B1A0084FCDBE51B307A5630AE2">
 								<Properties>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20725,7 +20754,7 @@ return TextPrompt]]></ProtectedString>
 								</Properties>
 							</Item>
 						</Item>
-						<Item class="ModuleScript" referent="RBX2373D21F6C6E4C01A361D06C0D6C7A66">
+						<Item class="ModuleScript" referent="RBX799CD275F65E4EE3B628FABC07720372">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20758,7 +20787,7 @@ return temp]]></ProtectedString>
 					</Item>
 				</Item>
 			</Item>
-			<Item class="ModuleScript" referent="RBX65158D9F1B4F420DAC2EBF0419455255">
+			<Item class="ModuleScript" referent="RBXE4BD9A8A4A254B499B10A3D26221A9D4">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -20853,7 +20882,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX7609833583C1479489DB7C5EB65E2DD7">
+			<Item class="ModuleScript" referent="RBX5B086AD4329B4016AB82450832284EAB">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -21263,7 +21292,7 @@ return Class
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX8621C57869C14B519FBCD4DCDB60FF89">
+			<Item class="ModuleScript" referent="RBX5CD7CEC711BF4552BFB0C3DE55449949">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -21451,7 +21480,7 @@ return module
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX6A4E9AFE69FA4CABB964911485444EFD">
+			<Item class="ModuleScript" referent="RBXE6616659E9034F89AACC502CCC0816E9">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -21648,7 +21677,7 @@ return package
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX025F2377E56F4463910820EBE2A01486">
+			<Item class="ModuleScript" referent="RBXE0928BC4F5F94754B1361D39925406B8">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -21708,6 +21737,50 @@ module.v1 = v1
 
 
 return module]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="ModuleScript" referent="RBXEA714B66CAE74B5CBA50ED4881EE13B2">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">@CHL&gt;HttpServiceWrapper</string>
+					<string name="ScriptGuid">{20CEDD60-4268-4D6E-A407-6AFD10455837}</string>
+					<ProtectedString name="Source"><![CDATA[--local Objects = game:GetService('ReplicatedStorage').Objects
+local Map = require('./@CHL>Map')
+
+type dict<A> = Map.dictionary<A>
+
+export type request_method = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'OPTION' | 'TRACE' | 'PATCH'
+
+export type request = {
+	Url: string;
+	Method: request_method?;
+	Headers: dict<any>?;
+	Body: string?;
+	Compress: Enum.HttpCompression?
+}
+
+export type response = {
+	Success: boolean;
+	StatusCode: number;
+	StatusMessage: string;
+	Headers: dict<any>;
+	Body: any;
+}
+
+module = {}
+service = game:GetService('HttpService')
+
+function module.request(request: request): response return service:RequestAsync(request) end
+
+module.service = service
+
+return module
+]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
