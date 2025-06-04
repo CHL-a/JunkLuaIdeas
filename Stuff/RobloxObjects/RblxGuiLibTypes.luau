@@ -1,6 +1,6 @@
 local Objects = script.Parent
-local Map = require(Objects["@CHL/Map"])
-local LuaUTypes = require(Objects.LuaUTypes)
+local Map = require('./@CHL>Map')
+local LuaUTypes = require('./LuaUTypes')
 
 type empty = typeof(LuaUTypes.empty)
 
@@ -650,7 +650,7 @@ export type initialize = (Plugin, id: string)->library
 local module = {}
 
 function module.get(): initialize
-	local dep = script.Parent:FindFirstChild('@arch4ic/rblxguilib')
+	local dep = script.Parent:FindFirstChild('@arch4ic>rblxguilib')
 	assert(dep,'Attempting to use get function without installing dependency.')
 	return require(dep.rblxgui.initialize)
 end
