@@ -12,7 +12,8 @@ local module = {}
 
 local Objects = game:GetService('ReplicatedStorage').Objects
 local Object = require(Objects.Object)
-local Map = require(Objects["@CHL/Map"])
+local Map = require(Objects["@CHL>Map"])
+local Class = require(Objects.Class)
 
 type map<I,V> = Map.simple<I,V>
 
@@ -33,11 +34,10 @@ function DataStore.new(): data_store
 	return self
 end
 
-DataStore.GetAsync = function(self: data_store, k: string)return self.data[k]end
-DataStore.SetAsync = function(self: data_store, k: string, v)self.data[k]=k end
-DataStore.UpdateAsync=function(self:data_store,k:string,f)self.data[k]=f(self.data[k])end
-DataStore.__index = DataStore
-DataStore.className = 'DataStore'
+function DataStore.GetAsync(self: data_store, k: string)return self.data[k]end
+function DataStore.SetAsync(self: data_store, k: string, v)self.data[k]=k end
+function DataStore.UpdateAsync(self:data_store,k:string,f)self.data[k]=f(self.data[k])end
+Class.makeProperClass(DataStore, '@CHL>FakeDataStore>DataStore')
 module.data_store = DataStore
 
 --######################################################################################
@@ -59,7 +59,7 @@ function Service.new(): service
 	return self
 end
 
-Service.GetDataStore = function(self: service, s: string)
+function Service.GetDataStore(self: service, s: string)
 	if self.data_stores[s] then
 		return self.data_stores[s]
 	end
@@ -69,8 +69,7 @@ Service.GetDataStore = function(self: service, s: string)
 	return self:GetDataStore(s)
 end
 
-Service.__index = Service
-Service.className = 'FakeDataStore/Service'
+Class.makeProperClass(Service, '@CHL>FakeDataStore>Service')
 
 module.singleton = Service.new()
 module.service = Service
