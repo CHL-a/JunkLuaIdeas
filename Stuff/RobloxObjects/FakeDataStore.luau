@@ -134,6 +134,7 @@ module.ordered = Ordered
 export type service = {
 	data_stores: map<string, global>;
 	GetDataStore: (self: service, s: string) -> normal;
+	GetOrderedDataStore: (self: service, s: string) -> ordered;
 } & DataStoreService 
   & Object.object_inheritance
 
@@ -148,13 +149,15 @@ function Service.new(): service
 end
 
 function Service.GetDataStore(self: service, s: string)
-	if self.data_stores[s] then
-		return self.data_stores[s]
-	end
+	self.data_stores[s] = self.data_stores[s] or Normal.new()
 	
-	self.data_stores[s] = Normal.new()
+	return self.data_stores[s]
+end
+
+function Service.GetOrderedDataStore(self:service, s)
+	self.data_stores[s] = self.data_stores[s] or Ordered.new()
 	
-	return self:GetDataStore(s)
+	return self.data_stores[s]
 end
 
 Class.makeProperClass(Service, '@CHL>FakeDataStore>Service')
