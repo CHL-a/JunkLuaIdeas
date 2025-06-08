@@ -17,6 +17,9 @@ disguise = require('./LuaUTypes').disguise
 local Iterator = require('./@CHL>Iterator')
 local Class = require('./Class')
 
+--[[
+	Note: Uses iterator as a foundation, override canProceed and Proceed only
+--]]
 export type page_base<A> = {
 	current_value: A
 } & pages<A>
