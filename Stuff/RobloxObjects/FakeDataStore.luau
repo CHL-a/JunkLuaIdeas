@@ -162,7 +162,7 @@ end
 
 Class.makeProperClass(Service, '@CHL>FakeDataStore>Service')
 
-module.singleton = Service.new()
+module.singleton = Service.new() :: service
 module.service = Service
 
 return module
