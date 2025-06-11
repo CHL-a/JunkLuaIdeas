@@ -54,16 +54,19 @@ end
 
 function module.__index<A>(self: object<A>, i: string)
 	local _s = disguise(self)
+	local alias = module.property_aliases[i]
+	
 	if module[i] then return module[i]
-	elseif i == "Value" or i == "Position" or i == "p" then
+	elseif alias then return _s:__index(alias)
+	elseif i == "Position" then
 		local position = _s:_positionVelocity(_s._clock())
 		return position
-	elseif i == "Velocity" or i == "v" then
+	elseif i == "Velocity" then
 		local _, velocity = _s:_positionVelocity(_s._clock())
 		return velocity
-	elseif i == "Target" or i == "t" then return _s._target
-	elseif i == "Damper" or i == "d" then return _s._damper
-	elseif i == "Speed" or i == "s" then return _s._speed
+	elseif i == "Target" then return _s._target
+	elseif i == "Damper" then return _s._damper
+	elseif i == "Speed" then return _s._speed
 	elseif i == "Clock" then return _s._clock
 	else return _s.__super[i]end
 end
@@ -77,15 +80,18 @@ function module.__newindex<A, B>(self: object<A>, i: string, v: B)
 	_s._velocity0 = ve
 	_s._time0 = now
 	
-	if i == "Value" or i == "Position" or i == "p" then
+	local alias = module.property_aliases[i]
+	if alias then
+		return _s:__newindex(i, v)
+	elseif i == "Position" then
 		_s._position0 = v
-	elseif i == "Velocity" or i == "v" then
+	elseif i == "Velocity" then
 		_s._velocity0 = v
-	elseif i == "Target" or i == "t" then
+	elseif i == "Target" then
 		_s._target = v
-	elseif i == "Damper" or i == "d" then
+	elseif i == "Damper" then
 		_s._damper = v
-	elseif i == "Speed" or i == "s" then
+	elseif i == "Speed" then
 		_s._speed = math.max(0, disguise(v))
 	elseif i == "Clock" then
 		_s._clock = v
@@ -95,6 +101,15 @@ function module.__newindex<A, B>(self: object<A>, i: string, v: B)
 	end
 end
 
+module.property_aliases = {
+	p = 'Position';
+	Value = 'Position';
+	v = 'Velocity';
+	t = 'Target';
+	d = 'Damper';
+	s = 'Speed';
+	
+}
 module.defaults = {}
 module.defaults.runtimer = function(): number return workspace.DistributedGameTime end
 module.Impulse = NevermoreSpring.Impulse
@@ -102,7 +117,7 @@ module.TimeSkip = NevermoreSpring.TimeSkip
 module.update = module.TimeSkip
 module._positionVelocity = NevermoreSpring._positionVelocity
 module.SetTarget = NevermoreSpring.SetTarget
-module.className = '@CHL/Spring'
+module.className = '@CHL>Spring'
 
 
 return module
