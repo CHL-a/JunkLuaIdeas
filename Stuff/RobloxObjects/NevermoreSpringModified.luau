@@ -57,7 +57,7 @@ function module.__index<A>(self: object<A>, i: string)
 	local alias = module.property_aliases[i]
 	
 	if module[i] then return module[i]
-	elseif alias then return _s:__index(alias)
+	elseif alias then return _s[alias]
 	elseif i == "Position" then
 		local position = _s:_positionVelocity(_s._clock())
 		return position
@@ -82,7 +82,7 @@ function module.__newindex<A, B>(self: object<A>, i: string, v: B)
 	
 	local alias = module.property_aliases[i]
 	if alias then
-		return _s:__newindex(i, v)
+		_s[alias] = v
 	elseif i == "Position" then
 		_s._position0 = v
 	elseif i == "Velocity" then
