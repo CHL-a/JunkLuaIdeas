@@ -1,6 +1,7 @@
 module = {}
 
-module.epsilon = 9E-323
+module.epsilon = 5e-324
+module.almost_huge = 1.7976931348623159e+308
 
 function module.round(x: number, offset: number?)
 	local o = offset or 0
