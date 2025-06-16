@@ -1,6 +1,6 @@
-local module = {}
+module = {}
 
-disguise = require(script.Parent.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 
 function module.modify_argument(
 	f: <A..., B...>(A...)->B..., 
