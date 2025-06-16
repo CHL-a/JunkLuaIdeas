@@ -1,7 +1,6 @@
-local module = {}
-local Objects = script.Parent
-local Set = require(Objects["@CHL/Set"])
-local Enums = require(Objects["@CHL/Enum"])
+module = {}
+local Set = require('./@CHL>Set')
+local Enums = require('./@CHL>Enum')
 
 export type representives = Enums.default_types<Enum.Material>
 
