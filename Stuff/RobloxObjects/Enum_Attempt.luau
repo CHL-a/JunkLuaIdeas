@@ -1,6 +1,4 @@
-local Objects = script.Parent
-
-local Map = require(Objects["@CHL/Map"])
+local Map = require('./@CHL>Map')
 
 module = {}
 
