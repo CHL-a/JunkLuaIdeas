@@ -647,12 +647,34 @@ export type initialize = (Plugin, id: string)->library
 --#############################################################################################
 --#############################################################################################
 
+local EventPackage = require('./EventPackage')
+local LuaUTypes = require('./LuaUTypes')
 local module = {}
 
+same = LuaUTypes.same
+disguise = LuaUTypes.disguise
+
+--[[Returns the library with typed
+]]
 function module.get(): initialize
-	local dep = script.Parent:FindFirstChild('@arch4ic>rblxguilib')
+	local dep = Objects:FindFirstChild('@arch4ic>rblxguilib')
 	assert(dep,'Attempting to use get function without installing dependency.')
 	return require(dep.rblxgui.initialize)
+end
+
+module.misc = {}
+
+--[[Returns event, of Event and package, triggered by when page frame is selected, and when its not.
+]]
+function module.misc.page_selected(p: PageFrame)
+	: (EventPackage.event<boolean>, EventPackage.package<boolean>)
+
+	local result = EventPackage.new()
+	local frame = disguise(p.Content)
+
+	frame:GetPropertyChangedSignal('Visible'):Connect(function()result:fire(frame.Visible)end)
+
+	return result.event, result
 end
 
 return module
