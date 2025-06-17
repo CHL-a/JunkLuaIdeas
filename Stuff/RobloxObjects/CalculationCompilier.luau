@@ -1,7 +1,6 @@
 local module = {}
-local Objects = script.Parent
-local Set = require(Objects["@CHL/Set"])
-local StringParser = require(Objects["@CHL/StringParser"])
+local Set = require('./@CHL>Set')
+local StringParser = require('./@CHL>StringParser')
 
 export type token_type = 'number' | 'operator' | 'eof'
 export type token = {
@@ -10,7 +9,7 @@ export type token = {
 	_type: token_type;
 }
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 lexer = {}
 lexer.from = {}
 lexer.specific_symbols = Set.simple.from.chars'+*/-()'
@@ -221,7 +220,7 @@ module.ast = ast
 --###################################################################################
 
 -- calculation
-local Dash = require(Objects["@CHL/DashSingular"])
+local Dash = require('./@CHL>DashSingular')
 
 calculation = {}
 compose = Dash.compose
