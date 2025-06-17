@@ -19,7 +19,7 @@ export type enum<UNION, MAP> = {
 	enum_items: MAP
 }
 
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
 
 function EnumItem.new<T>(value: T, n: number): enum_item<T>
 	return disguise(setmetatable({
