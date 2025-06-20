@@ -250,7 +250,7 @@ function module.load_admin(loader: Folder)
 end
 
 function module.get_main(can_be_nil: boolean?): api
-	local result = module.main or _G.HDAdmin
+	local result = module.main or _G.HDAdminMain
 	
 	if not module.main then
 		module.main = result
