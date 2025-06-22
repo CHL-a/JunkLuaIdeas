@@ -61,8 +61,8 @@ function module.static_get(name: string, class: string)
 		else InstanceUtils.getOrCreate(Remotes, name, class)
 end
 
-function module.static_get_event(name: string)return module.static_get(name, 'RemoteEvent')end
-function module.static_get_function(name: string)return module.static_get(name, 'RemoteFunction')end
+function module.static_get_event(name: string):RemoteEvent return module.static_get(name, 'RemoteEvent')end
+function module.static_get_function(name: string):RemoteFunction return module.static_get(name, 'RemoteFunction')end
 
 function module.get<A>(self: observer<A>, name: string, class: string)return module.static_get(name, class)end
 function module.get_event<A>(self: observer<A>, name: string)return module.static_get_event(name)end
