@@ -55,20 +55,19 @@ function module.new<A>(map: observer_args): observer<A>
 	return self
 end
 
-function module.get<A>(self: observer<A>, name: string, class: string)
+function module.static_get(name: string, class: string)
 	return if IsClient 
 		then Remotes:WaitForChild(name, 1/0)
 		else InstanceUtils.getOrCreate(Remotes, name, class)
 end
 
-function module.get_event<A>(self: observer<A>, name: string)
-	return self:get(name, 'RemoteEvent')
-end
+function module.static_get_event(name: string)return module.static_get(name, 'RemoteEvent')end
+function module.static_get_function(name: string)return module.static_get(name, 'RemoteFunction')end
 
-function module.get_function<A>(self: observer<A>, name: string)
-	return self:get(name, 'RemoteFunction')
-end
+function module.get<A>(self: observer<A>, name: string, class: string)return module.static_get(name, class)end
+function module.get_event<A>(self: observer<A>, name: string)return module.static_get_event(name)end
+function module.get_function<A>(self: observer<A>, name: string)return module.static_get_function(name)end
 
-Class.makeProperClass(module, '@CHL/RemoteFolder/Observer')
+Class.makeProperClass(module, '@CHL>RemoteFolder>Observer')
 
 return module
