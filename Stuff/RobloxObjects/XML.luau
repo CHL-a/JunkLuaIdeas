@@ -58,7 +58,7 @@ function XML.tokenizer.pop()
 	return tremove(XML.tokenizer.queue, 1)
 end
 
-function XML.tokenize_xml(s)
+function XML.tokenize_xml(s: string)
 	-- pre
 	assert(type(s) == 'string')
 	
@@ -183,7 +183,7 @@ function XML.tokenize_xml(s)
 	end
 end
 
-function XML.minify(s)
+function XML.minify(s: string)
 	-- pre
 	assert(type(s) == 'string')
 	
@@ -209,7 +209,7 @@ function XML.minify(s)
 	return result
 end
 
-function XML.parse_cdata(s)
+function XML.parse_cdata(s: string)
 	parser:reset(s)
 
 	assert(parser:c_pop('<![CDATA[', true), 'improper cdata')
@@ -221,7 +221,7 @@ function XML.parse_cdata(s)
 	return result
 end
 
-function XML.parse_string(s, isStrict)
+function XML.parse_string(s: string, isStrict: boolean?)
 	-- pre
 	isStrict = not not isStrict
 	-- assume that s is properly a string wrapped with string delimiters
@@ -270,7 +270,7 @@ function XML.parse_string(s, isStrict)
 	return result
 end
 
-function XML.parse_xml(s)
+function XML.parse_xml(s: string)
 	-- pre
 	assert(type(s) == 'string')
 	
