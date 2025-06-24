@@ -12,6 +12,7 @@ export type object = {
 	is_at_end: (self: object)->boolean;
 	peek_until: (self: object, other: string, plain: boolean?)->(string, string);
 	pop: (self: object, len: number?, offset: number?)->string;
+	peek_match: (self: object, pattern: string, raw: boolean?)->string?;
 	c_pop: (self: object, other: string, plain: boolean?) -> boolean;
 	pop_until: (self: object, other: string, plain: boolean?)->(string, string);
 	get_snapshot: (self: object)->string;
@@ -30,6 +31,14 @@ end
 
 function module.is_at_end(self: object)return self.i > #self.referral end
 function module.proceed(self: object, i: number?)self.i+=(i or 1) end
+
+function module.peek_match(self: object, pattern: string, raw: boolean?)
+	local gap, caught = self:peek_until(pattern, raw)
+	
+	if #gap > 0 then return nil end
+	
+	return caught
+end
 
 function module.reset(self: object, s: string)
 	self.referral = s;
