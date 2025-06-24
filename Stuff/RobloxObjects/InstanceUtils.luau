@@ -1,5 +1,4 @@
 --// TYPES
-local Objects = script.Parent
 local Map = require('./@CHL>Map')
 
 export type className = string
@@ -12,7 +11,8 @@ local Dash = require('./@CHL>DashSingular')
 local module = {} 
 
 isClient = game:GetService('RunService'):IsClient()
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('./LuaUTypes').disguise
+forEachArgs = Dash.forEachArgs
 
 function module.create<A>(className: className, props: properties<A>?)
 	if not props then
@@ -46,7 +46,7 @@ function module.getOrCreate<A>(
 end
 
 function module.findFirstDescendant<A>(parent: Instance, ...: string): A?
-	Dash.forEachArgs(function(a)
+	forEachArgs(function(a)
 		if not parent then return end;
 		parent = parent:FindFirstChild(a)
 	end, ...)
@@ -55,10 +55,21 @@ function module.findFirstDescendant<A>(parent: Instance, ...: string): A?
 end
 
 function module.waitForDescendant<A>(parent: Instance, ...: string): A
-	Dash.forEachArgs(function(a)
+	forEachArgs(function(a)
 		parent = parent:WaitForChild(a)
 	end, ...)
 
+	return disguise(parent)
+end
+
+function module.assert_descendant<A>(parent: Instance, ...: string): A
+	forEachArgs(function(a)
+		local found = parent:FindFirstChild(a)
+		assert(found, `assert failed: found nil, \nname={a}\ncurrent={parent:GetFullName()}`)
+		
+		parent = found
+	end, ...)
+	
 	return disguise(parent)
 end
 
