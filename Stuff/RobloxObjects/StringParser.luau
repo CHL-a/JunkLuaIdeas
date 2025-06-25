@@ -89,7 +89,7 @@ function module.c_pop(self: object, other: string, plain: boolean?)
 		self:proceed(#other)
 	end
 	
-	return result
+	return result and other
 end
 
 function module.pop_until(self: object, other: string, plain: boolean?)
