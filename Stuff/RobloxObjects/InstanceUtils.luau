@@ -1,4 +1,3 @@
---// TYPES
 local Map = require('./@CHL>Map')
 
 export type className = string
@@ -105,6 +104,18 @@ function module.assumeObject1<T>(parent: Instance,
 	return isClient 
 		and disguise(parent):WaitForChild(name, 1/0)
 		or module.getOrCreate(parent, name, class, properties)
+end
+
+function module.get_tagged_ancestor(descendant: Instance, tag: string): Instance?
+	descendant = disguise(descendant).Parent
+	
+	while descendant do
+		if descendant:HasTag(tag) then
+			return descendant
+		end
+		descendant = disguise(descendant).Parent
+	end
+	return
 end
 
 --###########################################################################################
