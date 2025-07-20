@@ -125,7 +125,7 @@ function module.lua_string.from_raw(str: string, args: lua_string_args?)
 	a.equal_signs_amount = a.equal_signs_amount or 0
 	a.token = a.token or '\''
 	
-	if a.multilineType == 'single' then
+	if a.multiline_type == 'single' then
 		a.prefix = a.token
 		a.suffix = a.token
 	else
