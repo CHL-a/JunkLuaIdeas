@@ -135,7 +135,20 @@ function module.lua_string.from_raw(str: string, args: lua_string_args?)
 	end
 	
 	-- main
-	return table.concat(module.lua_string.to_tokens(str, a))
+	local tokens = module.lua_string.to_tokens(str, a)
+		print(tokens)
+	for i, v in tokens do
+		local found = v:match('^\\(%d+)$') 
+		local succeeding = tokens[i + 1]
+		if not (found and succeeding and succeeding:match('^%d+$')) then 
+			print(i, found, succeeding)
+			continue
+		end
+		
+		tokens[i]..='\\z';
+	end
+	
+	return table.concat(tokens)
 end
 
 function module.to_sugar_index(i: string, args: lua_string_args?)
