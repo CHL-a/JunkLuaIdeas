@@ -16,6 +16,7 @@ export type object = {
 
 local module = {}
 
+map = Dash.map
 module.from = {}
 
 function list_chars(str: string): string
@@ -37,10 +38,12 @@ function module.new(prefix: byte_list, suffix: byte_list): object
 	return self
 end
 
+function fs_byte(arg) return arg:byte() end
+
 function module.from.strings(prefix: string, suffix: string)
 	return module.new(
-		Dash.map(prefix:split(''), string.byte),
-		Dash.map(suffix:split(''), string.byte)
+		map(prefix:split(''), fs_byte),
+		map(suffix:split(''), fs_byte)
 	)
 end
 
@@ -76,19 +79,21 @@ end
 function module.to_byte_list(self: object, i: number)
 	local result = self:to_indices_list(i)
 	
-	result[1] = self.prefix[result[1]]
+	result[1] = self.prefix[result[1]+1]
 	
 	for i = 2, #result do
-		result[i] = self.suffix[result[i]]
+		result[i] = self.suffix[result[i]+1]
 	end
 	
 	return result
 end
 
-module.to_string = Dash.compose(
+function to_string_char(arg) return string.char(arg)end
+
+module.to_variable = Dash.compose(
 	module.to_byte_list,
-	C_op.append_argument(string.char),
-	Dash.map,
+	C_op.append_argument(to_string_char),
+	map,
 	table.concat
 )
 
