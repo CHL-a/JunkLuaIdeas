@@ -15,7 +15,7 @@ export type object = {
 	__len: (self: object) -> number;
 	len: (self: object) -> number;
 	__tostring: (self: object) -> string;
-	toString: (self: object, sType: number?) -> string;
+	toString: (self: object, sType: number?, ...any) -> string;
 	readi8: (self: object, offset: number) -> number;
 	readu8: (self: object, offset: number) -> number;
 	readi16: (self: object, offset: number) -> number;
@@ -40,11 +40,13 @@ export type object = {
 }
 
 --// MAIN
-local LuaUTypes = require(Objects.LuaUTypes)
-local Dash = require(Objects["@CHL/DashSingular"])
-local Radix = require(Objects["@CHL/Radix"])
-local Iterator = require(Objects["@CHL/Iterator"])
-local Class = require(Objects.Class)
+local LuaUTypes = require('./LuaUTypes')
+local Dash = require('./@CHL>DashSingular')
+local Radix = require('./@CHL>Radix')
+local Iterator = require('./@CHL>Iterator')
+local Class = require('./Class')
+local StringUtils = require('./@CHL>StringUtils')
+local Math = require('./@CHL>Math')
 
 module = {}
 from = {}
@@ -54,6 +56,7 @@ compose = Dash.compose
 hexUpper = Radix.charRadix.hexdecUpper
 readu8 = buffer.readu8
 len = buffer.len
+insert = table.insert
 
 function raw_constructors.bytes(...: number): buffer
 	local n = select('#', ...)
@@ -69,7 +72,7 @@ end
 function from.string(s: string): object return module.new(buffer.fromstring(s))end
 function from.size(n: number): object return module.new(buffer.create(n))end
 
-function module.new(b: buffer)
+function module.new(b: buffer): object
 	local self: object = disguise(setmetatable({}, module))
 	self.referral = b
 
@@ -103,17 +106,142 @@ function module.getBytes(self: object, offset: number, len: number)
 	return result
 end
 
-function module.toString(self: object, sType: number?)
+function module.toString(self: object, sType: number?, ...)
 	if not sType then return buffer.tostring(self.referral) end
-
+	
+	local len = self:len()
+	local arg1 = ...
+	
 	if sType == 1 then
-		local bytes = self:getBytes(0, self:len())
+		local bytes = self:getBytes(0, len)
 
-		for i = 1, #bytes do
+		for i = 1, len do
 			bytes[i] = hexUpper:formatSequence(bytes[i], 2)
 		end
 
 		return table.concat(bytes, '_')
+	elseif sType== 2 then
+		--[[
+		Sample:
+		
+		+--+----------------+
+		|rw|0123456789ABCDEF|
+		+--+----------------+
+		|00|................|
+		|10|................|
+		|20|                |
+		...
+		]]
+		local viewing_size = 0x100
+		-- row_offset = arg1
+		arg1 = arg1 or 0
+		
+		local row_len = Math.glass_div(viewing_size, 0x10)
+		local rw_len = math.max(2, #hexUpper:formatSequence(len))
+		
+		local strings = {}
+		local line_1 = `+{('-'):rep(rw_len)}+----------------+`
+		
+		-- this part is responsible for the header, based on the sample above
+		strings[1] = line_1 .. '\n'
+		strings[2] = `|{(' '):rep(rw_len - 2)}rw|0123456789ABCDEF|\n`
+		strings[3] = strings[1]
+		
+		print(row_len)
+		
+		-- this part inserts to the table by row, starting with the index then content
+		for r = 1, row_len do
+			r -= 1
+			insert(strings, `|{hexUpper:formatSequence(r, rw_len-1)}0|`)
+			
+			for c = 1, 0x10 do
+				c -= 1
+				
+				local char = ' '
+				local i = viewing_size * arg1 + r * 0x10 + c
+				
+				if i < len then
+					local byte = self:readu8(i)
+					
+					char = string.char(byte)
+
+					if not StringUtils.char.is_printable(char) then
+						char = '.'
+					end
+				end
+				
+				insert(strings, char)
+			end
+			
+			insert(strings,'|\n')
+		end
+		
+		insert(strings, line_1)
+		
+		return table.concat(strings)
+	elseif sType== 3 or sType == 4 then
+		local viewing_size = 0x100
+		-- row_offset = arg1
+		--[[
+		Sample:
+		
+		+--+-----------------------------------------------+
+		|rw|00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F|
+		+--+-----------------------------------------------+
+		|00|xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx|
+		|10|xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx|
+		|20|xx xx xx xx xx xx xx xx xx xx xx xx xx xx      |
+		...
+		]]
+		
+		local row_len = Math.glass_div(viewing_size, 0x10)
+		local rw_len = math.max(2, #hexUpper:formatSequence(len))
+		local strs = {}
+		local line_1 = `+{('-'):rep(rw_len)}+-----------------------------------------------+`
+		
+		strs[1] = line_1 .. '\n'
+		strs[2] = `|{(' '):rep(rw_len - 2)}rw|00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F|\n`
+		strs[3] = strs[1]
+		
+		-- explicit return because clamp will error
+		if len == 0 then return table.concat(strs) end
+		
+		arg1 = math.clamp(arg1, 0, Math.glass_div(len, 0x100) - 1)
+		
+		for r = 1, row_len do
+			r -= 1
+			insert(strs, `|{hexUpper:formatSequence(arg1 * (viewing_size / 0x10) + r,rw_len-1)}0|`)
+
+			for c = 1, 0x10 do
+				c -= 1
+
+				local set = '  '
+				local i = viewing_size * arg1 + r * 0x10 + c
+
+				if i < len then
+					local byte = self:readu8(i)
+					local char = string.char(byte)
+					
+					if sType == 4 and StringUtils.char.is_printable(char) then
+						set = ` {char}`
+					else
+						set = hexUpper:formatSequence(byte, 2)
+					end
+					
+				end
+
+				insert(strs, set)
+				
+				if c == 0x0F then
+					insert(strs, '|\n')
+				else
+					insert(strs, ' ')
+				end
+			end
+		end
+		
+		insert(strs, line_1)
+		return table.concat(strs)
 	else error(`Bad sType: {sType}`)end
 end
 
@@ -124,6 +252,33 @@ function module.copy(self: object, fromOffset: number, to: buffer | object,
 	end
 
 	return self:copy(fromOffset, to.referral, toOffset, count)
+end
+
+-- primary_debugging
+function module.debug_find_diff(op_1: object, op_2: object): (boolean, string?)
+	local least = math.min(op_1:len(), op_2:len())
+	local most = math.max(op_1:len(), op_2:len())
+	if least == 0 and most ~= least then
+		return false, `\n{op_1:toString(4)}\n{op_2:toString(4)}`
+	end
+	
+	local i = 0
+	
+	while i < least do
+		local i_th_byte_same = op_1:readu8(i) == op_2:readu8(i)
+		
+		if not i_th_byte_same then
+			break
+		end
+		
+		i+=1
+	end
+	if least == most and i == least then
+		return true, 'operands are same'
+	else
+		local start_at = i // 0x100
+		return false, (`start_at={start_at}\n{op_1:toString(4,start_at)}\n{op_2:toString(4,start_at)}`)
+	end
 end
 
 module.readi8 = compose(enqueReferral, buffer.readi8)
