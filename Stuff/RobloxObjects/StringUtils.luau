@@ -12,7 +12,6 @@ export type lua_string_args = {
 
 --// MAIN
 local module = {}
-local Objects = script.Parent
 
 disguise = require('./LuaUTypes').disguise
 insert = table.insert
@@ -54,7 +53,19 @@ end
 --#########################################################################################
 --#########################################################################################
 
+local Set = require('./@CHL>Set')
+
+export type char_set = Set.simple<string>
+
 module.char = {}
+
+function per_char_in_range(s: string, f: (c: string)->())
+	local a, b = s:byte(1, 2)
+	
+	for i = a, b do
+		f(string.char(i))
+	end
+end
 
 function module.char.is_printable(c: string)
 	local byte = c:byte()
@@ -62,6 +73,23 @@ function module.char.is_printable(c: string)
 	return byte >= 32 and byte < 127
 end
 
+module.char.digits = {} :: char_set
+module.char.alpha_lower = {} :: char_set
+module.char.alpha_upper = {} :: char_set
+module.char.alpha = {} :: char_set
+
+per_char_in_range('09', function(a)
+	module.char.digits[a] = true
+end)
+
+per_char_in_range('az', function(a)
+	local b = a:upper()
+
+	module.char.alpha_lower[a] = true
+	module.char.alpha_upper[b] = true
+	module.char.alpha[a] = true
+	module.char.alpha[b] = true
+end)
 --#########################################################################################
 --#########################################################################################
 --#########################################################################################
