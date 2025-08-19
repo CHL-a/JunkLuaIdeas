@@ -32,7 +32,7 @@ function Accessory.new(model: Model, hasCollision, hasMass)
 	model = model:Clone()
 	
 	-- main
-	local self: object = Object.from.class()
+	local self: object = Object.from.class(Accessory)
 	self.model = model
 	self.hasMass = hasMass
 	self.hasCollision = hasCollision
@@ -45,7 +45,7 @@ function Accessory.new(model: Model, hasCollision, hasMass)
 		end
 	end)
 	--]]
-
+	
 	local middle = self:getMiddle()
 	
 	for _, v in model:GetDescendants() do
