@@ -27,6 +27,8 @@ local Accessory = require('./@CHL>Accessory')
 Morph = {}
 from = {}
 insert = table.insert
+Morph.args = {}
+Morph.args.from = {}
 
 function Morph.new(morphLimbCollection: {mla_collection}): object
 	local self: object = Object.from.class(Morph)
@@ -39,8 +41,7 @@ function Morph.new(morphLimbCollection: {mla_collection}): object
 	return self
 end
 
-function from.simple_struct_1(dict: map<string | {string}, {Model}>) : object
-	-- main
+function Morph.args.from.dict(dict: map<string | {string}, {Model}>): {mla_collection}
 	local result = {}
 
 	for i, v in dict do
@@ -57,9 +58,12 @@ function from.simple_struct_1(dict: map<string | {string}, {Model}>) : object
 			MLA_Collection.new(AccessoryCollection.new(a), i)
 		)
 	end
-	
-	return Morph.new(result)
+
+	return result
 end
+
+compose = require('./@CHL>DashSingular').compose
+from.simple_struct_1 = compose(Morph.args.from.dict, Morph.new):: (map<string | {string}, {Model}>) -> (object)
 
 function Morph.destroy(self:object)
 	
