@@ -180,8 +180,21 @@ module.__call =   proxyCall'call'
 --#################################################################################################################################################
 
 module.simple = {}
-function module.simple.new<A>(class: any): A
-	return disguise(setmetatable({}, assert(class, 'raw object constructor failed because no class provided.')))
+module.simple.from = {}
+
+function module.simple.from.struct<A>(struct: any, class: any): A
+	assert(struct, 'missing struct')
+	assert(class, 'missing class')
+	return disguise(setmetatable(struct, class))
 end
+
+function module.simple.new<A>(class: any): A
+	return module.simple.from.struct({}, class)
+end
+
+--#################################################################################################################################################
+--#################################################################################################################################################
+--#################################################################################################################################################
+
 
 return module
