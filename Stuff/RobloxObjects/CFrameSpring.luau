@@ -31,6 +31,7 @@ export type object = {
 	
 	get_velocity: (self: object)-> CFrame;
 	set_velocity: (self: object, CFrame)->();
+	set_velocity_from_pair: (self: object, position: Vector3, rotation: quaternion)->();
 	
 	get_target: (self: object) -> (CFrame);
 	
@@ -148,6 +149,7 @@ module.get_position = get_cf_from_pair_f('Position')
 module.set_position = set_cf_from_pair_f('Position')
 module.get_velocity = get_cf_from_pair_f('Velocity')
 module.set_velocity = set_cf_from_pair_f('Velocity')
+module.set_velocity_from_pair = set_pair_f('Velocity')
 module.get_target = get_cf_from_pair_f('Target')
 module.get_damper = get_pair_f('Damper')
 module.set_damper = set_pair_f('Damper')
