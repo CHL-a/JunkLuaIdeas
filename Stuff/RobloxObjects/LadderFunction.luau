@@ -12,9 +12,9 @@ export type rung<params...> = {
 	climb: (self: rung<params...>, params...)->rung_result
 }
 
-export type object<init_params...> = {
+export type object<init_params..., implied_returns...> = {
 	rungs: {rung<...any>|rung_function<...any>};
-	call: <returns...>(init_params...)->(returns...)
+	call: (self: object<init_params..., implied_returns...>, init_params...)->(implied_returns...)
 } & Object.object_inheritance
 
 --########################################################################################
@@ -80,6 +80,6 @@ Ladder.__call = Ladder.call
 Ladder.__index = Ladder
 Ladder.className = '@CHL>LadderFunction'
 
-module.Ladder = Ladder
+module.ladder = Ladder
 
 return module
