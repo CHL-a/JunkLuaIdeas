@@ -3,35 +3,37 @@ local Objects = script.Parent
 
 export type object = {
 	referral: buffer;
-
-	writeBytes: (self: object, offset: number, ...number) -> ();
-	getBytes: (self: object, offset: number, len: number?) -> {number};
-	readFloat: (self: object, offset: number) -> number;
-	writeFloat: (self: object, offset: number, val: number) -> ();
-	readDouble: (self: object, offset: number) -> number;
-	writeDouble: (self: object, offset: number, val: number) -> ();
-	swapBytes: (self: object, offsetI: number, offsetJ: number) -> ();
-
+	is_big_endian_default: boolean;
+	
+	write_bytes: (self: object, offset: number, ...number) -> ();
+	get_bytes: (self: object, offset: number, len: number?) -> {number};
+	read_float: (self: object, offset: number) -> number;
+	write_float: (self: object, offset: number, val: number) -> ();
+	read_double: (self: object, offset: number) -> number;
+	write_double: (self: object, offset: number, val: number) -> ();
+	-- swaps specific bytes at i and j, is_contiguous does the same for all bytes in between
+	swap_bytes: (self: object, offsetI: number, offsetJ: number, is_contiguous: boolean?) -> ();
+	
 	__len: (self: object) -> number;
 	len: (self: object) -> number;
 	__tostring: (self: object) -> string;
-	toString: (self: object, sType: number?, ...any) -> string;
+	to_string: (self: object, sType: number?, ...any) -> string;
 	readi8: (self: object, offset: number) -> number;
 	readu8: (self: object, offset: number) -> number;
-	readi16: (self: object, offset: number) -> number;
-	readu16: (self: object, offset: number) -> number;
-	readi32: (self: object, offset: number) -> number;
-	readu32: (self: object, offset: number) -> number;
-	readf32: (self: object, offset: number) -> number;
-	readf64: (self: object, offset: number) -> number;
-	writei8: (self: object, offset: number, val: number) -> ();
-	writeu8: (self: object, offset: number, val: number) -> ();
-	writei16: (self: object, offset: number, val: number) -> ();
-	writeu16: (self: object, offset: number, val: number) -> ();
-	writei32: (self: object, offset: number, val: number) -> ();
-	writeu32: (self: object, offset: number, val: number) -> ();
-	writef32: (self: object, offset: number, val: number) -> ();
-	writef64: (self: object, offset: number, val: number) -> ();
+	readi16: (self: object, offset: number, is_big_endian: boolean?) -> number;
+	readu16: (self: object, offset: number, is_big_endian: boolean?) -> number;
+	readi32: (self: object, offset: number, is_big_endian: boolean?) -> number;
+	readu32: (self: object, offset: number, is_big_endian: boolean?) -> number;
+	readf32: (self: object, offset: number, is_big_endian: boolean?) -> number;
+	readf64: (self: object, offset: number, is_big_endian: boolean?) -> number;
+	writei8: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
+	writeu8: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
+	writei16: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
+	writeu16: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
+	writei32: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
+	writeu32: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
+	writef32: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
+	writef64: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
 	readstring: (self: object, offset: number, len: number) -> string;
 	writestring: (self: object, offset: number, val: string, count: number?) -> ();
 	copy: (self: object, fromOffset: number, to: buffer | object, toOffset: number?, 
@@ -79,22 +81,55 @@ function module.new(b: buffer): object
 	return self
 end
 
-function enqueReferral(self: object, ...)return self.referral, ... end
+function enque_referral(self: object, ...)return self.referral, ... end
 
-function module.swapBytes(self: object, i: number, j: number)
-	local t = self:readu8(i)
-	self:writeu8(i, self:readu8(j))
-	self:writeu8(j, t)
+function endian_applied(n_tuple: number, length: number, f: any)
+	return function(self: object, offset: number, ...)
+		local last_arg = select(n_tuple, ...)
+		local is_big_endian = typeof(last_arg) == 'boolean' and last_arg or self.is_big_endian_default
+		
+		--print(last_arg, is_big_endian)
+		--print(offset, length)
+		if is_big_endian then
+			self:swap_bytes(offset, offset + length - 1, true)
+		end
+		
+		local result = f(self.referral, offset, ...)
+		
+		if is_big_endian then
+			self:swap_bytes(offset, offset + length - 1, true)
+		end
+		
+		return result
+	end
 end
 
-function module.writeBytes(self: object, offset: number, ...: number)
+function module.swap_bytes(self: object, i: number, j: number, is_contigous: boolean?)
+	if is_contigous then
+		-- contiguous switch
+		local diff = j - i + 1
+		local half = diff // 2
+		local last = half - 1
+		
+		for k = 0, last do
+			self:swap_bytes(i + k, j - k)
+		end
+	else
+		-- single switch
+		local t = self:readu8(i)
+		self:writeu8(i, self:readu8(j))
+		self:writeu8(j, t)
+	end
+end
+
+function module.write_bytes(self: object, offset: number, ...: number)
 	for i = 1, select('#', ...) do
 		local b = select(i, ...)
 		self:writeu8(offset + i - 1, b)
 	end
 end
 
-function module.getBytes(self: object, offset: number, len: number)
+function module.get_bytes(self: object, offset: number, len: number)
 	len = len or 1
 
 	local result = {}
@@ -106,14 +141,14 @@ function module.getBytes(self: object, offset: number, len: number)
 	return result
 end
 
-function module.toString(self: object, sType: number?, ...)
+function module.to_string(self: object, sType: number?, ...)
 	if not sType then return buffer.tostring(self.referral) end
 	
 	local len = self:len()
 	local arg1 = ...
 	
 	if sType == 1 then
-		local bytes = self:getBytes(0, len)
+		local bytes = self:get_bytes(0, len)
 
 		for i = 1, len do
 			bytes[i] = hexUpper:formatSequence(bytes[i], 2)
@@ -206,7 +241,7 @@ function module.toString(self: object, sType: number?, ...)
 		-- explicit return because clamp will error
 		if len == 0 then return table.concat(strs) end
 		
-		arg1 = math.clamp(arg1, 0, Math.glass_div(len, 0x100) - 1)
+		arg1 = math.clamp(arg1 or 0, 0, Math.glass_div(len, 0x100) - 1)
 		
 		for r = 1, row_len do
 			r -= 1
@@ -259,7 +294,7 @@ function module.debug_find_diff(op_1: object, op_2: object): (boolean, string?)
 	local least = math.min(op_1:len(), op_2:len())
 	local most = math.max(op_1:len(), op_2:len())
 	if least == 0 and most ~= least then
-		return false, `\n{op_1:toString(4)}\n{op_2:toString(4)}`
+		return false, `\n{op_1:to_string(4)}\n{op_2:to_string(4)}`
 	end
 	
 	local i = 0
@@ -277,36 +312,36 @@ function module.debug_find_diff(op_1: object, op_2: object): (boolean, string?)
 		return true, 'operands are same'
 	else
 		local start_at = i // 0x100
-		return false, (`start_at={start_at}\n{op_1:toString(4,start_at)}\n{op_2:toString(4,start_at)}`)
+		return false, (`start_at={start_at}\n{op_1:to_string(4,start_at)}\n{op_2:to_string(4,start_at)}`)
 	end
 end
 
-module.readi8 = compose(enqueReferral, buffer.readi8)
-module.readu8 = compose(enqueReferral, readu8)
-module.readi16 = compose(enqueReferral, buffer.readi16)
-module.readu16 = compose(enqueReferral, buffer.readu16)
-module.readi32 = compose(enqueReferral, buffer.readi32)
-module.readu32 = compose(enqueReferral, buffer.readu32)
-module.readf32 = compose(enqueReferral, buffer.readf32)
-module.readf64 = compose(enqueReferral, buffer.readf64)
-module.writei8 = compose(enqueReferral, buffer.writei8)
-module.writeu8 = compose(enqueReferral, buffer.writeu8)
-module.writei16 = compose(enqueReferral, buffer.writei16)
-module.writeu16 = compose(enqueReferral, buffer.writeu16)
-module.writei32 = compose(enqueReferral, buffer.writei32)
-module.writeu32 = compose(enqueReferral, buffer.writeu32)
-module.writef32 = compose(enqueReferral, buffer.writef32)
-module.writef64 = compose(enqueReferral, buffer.writef64)
-module.readstring = compose(enqueReferral, buffer.readstring)
-module.writestring = compose(enqueReferral, buffer.writestring)
-module.fill = compose(enqueReferral, buffer.fill)
-module.len = compose(enqueReferral, len)
-module.__tostring = module.toString
+module.readi8 = compose(enque_referral, buffer.readi8)
+module.readu8 = compose(enque_referral, readu8)
+module.readi16 = endian_applied(1, 2, buffer.readi16)
+module.readu16 = endian_applied(1, 2, buffer.readu16) 
+module.readi32 = endian_applied(1, 4, buffer.readi32)
+module.readu32 = endian_applied(1, 4, buffer.readu32)
+module.readf32 = endian_applied(1, 4, buffer.readf32)
+module.readf64 = endian_applied(1, 8, buffer.readf64)
+module.writei8 = compose(enque_referral, buffer.writei8)
+module.writeu8 = compose(enque_referral, buffer.writeu8)
+module.writei16 = endian_applied(2, 2, buffer.writei16)
+module.writeu16 = endian_applied(2, 2, buffer.writeu16)
+module.writei32 = endian_applied(2, 4, buffer.writei32)
+module.writeu32 = endian_applied(2, 4, buffer.writeu32)
+module.writef32 = endian_applied(2, 4, buffer.writef32)
+module.writef64 = endian_applied(2, 8, buffer.writef64)
+module.readstring = compose(enque_referral, buffer.readstring)
+module.writestring = compose(enque_referral, buffer.writestring)
+module.fill = compose(enque_referral, buffer.fill)
+module.len = compose(enque_referral, len)
+module.__tostring = module.to_string
 module.__len = module.len
-module.readFloat = module.readf32
-module.writeFloat = module.writef32
-module.readDouble = module.readf64
-module.writeDouble = module.writef64
+module.read_float = module.readf32
+module.write_float = module.writef32
+module.read_double = module.readf64
+module.write_double = module.writef64
 module.from = from
 module.raw_constructors = raw_constructors
 
@@ -384,31 +419,31 @@ export type stream = {
 	
 	increment: (self: stream, i: number?)->();
 
-	writeBytes: (self: stream, ...number) -> ();
-	getBytes: (self: stream,  len: number?) -> {number};
-	readFloat: (self: stream) -> number;
-	writeFloat: (self: stream,  val: number) -> ();
-	readDouble: (self: stream) -> number;
-	writeDouble: (self: stream,  val: number) -> ();
+	write_bytes: (self: stream, ...number) -> ();
+	get_bytes: (self: stream,  len: number?) -> {number};
+	read_float: (self: stream) -> number;
+	write_float: (self: stream,  val: number) -> ();
+	read_double: (self: stream) -> number;
+	write_double: (self: stream,  val: number) -> ();
 
 	__len: (self: stream) -> number;
 	len: (self: stream) -> number;
 	readi8: (self: stream) -> number;
 	readu8: (self: stream) -> number;
-	readi16: (self: stream) -> number;
-	readu16: (self: stream) -> number;
-	readi32: (self: stream) -> number;
-	readu32: (self: stream) -> number;
-	readf32: (self: stream) -> number;
-	readf64: (self: stream) -> number;
+	readi16: (self: stream, is_big_endian: boolean) -> number;
+	readu16: (self: stream, is_big_endian: boolean) -> number;
+	readi32: (self: stream, is_big_endian: boolean) -> number;
+	readu32: (self: stream, is_big_endian: boolean) -> number;
+	readf32: (self: stream, is_big_endian: boolean) -> number;
+	readf64: (self: stream, is_big_endian: boolean) -> number;
 	writei8: (self: stream,  val: number) -> ();
 	writeu8: (self: stream,  val: number) -> ();
-	writei16: (self: stream,  val: number) -> ();
-	writeu16: (self: stream,  val: number) -> ();
-	writei32: (self: stream,  val: number) -> ();
-	writeu32: (self: stream,  val: number) -> ();
-	writef32: (self: stream,  val: number) -> ();
-	writef64: (self: stream,  val: number) -> ();
+	writei16: (self: stream,  val: number, is_big_endian: boolean) -> ();
+	writeu16: (self: stream,  val: number, is_big_endian: boolean) -> ();
+	writei32: (self: stream,  val: number, is_big_endian: boolean) -> ();
+	writeu32: (self: stream,  val: number, is_big_endian: boolean) -> ();
+	writef32: (self: stream,  val: number, is_big_endian: boolean) -> ();
+	writef64: (self: stream,  val: number, is_big_endian: boolean) -> ();
 	readstring: (self: stream,  len: number) -> string;
 	writestring: (self: stream,  val: string, count: number?) -> ();
 	fill: (self: stream,  val: number, count: number?) -> ();
@@ -436,7 +471,7 @@ end
 
 function stream_f_deprecated(s: string?)
 	return function()
-		error(s or 'Method is deprecated')
+		error(s or 'Method is deprecated or unimplemented')
 	end
 end
 
@@ -451,14 +486,14 @@ function Stream.writestring(self: stream, val: string, count: number?)
 	self:increment(count or #val)
 end
 
-function Stream.getBytes(self: stream, len: number?)
-	local result = self.referral:getBytes(self.i, len)
+function Stream.get_bytes(self: stream, len: number?)
+	local result = self.referral:get_bytes(self.i, len)
 	self:increment(#result)
 	return result
 end
 
-function Stream.writeBytes(self: stream, ...)
-	self.referral:writeBytes(self.i, ...)
+function Stream.write_bytes(self: stream, ...)
+	self.referral:write_bytes(self.i, ...)
 	self:increment(select('#', ...))
 end
 
@@ -492,10 +527,10 @@ Stream.writeu32 = stream_f_inc(4, module.writeu32)
 Stream.writef32 = stream_f_inc(4, module.writef32)
 Stream.writef64 = stream_f_inc(8, module.writef64)
 Stream.__len = Stream.len
-Stream.readFloat = Stream.readf32
-Stream.writeFloat = Stream.writef32
-Stream.readDouble = Stream.readf64
-Stream.writeDouble = Stream.writef64
+Stream.read_float = Stream.readf32
+Stream.write_float = Stream.writef32
+Stream.read_double = Stream.readf64
+Stream.write_double = Stream.writef64
 
 Class.makeProperClass(Stream, '@CHL/BufferWrapper/Stream')
 
