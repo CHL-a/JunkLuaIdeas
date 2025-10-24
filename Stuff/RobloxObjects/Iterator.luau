@@ -13,6 +13,10 @@ export type object<A, B...> = {
 } & Class.subclass<Object.object>
 
 --// MAIN
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
 local module = {}
 
 disguise = require('./LuaUTypes').disguise
@@ -36,6 +40,40 @@ end
 
 module.proceed = Class.abstractMethod
 module.canProceed = Class.abstractMethod
+module.can_proceed = Class.abstractMethod
 Class.makeProperClass(module, '@CHL>Iterator')
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+export type simple<A, B...> = {
+	proceed: (self: simple<A, B...>) -> (A, B...);
+	can_proceed: (self: simple<A, B...>) -> boolean;
+}
+simple = {}
+
+function simple.new<A, B...>(): simple<A, B...>
+	return Object.simple.new(simple)
+end
+
+function simple.__iter<A, B...>(self: simple<A, B...>): iterator_function<nil, A, B...>
+	return function(_: nil, last: A, ...: B...): (A, B...)
+		if disguise(self):can_proceed() then
+			return disguise(self):proceed()
+		end
+		return disguise()
+	end
+end
+
+simple.proceed = Class.abstractMethod
+simple.can_proceed = Class.abstractMethod
+
+Class.makeProperClass(simple, '@CHL>Iterator>simple')
+module.simple = simple
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
 
 return module
