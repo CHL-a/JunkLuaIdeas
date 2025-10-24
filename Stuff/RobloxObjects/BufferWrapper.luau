@@ -1,6 +1,4 @@
 --// TYPES
-local Objects = script.Parent
-
 export type object = {
 	referral: buffer;
 	is_big_endian_default: boolean;
@@ -371,10 +369,12 @@ module.getTemp = getTemp
 --#####################################################################################
 --#####################################################################################
 
+local Object = require('./Object')
+
 export type iterator = {
 	referral: buffer;
 	current: number;
-} & Class.subclass<Iterator.object<number>>
+} & Iterator.simple<number> -- byte within buffer
 
 BufferIterator = {}
 
@@ -388,15 +388,15 @@ function BufferIterator.simple(b: buffer, current: number)
 	return current, readu8(b, current)
 end
 
-function BufferIterator.new(_buffer: buffer, _current: number?)
-	local self: iterator = Class.inherit(Iterator.new(), BufferIterator)
+function BufferIterator.new(_buffer: buffer, _current: number?): iterator
+	local self: iterator = Object.simple.new(BufferIterator)
 	self.referral = _buffer
 	self.current = _current or 0
 	
 	return self
 end
 
-function BufferIterator.canProceed(self: iterator)
+function BufferIterator.can_proceed(self: iterator)
 	return len(self.referral) > self.current
 end
 
