@@ -37,6 +37,7 @@ export type object = {
 	copy: (self: object, fromOffset: number, to: buffer | object, toOffset: number?, 
 		count: number?) -> ();
 	fill: (self: object, offset: number, val: number, count: number?) -> ();
+	realloc: (self: object, new_size: number)->();
 }
 
 --// MAIN
@@ -58,16 +59,42 @@ readu8 = buffer.readu8
 len = buffer.len
 insert = table.insert
 
-function raw_constructors.bytes(...: number): buffer
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+-- primarily on the buffer primatives
+
+primative = {}
+
+primative.from = {}
+
+function primative.from.bytes(...: number): buffer
 	local n = select('#', ...)
 	local b = buffer.create(n)
 	for i = 1, n do
 		local byte = select(i, ...)
 		buffer.writeu8(b, i - 1, byte)
 	end
-	
+
 	return b
 end
+
+function primative.realloc(b: buffer, new_size: number)
+	local result = buffer.create(new_size)
+	local min = math.min(new_size, buffer.len(b))
+	
+	for i = 1, min do
+		buffer.writeu8(result, i - 1, buffer.readu8(b, i - 1))
+	end
+	
+	return result
+end
+
+module.primative = primative
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
 
 function from.string(s: string): object return module.new(buffer.fromstring(s))end
 function from.size(n: number): object return module.new(buffer.create(n))end
@@ -287,6 +314,10 @@ function module.copy(self: object, fromOffset: number, to: buffer | object,
 	return self:copy(fromOffset, to.referral, toOffset, count)
 end
 
+function module.realloc(self: object, new_size: number)
+	self.referral = primative.realloc(self.referral, new_size)
+end
+
 -- primary_debugging
 function module.debug_find_diff(op_1: object, op_2: object): (boolean, string?)
 	local least = math.min(op_1:len(), op_2:len())
@@ -376,38 +407,44 @@ export type iterator = {
 	current: number;
 } & Iterator.simple<number> -- byte within buffer
 
-BufferIterator = {}
+b_iterator = {}
 
-function BufferIterator.init_simple(b: buffer)
-	return BufferIterator.simple, b, -1
+function b_iterator.init_simple(b: buffer)
+	return b_iterator.simple, b, -1
 end
 
-function BufferIterator.simple(b: buffer, current: number)
+function b_iterator.simple(b: buffer, current: number)
 	current += 1
 	if current >= len(b)then return;end
 	return current, readu8(b, current)
 end
 
-function BufferIterator.new(_buffer: buffer, _current: number?): iterator
-	local self: iterator = Object.simple.new(BufferIterator)
+function b_iterator.new(_buffer: buffer, _current: number?): iterator
+	local self: iterator = Object.simple.new(b_iterator)
 	self.referral = _buffer
 	self.current = _current or 0
 	
 	return self
 end
 
-function BufferIterator.can_proceed(self: iterator)
+function b_iterator.can_proceed(self: iterator)
 	return len(self.referral) > self.current
 end
 
-function BufferIterator.proceed(self: iterator)
+function b_iterator.proceed(self: iterator)
+	if not self:can_proceed() then
+		return
+	end
 	local byte = readu8(self.referral, self.current)
 	self.current += 1
 	return byte
 end
 
-Class.makeProperClass(BufferIterator, '@CHL/BufferWrapper/Iterator')
-module.BufferIterator = BufferIterator
+Class.makeProperClass(b_iterator, '@CHL>BufferWrapper>Iterator')
+
+b_iterator.__iter = Iterator.simple.__iter
+
+module.iterator = b_iterator
 
 --#####################################################################################
 --#####################################################################################
@@ -535,5 +572,55 @@ Stream.write_double = Stream.writef64
 Class.makeProperClass(Stream, '@CHL/BufferWrapper/Stream')
 
 module.Stream = Stream
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+local Consumer = require('./@CHL>Consumer')
+
+export type to_buffw_consumer = {
+	size: number;
+	chunks: number;
+	buffw: object;
+	
+	build: (self: to_buffw_consumer)->object;
+} & Consumer.object<number>
+
+b_consumer = {}
+
+function b_consumer.new(): to_buffw_consumer
+	local self: to_buffw_consumer = Object.simple.new(b_consumer)
+	
+	self.size = 0
+	self.buffw = module.from.size(0)
+	
+	return self
+end
+
+function b_consumer.build(self: to_buffw_consumer)
+	self.buffw:realloc(self.size)
+	return self.buffw
+end
+
+function b_consumer.consume(self: to_buffw_consumer, byte: number)
+	local buffw = self.buffw
+	
+	if buffw:len() < self.size + 1 then
+		buffw:realloc(buffw:len() + 0x100)
+	end
+	
+	buffw:writeu8(self.size, byte)
+
+	self.size += 1
+end
+
+Class.makeProperClass(b_consumer, '@CHL/BufferWrapper/Consumer')
+
+module.consumer = b_consumer
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
 
 return module
