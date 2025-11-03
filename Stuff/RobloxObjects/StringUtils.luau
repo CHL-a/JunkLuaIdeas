@@ -189,19 +189,21 @@ end
 --#########################################################################################
 --#########################################################################################
 
-Iterator = {}
+local Iterator = require('./@CHL>Iterator')
 
-function Iterator.init_simple(s: string)
-	return Iterator.simple, s, 0
+s_iterator = {}
+
+function s_iterator.init_simple(s: string)
+	return s_iterator.simple, s, 0
 end
 
-function Iterator.simple(s: string, i: number)
+function s_iterator.simple(s: string, i: number)
 	i += 1
 	if i > #s then return;end
 	return i, s:sub(i,i)
 end
 
-module.Iterator = Iterator
+module.iterator = s_iterator
 
 --#########################################################################################
 --#########################################################################################
