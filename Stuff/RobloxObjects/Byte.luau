@@ -7,6 +7,7 @@ rshift = bit32.rshift
 bnot = bit32.bnot
 bxor = bit32.bxor
 bor = bit32.bor
+btest = bit32.btest
 
 module.range_mask = 0xFF
 module.range_complement = bnot(module.range_mask)
@@ -19,7 +20,7 @@ end
 
 -- given a number, it returns whether a number is in byte range
 function module.is_in_range(number)
-	return band(number, module.range_complement) == 0x00
+	return not btest(band(number, module.range_complement))
 end
 
 -- given number, it returns two numbers given a slice
@@ -34,7 +35,7 @@ function module.bit_swap_mask(byte: number, swap_mask: number)
 	
 	byte = band(byte, swap_mask)
 	
-	if byte == 0x00 or byte == swap_mask then
+	if not btest(byte) or byte == swap_mask then
 		return byte
 	else
 		return band(swap_mask, bnot(byte))
