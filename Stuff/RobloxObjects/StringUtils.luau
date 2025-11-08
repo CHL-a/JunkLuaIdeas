@@ -209,4 +209,89 @@ module.iterator = s_iterator
 --#########################################################################################
 --#########################################################################################
 
+-- byte iterator
+
+local Object = require('./Object')
+local Class = require('./Class')
+
+type simple_it<T, U...> = Iterator.simple<T, U...>
+export type byte_iterator = {
+	referral: string;
+	i: number;
+} & simple_it<number>
+
+b_iterator = {}
+
+function b_iterator.new(s: string, i: number?): byte_iterator
+	local self: byte_iterator = Object.simple.new(b_iterator)
+	self.referral = s;
+	self.i = i or 1
+	return self
+end
+
+function b_iterator.can_proceed(self: byte_iterator)
+	return not not self.referral:byte(self.i)
+end
+
+function b_iterator.proceed(self: byte_iterator)
+	if not self:can_proceed() then return;end
+	
+	local result = self.referral:byte(self.i)
+	
+	self.i += 1
+	
+	return result
+end
+
+b_iterator.__iter = Iterator.simple.__iter
+Class.makeProperClass(b_iterator, '@CHL>StringUtils>Iterator>Byte')
+
+module.iterator.byte = b_iterator
+
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+
+export type char_iterator = {
+	byte_it: byte_iterator;
+} & simple_it<string>
+
+c_iterator = {}
+c_iterator.from = {}
+
+function c_iterator.new(byte_it: byte_iterator):char_iterator
+	local self: char_iterator = Object.simple.new(c_iterator)
+	self.byte_it = byte_it
+	return self
+end
+
+function c_iterator.from.string(s: string, i: number?): char_iterator
+	return c_iterator.new(b_iterator.new(s, i))
+end
+
+function c_iterator.can_proceed(self: char_iterator)
+	return self.byte_it:can_proceed()
+end
+
+function c_iterator.proceed(self: char_iterator)
+	if not self:can_proceed() then return;end
+
+	local result = self.byte_it:proceed()
+	
+	if result then
+		result = string.char(result)
+	end
+
+	return result
+end
+
+c_iterator.__iter = Iterator.simple.__iter
+Class.makeProperClass(c_iterator, '@CHL>StringUtils>Iterator>Char')
+
+module.iterator.char = c_iterator
+
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+
 return module
