@@ -2,6 +2,7 @@ local Iterator = require('./@CHL>Iterator')
 local BufferWrapper = require('./@CHL>BufferWrapper')
 local Object = require('./Object')
 local Class = require('./Class')
+local Byte = require('./@CHL>Byte')
 
 export type byte_iterator = Iterator.simple<number> -- standard here is going to be unsigned
 
@@ -10,16 +11,8 @@ local module = {}
 rshift = bit32.rshift
 lshift = bit32.lshift
 band = bit32.band
-
-function byte_clamp(byte: number, offset: number?)
-	local o = offset or 0
-	return rshift(band(lshift(byte, o), 0xFF), o)
-end
-
-function byte_slice(byte: number, slice_from_left: number): (number, number)
-	return rshift(byte, 8-slice_from_left), 
-		byte_clamp(byte, slice_from_left)
-end
+byte_clamp = Byte.bit_clamp
+byte_slice = Byte.slice
 
 --#####################################################################################
 --#####################################################################################
