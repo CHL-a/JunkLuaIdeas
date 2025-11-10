@@ -294,4 +294,61 @@ module.iterator.char = c_iterator
 --#########################################################################################
 --#########################################################################################
 
+local Consumer = require('./@CHL>Consumer')
+
+export type char_consumer = {
+	referral: string;
+} & Consumer.object<string>
+
+c_consumer = {}
+
+function c_consumer.new(): char_consumer
+	return Object.simple.from.struct({
+		referral = '';
+	}, c_consumer)
+end
+
+function c_consumer.consume(self: char_consumer, s: string)
+	self.referral ..= s
+end
+
+Class.makeProperClass(c_consumer, '@CHL>StringUtils>Consumer>Char')
+
+module.consumer = {}
+module.consumer.char = c_consumer
+
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+
+export type byte_consumer = {
+	c_consumer: char_consumer;
+	
+	get_string: (self: byte_consumer)->string;
+} & Consumer.object<number>
+
+b_consumer = {}
+
+function b_consumer.new(): byte_consumer
+	return Object.simple.from.struct({
+		c_consumer = c_consumer.new();
+	}, b_consumer)
+end
+
+function b_consumer.consume(self: byte_consumer, byte: number)
+	self.c_consumer:consume(string.char(byte))
+end
+
+function b_consumer.get_string(self: byte_consumer)
+	return self.c_consumer.referral
+end
+
+Class.makeProperClass(b_consumer, '@CHL>StringUtils>Consumer>Byte')
+
+module.consumer.byte = b_consumer
+
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+
 return module
