@@ -132,6 +132,10 @@ end
 
 Class.makeProperClass(charRadix, '@CHL>Radix>Char')
 
+--######################################################################################
+--######################################################################################
+--######################################################################################
+
 local binary = charRadix.new'01'
 
 function binary.formatSequence(self: charRadix, n: number, len: number?)
@@ -165,13 +169,17 @@ end
 local hexupper = charRadix.new'0123456789ABCDEF'
 hexupper.formatSequence = hexlower.formatSequence
 
+local alphanumeric = charRadix.new'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
 binary.className = '@CHL>Radix>Char>Binary'
 hexlower.className = '@CHL>Radix>Char>HexLower'
 hexupper.className = '@CHL>Radix>Char>HexUpper'
+alphanumeric.className = '@CHL>Radix>Char>Alphanumeric'
 
 charRadix.binary = binary
 charRadix.hexdecLower = hexlower
 charRadix.hexdecUpper = hexupper
+charRadix.alphanumeric = alphanumeric
 
 module.charRadix = charRadix
 
