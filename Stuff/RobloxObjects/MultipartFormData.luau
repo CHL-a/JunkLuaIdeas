@@ -108,7 +108,7 @@ function module.to_string(self: object)
 	local batch = {boundary}
 	
 	for _, v in self.collection do
-		local header_clone = table.clone(v.headers)
+		local header_clone = {}
 		
 		header_clone['Content-Type'] = v.content_type
 		header_clone['Content-Disposition'] = `form-data; name="{v.content_disposition.name}"`
