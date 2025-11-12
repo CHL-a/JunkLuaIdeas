@@ -96,11 +96,12 @@ function module.pick_boundary(self: object)
 end
 
 function module.to_string(self: object)
-	local boundary = self.boundary
-	
-	if not boundary then
+	if not self.boundary then
 		self.boundary = self:pick_boundary()
 	end
+	
+	local boundary = self.boundary
+	
 	
 	boundary = '--' .. boundary
 	
