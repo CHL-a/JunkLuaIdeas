@@ -68,23 +68,20 @@ function module.request(request: request): response
 	return response 
 end
 
-function module.get(url: string)
-	local response = module.request({
-		Url = url;
-		Method = 'GET'
-	})
-	
-	return response.Body
+function method_request(method: request_method)
+	return function(url: string, headers: dict<any>?, body: string?, compress: Enum.HttpCompression?)
+		return module.request({
+			Method = method;
+			Url = url;
+			Headers = headers;
+			Body = body;
+			Compress = compress;
+		})
+	end
 end
 
-function module.post(url: string)
-	local response = module.request({
-		Url = url;
-		Method = 'POST'
-	})
-
-	return response.Body
-end
+module.get = method_request('GET')
+module.post = method_request('POST')
 
 function module.set_mode(i: request_mode, b: boolean)
 	module.request_mode[i] = b
