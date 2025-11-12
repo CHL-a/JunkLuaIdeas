@@ -19,7 +19,6 @@ export type part_struct = {
 		filename: string?;
 	};
 	content_type: string;
-	headers: dict<string>;
 }
 
 export type object = {
