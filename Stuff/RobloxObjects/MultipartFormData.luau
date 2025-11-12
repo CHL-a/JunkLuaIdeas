@@ -31,12 +31,14 @@ export type object = {
 	-- strictly speaking, only returns a boundary without a newline
 	pick_boundary: (self: object) -> string;
 	to_string: (self: object) -> string;
+	get_header_value: (self: object)->string;
 }
 
 local module = {}
 
 alphanumeric = Radix.charRadix.alphanumeric
 disguise = require('./LuaUTypes').disguise
+tinsert = table.insert
 
 function module.new(): object
 	local self: object = Object.simple.new(module)
@@ -102,7 +104,7 @@ function module.to_string(self: object)
 	
 	boundary = '--' .. boundary
 	
-	local result = boundary
+	local batch = {boundary}
 	
 	for _, v in self.collection do
 		local header_clone = table.clone(v.headers)
@@ -114,18 +116,22 @@ function module.to_string(self: object)
 			header_clone['Content-Disposition'] ..= `; filename="{v.content_disposition.filename}"`
 		end
 		
-		result ..= '\r\n'
+		tinsert(batch, '\r\n')
 		
 		for i, v in header_clone do
-			result ..= `{i}: {v}\r\n`
+			tinsert(batch, `{i}: {v}\r\n`)
 		end
 		
-		result ..= `\r\n{v.content}\r\n{boundary}`
+		tinsert(batch, `\r\n{v.content}\r\n{boundary}`)
 	end
 	
-	result ..= '--'
+	tinsert(batch, '--')
 	
-	return result
+	return table.concat(batch)
+end
+
+function module.get_header_value(self: object)
+	return `{module.mime}; boundary={self.boundary}`
 end
 
 module.mime = 'multipart/form-data'
