@@ -8,6 +8,7 @@ export type byte_iterator = Iterator.simple<number> -- standard here is going to
 
 local module = {}
 
+disguise = require('./LuaUTypes').disguise
 rshift = bit32.rshift
 lshift = bit32.lshift
 band = bit32.band
@@ -26,6 +27,7 @@ export type reader = {
 	byte: number;
 	offset: number; -- [0, 7] but 8 in case of uninitialized
 	
+	can_read: (self: reader)-> boolean;
 	read_bits: (self: reader, number)->(number);--lower or equal to 8, 
 	--larger than 0
 	
@@ -58,9 +60,13 @@ function Reader.new(iterator: byte_iterator): reader
 	return self
 end
 
+function Reader.can_read(self: reader): boolean
+	return not not self.byte
+end
+
 --[[
 	Reads bits_n bits from 1 to 8
-	-> [12345578]
+	-> [12345678]
 ]]
 function Reader.read_bits(self: reader, bits_n: number)
 	local result = 0
@@ -91,6 +97,12 @@ function Reader.read_bits(self: reader, bits_n: number)
 		end
 		
 		byte = it:proceed()
+		
+		if not byte then
+			self.byte = disguise()
+			
+			return result
+		end
 	end
 	
 	-- use current byte
@@ -134,7 +146,8 @@ function factory_buffer_use_read(b_index: string, length: number)
 		local buff = self.buffer
 		
 		for i = 1, length do
-			assert(self.iterator:can_proceed(), 'unable to handle case where iterator is empty')
+			
+			assert(self:can_read(), 'unable to handle case where iterator is empty')
 			buff:writeu8(i - 1, self:read_bits(8))
 		end
 		return buff[b_index](buff, 0, is_big_end)
