@@ -7,7 +7,6 @@ rshift = bit32.rshift
 countrz = bit32.countrz
 bor = bit32.bor
 
-
 function module.bit_count(u32: number): number
 	local result = 0
 	
@@ -25,7 +24,7 @@ end
 ]]
 function module.from_u64(u64: number): (number, number)
 	local high, low = 
-		u64 // (module.u32_max + 1),
+		u64 // (module.u32_max_after),
 		bor(u64, 0)
 	
 	return high, low
@@ -33,6 +32,7 @@ end
 
 module.last_bit_complement = bnot(0x01)
 module.u32_max = 0xFFFF_FFFF
+module.u32_max_after = module.u32_max + 1
 module.default_library = bit32
 
 return module
