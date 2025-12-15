@@ -147,6 +147,7 @@ function factory_buffer_use_read(b_index: string, length: number)
 		
 		for i = 1, length do
 			
+			
 			assert(self:can_read(), 'unable to handle case where iterator is empty')
 			buff:writeu8(i - 1, self:read_bits(8))
 		end
@@ -228,6 +229,7 @@ function Writer.write_bits(self: writer, value: number, bits_n: number)
 	local new_offset = bits_n + offset
 	local did_change_byte = new_offset >= 8
 	
+	
 	-- change byte case
 	if did_change_byte then
 		-- case to fill remaining byte
@@ -237,7 +239,7 @@ function Writer.write_bits(self: writer, value: number, bits_n: number)
 			local bits_filling = 8 - offset
 			local value_lshifted = rshift(value, bits_n - bits_filling)
 			local consumed_byte = bor(lshift(byte, bits_filling), value_lshifted)
-
+			
 			consumer:consume(consumed_byte)
 		end
 		
@@ -254,9 +256,10 @@ function Writer.write_bits(self: writer, value: number, bits_n: number)
 	
 	-- anything left in value
 	if new_offset > 0 then
-		value = byte_clamp(value, 8 - new_offset)
+		local value_size = (new_offset - offset)
+		value = byte_clamp(value, 8 - value_size)
 		
-		byte = bor(lshift(byte, new_offset), value)
+		byte = bor(lshift(byte, value_size), value)
 	end
 	
 	self.byte = byte
