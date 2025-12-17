@@ -75,7 +75,7 @@ function Reader.read_bits(self: reader, bits_n: number)
 	local new_offset = offset + bits_n
 	local it = self.iterator
 	
-	assert(bits_n == 0 or byte)
+	assert(bits_n >= 0 or byte)
 	
 	local new_byte_written = new_offset >= 8
 	
