@@ -97,6 +97,7 @@ function Reader.read_bits(self: reader, bits_n: number)
 		end
 		
 		byte = it:proceed()
+		offset = 0
 		
 		if not byte then
 			self.byte = disguise()
@@ -106,8 +107,11 @@ function Reader.read_bits(self: reader, bits_n: number)
 	end
 	
 	-- use current byte
-	local left = byte_slice(byte, new_offset)
-	result = bor(lshift(result, new_offset), left)
+	local bits = byte_slice(byte, new_offset)
+	local reverse = 8 - (new_offset - offset)
+	--bits = lshift(bits, offset)
+	_, bits = byte_slice(bits, reverse)
+	result = bor(lshift(result, new_offset), bits)
 
 	self.byte = byte
 	self.offset = new_offset
