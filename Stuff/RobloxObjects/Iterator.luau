@@ -66,6 +66,13 @@ function simple.__iter<A, B...>(self: simple<A, B...>): iterator_function<nil, A
 	end
 end
 
+function simple.declare_as(CLASS: any)
+	assert(CLASS.can_proceed, 'missing can_proceed function')
+	assert(CLASS.proceed, 'missing proceed function')
+	
+	CLASS.__iter = simple.__iter
+end
+
 simple.proceed = Class.abstractMethod
 simple.can_proceed = Class.abstractMethod
 
