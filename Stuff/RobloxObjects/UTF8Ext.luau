@@ -115,6 +115,7 @@ end
 local StringUtils = require('./@CHL>StringUtils')
 local Object = require('./Object')
 local Class = require('./Class')
+local Dash = require('./@CHL>DashSingular')
 
 type s_iterator<T, U...> = Iterator.simple<T, U...>
 
@@ -124,6 +125,7 @@ export type codepoint_iterator = {
 } & s_iterator<number>
 
 codepoint_iterator = {}
+compose = Dash.compose
 
 function codepoint_iterator.new(byte_it: byte_iterator): codepoint_iterator
 	local self: codepoint_iterator = Object.simple.new(codepoint_iterator)
@@ -151,6 +153,9 @@ function codepoint_iterator.proceed(self: codepoint_iterator)
 	return struct.codepoint
 end
 
+codepoint_iterator.from = {}
+codepoint_iterator.from.string = compose(StringUtils.iterator.byte.new, codepoint_iterator.new) :: (string)->codepoint_iterator
+
 codepoint_iterator.__iter = Iterator.simple.__iter
 Class.makeProperClass(codepoint_iterator, '@CHL>UTF8Ext>Iterator>Codepoint')
 module.iterator = {}
@@ -165,8 +170,6 @@ export type char_iterator = {
 } & s_iterator<string>
 
 char_iterator = {}
-
-
 
 function char_iterator.new(cp_it:codepoint_iterator): char_iterator
 	local self: char_iterator = Object.simple.new(char_iterator)
@@ -192,6 +195,8 @@ function char_iterator.proceed(self: char_iterator)
 	return utf8.char(codepoint)
 end
 
+char_iterator.from = {}
+char_iterator.from.string = compose(codepoint_iterator.from.string, char_iterator.new)
 char_iterator.__iter = Iterator.simple.__iter
 Class.makeProperClass(char_iterator, '@CHL>UTF8Ext>Iterator>Char')
 module.iterator.char = char_iterator
