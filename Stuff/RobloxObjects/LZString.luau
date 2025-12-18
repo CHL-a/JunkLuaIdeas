@@ -15,7 +15,9 @@
 	Control value meaning (based on value):
 	 * 0: next segment is a byte of an ascii character
 	 * 1: next segment is a 16 bit character
-	   * For the above, 0 and 1, the segment is concattenated with current string, on some cases.
+	   * For the above, 0 and 1, the segment is concattenated with current string, on some cases
+	     Furthermore, each letter and each concatenated string is added to a dictionary, causing 
+	     an internal index to be incremented.
 	 * 2: termination control value
 	 * 3+: index of a dictionary to repeat
 
@@ -30,15 +32,21 @@ local Object = require('./Object')
 local Class = require('./Class')
 local Map = require('./@CHL>Map')
 local Set = require('./@CHL>Set')
+local UTF8Ext = require('./@CHL>UTF8Ext')
+local UTF16 = require('./@CHL>UTF16')
+local Dash = require('./@CHL>DashSingular')
 
 type dict<T> = Map.dictionary<T>
 type writer = BinaryStream.writer
+type codepoint_iterator = UTF8Ext.codepoint_iterator
+type surrogate_iterator = UTF16.surrogate_iterator
 type byte_iterator = StringUtils.byte_iterator
 type simple_iterator<A, B...> = Iterator.simple<A, B...>
 type set<T> = Set.simple<T>
 
 export type compressor = {
-	uncompressed: byte_iterator;
+	uncompressed: surrogate_iterator;
+	--uncompressed: codepoint_iterator;
 	writer: writer;
 	
 	dictionary: dict<number>;
@@ -71,8 +79,9 @@ rshift = bit32.rshift
 band = bit32.band
 bor = bit32.bor
 tinsert = table.insert
+compose = Dash.compose
 
-function Compressor.new(uncompressed: byte_iterator): compressor
+function Compressor.new(uncompressed: surrogate_iterator): compressor
 	local self: compressor = Object.simple.new(Compressor)
 	
 	self.uncompressed = uncompressed
@@ -120,13 +129,18 @@ function Compressor.evaluate_current(self: compressor)
 		
 		self:write_bits(value, num_bits)
 	else
-		local first_byte = current:byte()
-		if first_byte < 256 then
+		local utf8_iterator = UTF8Ext.iterator.codepoint.from.string(current)
+		
+		assert(utf8_iterator:can_proceed())
+		
+		local codepoint = utf8_iterator:proceed()
+			-- utf8.codepoint(current, 1, 1)
+		if codepoint < 256 then
 			self:write_bits(0, num_bits)
-			self:write_bits(first_byte, 8)
+			self:write_bits(codepoint, 8)
 		else
 			self:write_bits(1, num_bits)
-			self:write_bits(first_byte, 16)
+			self:write_bits(codepoint, 16)
 		end
 		
 		self:decrement_drain()
@@ -156,11 +170,13 @@ function Compressor.proceed(self: compressor)
 	local uncompressed = self.uncompressed
 	
 	-- loop attempts to add new values to the queue
+	-- should stop if the queue is full, just so we can compensate
+	-- for extra added values
 	while true do
 		if uncompressed:can_proceed() then
-			local byte = uncompressed:proceed()
-			local char = string.char(byte)
-
+			local surro = uncompressed:proceed()
+			local char = utf8.char(surro)
+			
 			if not self.dictionary[char] then
 				self.dictionary[char] = self.dictionary_size
 				self.dictionary_size += 1
@@ -175,12 +191,6 @@ function Compressor.proceed(self: compressor)
 				continue
 			else
 				self:evaluate_current()
-				
-				--[[
-            // Add wc to the dictionary.
-            context_dictionary[context_wc] = context_dictSize++;
-            context_w = String(context_c);
-				]]
 				
 				self.dictionary[dictionary_check] = self.dictionary_size
 				self.dictionary_size += 1
@@ -214,6 +224,10 @@ function Compressor.proceed(self: compressor)
 	end
 end
 
+Compressor.from = {}
+Compressor.from.codepoint_iterator = compose(UTF16.surrogate_pair.iterator.new, Compressor.new) :: (codepoint_iterator)->compressor
+Compressor.from.string = compose(UTF8Ext.iterator.codepoint.from.string, Compressor.from.codepoint_iterator) :: (string)->compressor
+
 Iterator.simple.declare_as(Compressor)
 
 Class.makeProperClass(Compressor, '@CHL>LZString>Compressor')
@@ -223,12 +237,11 @@ Class.makeProperClass(Compressor, '@CHL>LZString>Compressor')
 Compressor.functions = {}
 
 function Compressor.functions.default(s: string): string
-	local byte_iterator = StringUtils.iterator.byte.new(s)
+	local compressor = Compressor.from.string(s)
 	local byte_consumer = StringUtils.consumer.byte.new()
 	
-	local compressor = Compressor.new(byte_iterator)
-	
-	for v in compressor do
+	while compressor:can_proceed() do
+		local v = compressor:proceed()
 		byte_consumer:consume(v)
 	end
 	
@@ -251,7 +264,8 @@ export type decompressor = {
 	dictionary: map<number, string>;
 	dictionary_size: number;
 	
-	queue: {number};
+	surrogate_queue: {number};
+	codepoint_queue: {number};
 	
 	drain: number;
 	at_end: boolean;
@@ -261,6 +275,7 @@ export type decompressor = {
 	current_entry: string;
 	
 	decrement_drain: (self: decompressor)->();
+	enqueue_from_string: (self: decompressor, s: string)->();
 	
 	-- serves the similar purpose as self.reader:read_bits but value is inserted to
 	-- the consumer in reverse order of bits
@@ -280,10 +295,40 @@ function Decompressor.new(compressed: byte_iterator): decompressor
 	self.current_control_value = nil;
 	self.drain = 4
 	self.current_entry = ''
-	self.queue = {}
+	self.codepoint_queue = {}
+	self.surrogate_queue = {}
 	self.dictionary = {}
 	
 	return self
+end
+
+function Decompressor.enqueue_from_string(self: decompressor, s: string)
+	local codepoint_iterator = UTF8Ext.iterator.codepoint.from.string(s)
+	
+	-- this approach to enqueue surrogate bytes might not check for sudden high and non low surrogates (in what world)
+	-- does this happen, but this approach is present here because luau uses utf8 standards of character representation
+	-- but javascript uses utf16
+	while codepoint_iterator:can_proceed() do
+		local codepoint = codepoint_iterator:proceed()
+		local utf16_type = UTF16.surrogate_pair.get_type(codepoint)
+		local high = table.remove(self.surrogate_queue, 1)
+		
+		-- specific case where user intentionally put lone high surrogates in strings
+		if utf16_type ~= 'low' and self.surrogate_queue[1] then
+			table.insert(self.codepoint_queue, high)
+		end
+		
+		if utf16_type == 'high' then
+			tinsert(self.surrogate_queue, codepoint)
+		elseif utf16_type == 'low' then
+			if high then
+				codepoint = UTF16.surrogate_pair.to_codepoint(high, codepoint)
+			end
+			tinsert(self.codepoint_queue, codepoint)
+		else
+			tinsert(self.codepoint_queue, codepoint)
+		end
+	end
 end
 
 function Decompressor.read_bits(self: decompressor, num_bits: number): number
@@ -312,23 +357,26 @@ function Decompressor.read_control_value(self: decompressor)
 end
 
 function Decompressor.can_proceed(self: decompressor)
-	return self.current_control_value ~= 2 or #self.queue > 0
+	return self.current_control_value ~= 2 or #self.codepoint_queue > 0
 end
 
 function Decompressor.proceed(self: decompressor)
+	-- for the iterative approach of the decompressor, controlvalue is assigned upfront in order 
+	-- to check for can_proceed
 	if not self.current_control_value then
 		self.current_control_value = self:read_bits(2)
 	end
 	
 	if not self:can_proceed() then return;end
 	
-	if #self.queue > 0 then
-		return table.remove(self.queue, 1)
+	if #self.codepoint_queue > 0 then
+		return table.remove(self.codepoint_queue, 1)
 	end
 	
 	local current_control_value = self.current_control_value
 	local dictionary = self.dictionary
 	
+	-- initial case
 	if not dictionary[3] then
 		local to_write = ""
 		local value;
@@ -338,58 +386,57 @@ function Decompressor.proceed(self: decompressor)
 			value = self:read_bits(8)
 			to_write = string.char(value)
 		elseif current_control_value == 1 then
-			error('unable to handle non 8 bit characters')
+			value = self:read_bits(16)
+			to_write = utf8.char(value)
 		elseif current_control_value ~= 2 then
 			error('invalid control value: ' .. current_control_value)
 		end
 		
 		dictionary[3] = to_write
 		self.current_string = to_write
-
-		local n = #to_write
-
-		for i = 1, n do
-			local byte = to_write:byte(i)
-			tinsert(self.queue, byte)
-		end
-		
+		self:enqueue_from_string(to_write)
 	elseif self.reader:can_read() then
-		local byte
+		local value
 		
 		if current_control_value == 0 then
-			byte = self:read_bits(8)
+			value = self:read_bits(8)
 			
 			-- same as case when control_value == 1
-			dictionary[self.dictionary_size] = string.char(byte)
+			dictionary[self.dictionary_size] = string.char(value)
 			current_control_value = self.dictionary_size
 			self.dictionary_size += 1
 			self:decrement_drain()
 		elseif current_control_value == 1 then
-			error('unable to handle non 8 bit characters')
+			value = self:read_bits(16)
+			
+			dictionary[self.dictionary_size] = utf8.char(value)
+			current_control_value = self.dictionary_size
+			self.dictionary_size += 1
+			self:decrement_drain()
 		elseif current_control_value == 2 then
 			warn('how did we get here?')
 			return
 		end
 		
-		
 		if dictionary[current_control_value] then
 			self.current_entry = dictionary[current_control_value]
 		else
 			if current_control_value == self.dictionary_size then
-				self.current_entry = self.current_string .. self.current_string:sub(1, 1)
+				local codepoint_iterator = UTF8Ext.iterator.char.from.string(self.current_string)
+				assert(codepoint_iterator:can_proceed())
+				
+				self.current_entry = self.current_string .. codepoint_iterator:proceed()
 			else
 				error('how did we get here?')
 			end
 		end
 		
-		local n = #self.current_entry
+		self:enqueue_from_string(self.current_entry)
 		
-		for i = 1, n do
-			local byte = self.current_entry:byte(i)
-			tinsert(self.queue, byte)
-		end
+		local codepoint_iterator = UTF8Ext.iterator.char.from.string(self.current_entry)
+		assert(codepoint_iterator:can_proceed())
 		
-		dictionary[self.dictionary_size] = self.current_string .. self.current_entry:sub(1,1)
+		dictionary[self.dictionary_size] = self.current_string .. codepoint_iterator:proceed()
 		self.dictionary_size += 1
 		self.current_string = self.current_entry
 		
@@ -399,7 +446,7 @@ function Decompressor.proceed(self: decompressor)
 	current_control_value = self:read_control_value()
 	self.current_control_value = current_control_value
 	
-	if #self.queue > 0 then
+	if #self.codepoint_queue > 0 or #self.surrogate_queue > 0 then
 		return self:proceed()
 	else
 		print(self)
@@ -422,7 +469,11 @@ function Decompressor.functions.default(s: string): string
 	local decompressor = Decompressor.new(byte_iterator)
 	
 	while decompressor:can_proceed() do
-		byte_consumer:consume(decompressor:proceed())
+		local char = utf8.char(decompressor:proceed())
+		
+		for i = 1, #char do
+			byte_consumer:consume(char:byte(i))
+		end
 	end
 
 	return byte_consumer:get_string()
