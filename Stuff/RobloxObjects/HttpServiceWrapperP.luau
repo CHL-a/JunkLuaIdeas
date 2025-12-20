@@ -40,6 +40,21 @@ function module.request(request: request, is_explicit_call: boolean): response
 	return response
 end
 
+function method_request(method: request_method)
+	return function(url: string, headers: dict<any>?, body: string?, compress: Enum.HttpCompression?, is_explicit_call: boolean?)
+		return module.request({
+			Method = method;
+			Url = url;
+			Headers = headers;
+			Body = body;
+			Compress = compress;
+		}, is_explicit_call)
+	end
+end
+
+module.get = method_request('GET')
+module.post = method_request('POST')
+
 module.service = service
 
 return module
