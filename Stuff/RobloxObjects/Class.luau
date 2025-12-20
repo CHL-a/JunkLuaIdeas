@@ -107,7 +107,7 @@ end
 function Proxy.__get_class_i<A>(self: __proxy<A>)
 	return assert(
 		find(
-			rawget(disguise(self).__object, '__supers'), 
+			disguise(rawget(disguise(self).__object, '__supers')), 
 			self.__class
 		)
 	)
@@ -400,5 +400,6 @@ Class.hasClass = hasClass
 Class.abstractMethod = getErrorFunc'Attempting to use abstract method.'
 Class.unimplemented = getErrorFunc'Attempting to use an unimplemented method.'
 Class.makeProperClass = makeProperClass
+Class.make_proper_class = makeProperClass
 
 return Class
