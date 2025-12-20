@@ -4,36 +4,31 @@ local Dash = require('./@CHL>DashSingular')
 
 export type object = {
 	depth: number;
-	tableOptions: __options;
+	table_options: options;
 	accessed: Dash.Set<Dash.Table>;
 	
-	parseToLines: (self: object, v: any, __options?) -> {string};
-	parse: (self: object, v: any, __options) -> string;
-	clearAccessed: (self: object) -> ();
+	parse_to_lines: (self: object, v: any, options?) -> {string};
+	parse: (self: object, v: any, options) -> string;
+	clear_accessed: (self: object) -> ();
 	reset: (self: object) -> ();
 }
 
-type __options = {
+export type options = {
 	maxDepth: number?;
 	indentUnit: string | '\t';
-	stringArgs: StringUtils.luaSArgs?;
+	stringArgs: StringUtils.lua_string_args?;
 }
-export type options = __options
 
 --// MAIN
 local module = {}
 local LuaUTypes = require('./LuaUTypes')
-local disguise = LuaUTypes.disguise
 local TableUtils = require('./@CHL>TableUtils')
-local push = TableUtils.push
-local defaultify = TableUtils.defaultify
+local Object = require('./Object')
+local Class = require('./Class')
 
-
-function assertType<A>(value: any | A, __type: string, msg: string?): A
-	Dash.assertEqual(typeof(value), __type, msg or `Attempting to pass value, {
-		value}, of type {typeof(value)}, and not {__type}`)
-	return value
-end
+disguise = LuaUTypes.disguise
+push = TableUtils.push
+defaultify = TableUtils.defaultify
 
 module.defaultOptions = {
 	maxDepth = 10;
@@ -42,21 +37,21 @@ module.defaultOptions = {
 		token = '\'';
 		multilineType = 'single';
 	}
-} :: __options
+} :: options
 
-function module.new(options: __options?): object
-	local self: object = disguise(setmetatable({}, module))
+function module.new(options: options?): object
+	local self: object = Object.simple.new(module)
 	
-	self.tableOptions = defaultify(options, module.defaultOptions)
+	self.table_options = defaultify(options, module.defaultOptions)
 	self.accessed = {}
 	self.depth = 1
 	
 	return self
 end
 
-function module.parseToLines(self: object, v: any, op: __options): {string}
+function module.parse_to_lines(self: object, v: any, op: options): {string}
 	-- pre
-	op = TableUtils.defaultify(op, self.tableOptions)
+	op = TableUtils.defaultify(op, self.table_options)
 	
 	-- main
 	if typeof(v) == 'table' then
@@ -93,7 +88,7 @@ function module.parseToLines(self: object, v: any, op: __options): {string}
 			-- value
 			self.depth += 1
 			
-			local wLines = self:parseToLines(w, op)
+			local wLines = self:parse_to_lines(w, op)
 			
 			self.depth -= 1
 			
@@ -116,13 +111,13 @@ function module.parseToLines(self: object, v: any, op: __options): {string}
 end
 
 function module.parse(self: object, v: any, override): string
-	return table.concat(self:parseToLines(v, override), '\n')
+	return table.concat(self:parse_to_lines(v, override), '\n')
 end
 
-function module.clearAccessed(self:object)table.clear(self.accessed)end
+function module.clear_accessed(self:object)table.clear(self.accessed)end
 
-function module.reset(self: object) self:clearAccessed()self.depth = 1 end
+function module.reset(self: object) self:clear_accessed()self.depth = 1 end
 
-require('./Class').makeProperClass(module, '@CHL>StringifyCompiler')
+Class.makeProperClass(module, '@CHL>StringifyCompiler')
 
 return module
