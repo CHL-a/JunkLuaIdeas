@@ -7,6 +7,7 @@
 ]]
 
 export type loadstring_func = (source: string, environment: any)->(()->())
+export type result_pack = (boolean, any | string)
 
 local module = {}
 
@@ -29,7 +30,7 @@ function module.set_loadstring(func: loadstring_func)
 	module.loadstring = func
 end
 
-function module.import(s: string): (boolean, any | string)
+function module.import(s: string): result_pack
 	local load_string = module.get_loadstring()
 	local success, val = pcall(function()
 		return load_string(s, blank_env)()
@@ -42,11 +43,17 @@ function module.import(s: string): (boolean, any | string)
 	return success, val
 end
 
-function module.import_from_file(): (boolean, any | string)
+module.from = {}
+
+function module.from.file(file: File): result_pack
+	return module.import(file:GetBinaryContents())
+end
+
+function module.from.file_prompt(): result_pack
 	local file: File = StudioService:PromptImportFileAsync{'lua'}
 	if not file then return false, 'No file selected' end;
-	
-	return module.import(file:GetBinaryContents())
+
+	return module.from.file(file)
 end
 
 return module
