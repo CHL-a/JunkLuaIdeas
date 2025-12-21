@@ -96,7 +96,7 @@ function module.parse(s: string): struct?
 	return result
 end
 
-function module.toString(s: struct): string
+function module.to_string(s: struct): string
 	local result = `{s.scheme}:`
 	
 	if s.domain then
