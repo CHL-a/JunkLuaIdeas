@@ -1,10 +1,15 @@
 local module = {}
 
+export type general<I,V> = {[I]:V}
+export type general_any = general<any, any>
+
 disguise = require('./LuaUTypes').disguise
+tclone = table.clone
+tinsert = table.insert
 
-function isEmpty(a: {[any]: any}): boolean return next(a) == nil end
+function module.is_empty(a: general_any): boolean return next(a) == nil end
 
-function deepSoftIndex<A, B>(t: {[A]: any}, ...: A): B?
+function module.deep_soft_index<A, B>(t: general_any, ...: A): B?
 	for i = 1, select('#', ...) do
 		local index = select(i, ...)
 		t = t[index]
@@ -15,16 +20,16 @@ function deepSoftIndex<A, B>(t: {[A]: any}, ...: A): B?
 	return disguise(t);
 end
 
-function safeSet(t: any, i: any, v: any): (boolean, string?)
+function module.safe_set(t: any, i: any, v: any): (boolean, string?)
 	return pcall(function()
 		t[i] = v
 	end)
 end
 
-function imprint<A>(t: A, t2: {[any]: any}, shouldWarn: boolean?): A
+function module.imprint<A>(t: A, t2: general_any, should_warn: boolean?): A
 	for i, v in next, t2 do
-		local s, e = safeSet(t, i, v)
-		if shouldWarn and not s then
+		local s, e = module.safe_set(t, i, v)
+		if should_warn and not s then
 			warn(e)
 		end
 	end
@@ -32,15 +37,16 @@ function imprint<A>(t: A, t2: {[any]: any}, shouldWarn: boolean?): A
 	return t
 end
 
-function push<A, B>(t: A, ...: B): A
+function module.push<A, B>(t: A, ...: B): A
 	for i = 1, select('#', ...) do
 		local a = select(i, ...)
-		table.insert(disguise(t), a)
+		tinsert(disguise(t), a)
 	end
 	return t
 end
 
-function clearNils<A>(t: A): A
+-- might be moved somewhere else
+function module.clear_nils<A>(t: A): A
 	local i = 1
 	local b = disguise(t)
 
@@ -55,13 +61,14 @@ function clearNils<A>(t: A): A
 	return t
 end
 
-function fill<A>(ground: A?, concrete: A): A
+-- specific function which takes arg ground and fills the missing values from arg concrete
+function module.fill<A>(ground: A?, concrete: A): A
 	local a, b = disguise(ground, concrete)
 	if not a then
-		return disguise(table.clone(b))
+		return disguise(tclone(b))
 	end
 	
-	for i, v in next, b do
+	for i, v in b do
 		if a[i] == nil then
 			a[i] = v
 		end
@@ -70,28 +77,28 @@ function fill<A>(ground: A?, concrete: A): A
 	return disguise(ground)
 end
 
-function defaultify<A>(a: A?, default: A): A
-	return not a and default or fill(a, default)
+function module.defaultify<A>(arg: A?, default: A): A
+	return not arg and default or module.fill(arg, default)
 end
 
-function isProperArray(a: {[any]: any}): boolean
-	return type(disguise(next(a))) == 'number' and next(a, #a) == nil
+function module.is_proper_array(array: general_any): boolean
+	return type(disguise(next(array))) == 'number' and next(array, #array) == nil
 end
 
 --[[do not use cyclic tables]]
-function deepClone<A>(t: A): A
-	local a = table.clone(disguise(t) :: {}) 
+function module.deep_clone<A>(t: A): A
+	local a = tclone(disguise(t) :: {}) 
 	
 	local list = {a}
 	
 	while #list > 0 do
 		local b = table.remove(list, 1)
 		
-		for i, v in next, b do
+		for i, v in b do
 			if type(v) == 'table' then
-				v = table.clone(v)
+				v = tclone(v)
 				
-				table.insert(list, v)
+				tinsert(list, v)
 			end
 		end
 	end
@@ -99,44 +106,88 @@ function deepClone<A>(t: A): A
 	return a
 end
 
-function valueSet<I, V>(t: {[I]: V}): {[V]: true}
+function module.value_set<I, V>(t: general<I,V>): {[V]: true}
 	local result = {}
 	
-	for _, v in next, t do 
+	for _, v in t do 
 		result[v] = true
 	end
 	
 	return result
 end
 
-function keys<I,V>(t: {[I]:V}):{I}
+function module.keys<I,V>(t: general<I, V>):{I}
 	local result = {}
 	
-	for i in next, t do
-		table.insert(result, i)
+	for i in t do
+		tinsert(result, i)
 	end
 	
 	return result
 end
 
-function randomValue<I,V>(t: {[I]: V}): V
-	local ks = keys(t)
-	
-	return t[ks[math.random(1, #ks)]]
+function module.random_value_of<I,V>(t: general<I,V>, random: Random?): V
+	local keys = module.keys(t)
+	local index = random and random:NextInteger(1, #keys) or math.random(1, #keys)
+	local value = t[keys[index]]
+	return value
 end
 
-module.deepSoftIndex = deepSoftIndex
-module.safeSet = safeSet
-module.imprint = imprint
-module.push = push
-module.clearNils = clearNils
-module.fill = fill
-module.defaultify = defaultify
-module.isProperArray = isProperArray
-module.isEmpty = isEmpty
-module.deepClone = deepClone
-module.valueSet = valueSet
-module.keys = keys
-module.randomValue = randomValue
+function module.entry_amount(t: general_any)
+	local result = 0
+	
+	for _ in t do
+		result += 1
+	end
+	
+	return result
+end
+
+export type table_type = 'array' | 'dictionary' | 'empty' | 'mixed' | 'spotty array' | 'odd'
+
+function module.get_type(t: general_any): table_type
+	local result;
+	local has_string_index = false
+	local has_number_index = false
+	local iterations = 0
+
+	for i in t do
+		iterations += 1
+
+		local type_i = typeof(i)
+
+		if not has_string_index and type_i == 'string'  then
+			has_string_index = true
+		elseif has_number_index and type_i == 'number' then
+			has_number_index = true
+		elseif type_i~='string' and type_i ~= 'number' then
+			return 'odd'
+		end
+
+		if has_string_index and has_number_index then
+			break
+		end
+	end
+
+	if has_number_index then
+		if has_string_index then
+			result = 'mixed'
+		elseif iterations == #t then
+			result = 'array'
+		else
+			result = 'spotty array'
+		end
+	elseif has_string_index then
+		result = 'dictionary'
+	elseif iterations == 0 then
+		result = 'empty'
+	else
+		print(t)
+		error('how did we get here?')
+	end
+
+	return result
+end
+
 
 return module
