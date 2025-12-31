@@ -45,45 +45,59 @@ function module.get_viewport_camera(self: object)
 	return self.viewport_frame.CurrentCamera
 end
 
+function module.dot(offset: Vector2, parent: GuiObject)
+	local d = script.b:Clone()
+	--offset = offset:Max(Vector2.zero)
+	d.Position = UDim2.fromOffset(offset.X, offset.Y)
+	d.Parent = parent
+	return d
+end
+
+function module.line(from: Vector2, to: Vector2, parent: GuiObject)
+	local d = script.b:Clone()
+	local half = (to + from) / 2
+	local diff = to - from
+	local angle = math.atan2(diff.Y, diff.X)
+	
+	d.Size = UDim2.fromOffset(diff.Magnitude, d.Size.Y.Offset)
+	d.Position = UDim2.fromOffset(half.X, half.Y)
+	d.Rotation = math.deg(angle)
+	d.Parent = parent
+	return d
+end
+
+function module.absolute_top_left_position(abs_position: Vector2, abs_size: Vector2, abs_rotation: number)
+	local half_size = abs_size / 2
+	local angle_1 = math.atan(half_size.Y / half_size.X)
+	local middle = abs_position + half_size
+	local angle_2 = rad(180 + abs_rotation) + angle_1
+	local unit = Vector2.new(cos(angle_2), sin(angle_2))
+	
+	local result = middle + unit * half_size.Magnitude
+	
+	return result
+end
+
 function module.retransform_viewport_frame(self: object)
 	local cropping_frame: Frame = self.cropping_frame
 	local viewport_frame: ViewportFrame = self.viewport_frame
-	local ScreenGui = viewport_frame:FindFirstAncestorWhichIsA('ScreenGui')
-	local size = ScreenGui.AbsoluteSize
+	local screen_gui = viewport_frame:FindFirstAncestorWhichIsA('ScreenGui')
+	local screen_size = screen_gui.AbsoluteSize
 	
 	-- size is always the same as the screen size
-	viewport_frame.Size = UDim2.fromOffset(size.X, size.Y)
+	viewport_frame.Size = UDim2.fromOffset(screen_size.X, screen_size.Y)
 	
-	if 1>0 then
-		local from = cropping_frame.AbsolutePosition
-		local to = Insets.get_inset(Enum.ScreenInsets.None)
-		viewport_frame.Position = UDim2.fromOffset(
-			-from.X + to.X,
-			-from.Y + to.Y
-		)
-		
-		return
-	end
-	
-	
-	-- set rotation by offsetting it
 	local rotation = viewport_frame.AbsoluteRotation
-	viewport_frame.Rotation -= rotation
 	
 	-- set position
-	-- first establish visible from position because absolute position assumes 0 rotation
-	-- attempt to modify by finding the middle then adjusting based on rotation
-	local from = cropping_frame.AbsolutePosition
-	local middle = from + cropping_frame.AbsoluteSize / 2
-	local from_middle_displacement = middle - from
-	local middle_length = from_middle_displacement.Magnitude
-	local theta_1 = math.tan(from_middle_displacement.Y / from_middle_displacement.X)
-	local theta_2 = rad(180 + rotation) + theta_1
-	local unit = Vector2.new(cos(theta_2), sin(theta_2))
+	-- first, attempt to get a goal position by finding the a version of the top left position in 0 rotation space after applying rotation
+	local none_inset = Insets.get_inset(screen_gui.ScreenInsets)
+	local to = module.absolute_top_left_position(none_inset, screen_size, rotation)
 	
-	from = middle + unit * middle_length
-
-	-- use visual from point and to position to make a displacement
+	-- secondly, do the same logic for the source position as previous step
+	local from = module.absolute_top_left_position(self.cropping_frame.AbsolutePosition, self.cropping_frame.AbsoluteSize, rotation)
+	
+	-- then transform 0 rotation space to rotation space
 	-- based on the following equations:
 	--[[
 		f_i = from of ith axis
@@ -136,36 +150,39 @@ function module.retransform_viewport_frame(self: object)
 		d_y = u_1 * 0 + u_2 * y_2
 		d_y = u_2 * y_2
 	]]
-	local to = Insets.get_inset(Enum.ScreenInsets.None)
 	
 	local orthoganal_rotation = rotation + 90
-	
+
 	local x_1 = cos(rad(rotation))
 	local y_1 = sin(rad(rotation))
-	local u_2;	
-	
-	local x_2 = cos(rad(orthoganal_rotation))
-	local y_2 = sin(rad(orthoganal_rotation))
 	local u_1;
 
-	local delta_x = to.X - from.X
-	local delta_y = to.Y - from.Y
-	
-	print(math.round(y_1 * 1000) / 1000 )
-	
-	if math.round(y_1 * 1000) / 1000 == 0 then
+	local x_2 = cos(rad(orthoganal_rotation))
+	local y_2 = sin(rad(orthoganal_rotation))
+	local u_2;	
+
+	local delta = to - from
+	local delta_x = delta.X
+	local delta_y = delta.Y
+
+	if rotation % 180 == 0 then
 		-- denotes a specific case where u_1's vector is specifically parallel to x axis
-		
+
 		u_1 = delta_x / x_1
 		u_2 = delta_y / y_2
 	else
+		-- as it turns out, this fun attempt to attempt to add cropping on spacial layers doesnt work
+		-- due to a rotation clause on clipsdescendants
 		local a = x_1 / y_1
-		
+
 		u_2 = (delta_x - a * delta_y) / (x_2 - y_2 * a)
 		u_1 = (delta_x - u_2 * x_2) / x_1
 	end
 	
 	viewport_frame.Position = UDim2.fromOffset(u_1, u_2)
+	
+	-- set rotation by offsetting it
+	viewport_frame.Rotation -= rotation
 end
 
 function module.update(self: object)
