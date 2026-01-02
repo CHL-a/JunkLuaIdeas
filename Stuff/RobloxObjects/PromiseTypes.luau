@@ -89,6 +89,12 @@ export type modified_object<T...> = {
 	finally_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
 	finally_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
 	get_status: (self: modified_object<T...>) -> status;
+	
+	-- additions
+	-- same as and_then
+	upon: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
+	upon_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
+	upon_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
 } & object<T...>
 
 export type modified_module = {
