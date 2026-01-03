@@ -54,7 +54,7 @@ type buffer_w = BufferWrapper.object
 	u32 partial chunk
 ]]
 
-function module.struct.to.buffer(struct: struct): buffer_w
+function module.struct.to.buffer_w(struct: struct): buffer_w
 	local token = struct.token
 	local channel = struct.channel
 	
@@ -89,6 +89,10 @@ function module.struct.to.buffer(struct: struct): buffer_w
 	return consumer:build()
 end
 
+function module.struct.to.buffer(struct: struct): buffer
+	return module.struct.to.buffer_w(struct).referral
+end
+
 function module.struct.from.buffer(buff: buffer): struct
 	local it = BufferWrapper.iterator.new(buff)
 	local reader = BinaryStream.reader.new(it)
@@ -117,7 +121,7 @@ function module.struct.from.buffer(buff: buffer): struct
 	
 	if partial_chunk_length > 0 then
 		local partial_chunk = tostring(reader:readu32())
-		local zeros = partial_chunk_length - #partial_chunk_length
+		local zeros = partial_chunk_length - #partial_chunk
 		
 		channel ..= ('0'):rep(zeros) .. partial_chunk
 	end
@@ -244,8 +248,8 @@ function module.object.post(self: object): http.response
 end
 
 module.object.from.struct = compose(module.struct.to.buffer, module.object.new) :: (struct: struct) -> object
-module.object.from.url = compose(module.struct.from.url, module.object.from.struct) :: (url: string) -> object
+module.object.from.url = compose(module.struct.from.string, module.object.from.struct) :: (url: string) -> object
 
-Class.makeProperClass(module.object, '@CHL>DiscordWebhook')
+Class.make_proper_class(module.object, '@CHL>DiscordWebhook')
 
 return module
