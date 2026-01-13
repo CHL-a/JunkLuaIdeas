@@ -170,7 +170,7 @@ function module.to_string(self: object, sType: number?, ...)
 	if not sType then return buffer.tostring(self.referral) end
 	
 	local len = self:len()
-	local arg1 = ...
+	local arg1, arg2 = ...
 	
 	if sType == 1 then
 		local bytes = self:get_bytes(0, len)
@@ -180,7 +180,7 @@ function module.to_string(self: object, sType: number?, ...)
 		end
 
 		return table.concat(bytes, '_')
-	elseif sType== 2 then
+	elseif sType == 2 then
 		--[[
 		Sample:
 		
@@ -193,6 +193,7 @@ function module.to_string(self: object, sType: number?, ...)
 		...
 		]]
 		local viewing_size = 0x100
+		
 		-- row_offset = arg1
 		arg1 = arg1 or 0
 		
@@ -240,7 +241,8 @@ function module.to_string(self: object, sType: number?, ...)
 		
 		return table.concat(strings)
 	elseif sType== 3 or sType == 4 then
-		local viewing_size = 0x100
+		-- arg1 == offset (0 based)
+		-- arg2 == len (1 based, in terms of 0x100 blocks)
 		-- row_offset = arg1
 		--[[
 		Sample:
@@ -253,6 +255,11 @@ function module.to_string(self: object, sType: number?, ...)
 		|20|xx xx xx xx xx xx xx xx xx xx xx xx xx xx      |
 		...
 		]]
+		local viewing_size = (arg2 or 1) * 0x100
+		
+		if arg2 == 0 then
+			viewing_size = 0x100 * (self:len() // 0x100)
+		end
 		
 		local row_len = Math.glass_div(viewing_size, 0x10)
 		local rw_len = math.max(2, #hexUpper:formatSequence(len))
@@ -341,7 +348,25 @@ function module.debug_find_diff(op_1: object, op_2: object): (boolean, string?)
 		return true, 'operands are same'
 	else
 		local start_at = i // 0x100
-		return false, (`start_at={start_at}\n{op_1:to_string(4,start_at)}\n{op_2:to_string(4,start_at)}`)
+		
+		local result = `start_at={start_at}\n`
+		
+		-- for horiontal alignment
+		--[[
+		local s1, s2 = op_1:to_string(4,start_at):split('\n'), op_2:to_string(4,start_at):split('\n')
+		
+		for i = 1, #s2 do
+			s1[i] ..= s2[i]
+		end
+		result ..= table.concat(s1, '\n')
+		--]]
+		
+		-- default: vertical alignment
+		result..= op_1:to_string(4, start_at) .. '\n'
+		result..= op_2:to_string(4, start_at)
+		
+		
+		return false, result
 	end
 end
 
@@ -421,6 +446,10 @@ end
 
 function b_iterator.new(_buffer: buffer, _current: number?): iterator
 	local self: iterator = Object.simple.new(b_iterator)
+	if not (typeof(_buffer) == 'buffer') then
+		print(_buffer)
+	end
+	assert(typeof(_buffer) == 'buffer', 'not buffer: ' .. typeof(_buffer))
 	self.referral = _buffer
 	self.current = _current or 0
 	
