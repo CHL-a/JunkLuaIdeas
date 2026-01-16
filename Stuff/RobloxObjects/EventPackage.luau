@@ -6,45 +6,36 @@ local Destructable = require('./@CHL>Destructable')
 --###################################################################################
 
 -- connection
-type structFunc<a...> = (a...) -> ();
+type func<a...> = (a...) -> ();
 
-export type eventSubjectTypes = 'connect' | 'once' | 'wait'
+export type connection_type = 'connect' | 'once' | 'wait'
 
-export type connection<a...> = {
-	__q: queue<a...>;
-	__id: number;
-	__f: structFunc<a...>;
-	__is_disconnected: boolean;
+export type connection<T...> = {
+	__f: func<T...>;
+	connection_type: connection_type;
+	
+	is_disconnected: boolean;
 
-	disconnect: (self: connection<a...>) -> ();
-} & RBXScriptConnection
+	disconnect: (self: connection<T...>) -> ();
+	Disconnect: (self: connection<T...>) -> ();
+}
 
 local connection = {}
 
 disguise = require('./LuaUTypes').disguise
 
-function connection.new<a...>(
-	f: structFunc<a...>, id: number, q: queue<a...>): connection<a...>
-	local self: connection<a...> = disguise(setmetatable({}, connection))
-	self.__id = id;
+function connection.new<T...>(connection_type: connection_type, f: func<T...>): connection<T...>
+	local self: connection<T...> = disguise(setmetatable({}, connection))
 	self.__f = f
-	self.__q = q
+	self.connection_type = connection_type
 	
 	return self
 end
 
-function connection.disconnect<a...>(self: connection<a...>)
-	if self.__is_disconnected then return;end
+function connection.disconnect<T...>(self: connection<T...>)
+	if self.is_disconnected then return;end
 	
-	self.__is_disconnected = true
-	
-	for i, v in next, self.__q do
-		if v.f == self.__f and v.id == self.__id then
-			table.remove(self.__q, i)
-			return
-		end
-	end
-	
+	self.is_disconnected = true
 end
 
 connection.Disconnect = connection.disconnect
@@ -54,94 +45,138 @@ connection.__index = connection
 --###################################################################################
 --###################################################################################
 
+type node<T...> = {
+	__prev: node<T...>?;
+	__next: node<T...>?;
+	__connection: connection<T...>
+}
+
+function disconnect_node<T...>(node: node<T...>)
+	local node_prev = node.__prev
+	local node_next = node.__next
+	local is_first = node_prev.first == node
+	
+	if node_prev then
+		if is_first then
+			node_prev.first = node_next
+		else
+			node_prev.__next = node.__next
+		end
+	end
+	
+	node.__prev = nil
+	node.__next = nil
+	
+	if node_next then
+		node_next.__prev = node_prev
+	end
+end
+
+--###################################################################################
+--###################################################################################
+--###################################################################################
+
 -- event
-type queue<a...> = {
-	{
-		subject: eventSubjectTypes;
-		f: structFunc<a...>;
-		id: number
-	}
-};
-
-export type event<a...> = {
-	__availibleId: number;
-	__queue: queue<a...>;
+export type event<T...> = {
+	first: node<T...>?;
+	last: node<T...>?;
 	isDestroyed: boolean;
+	is_destroyed: boolean;
 
-	__insert: (self:event<a...>, eventSubjectTypes, structFunc<a...>) -> ();
-	connect: (self: event<a...>, responder: structFunc<a...>) -> connection<a...>;
-	once: (self: event<a...>,responder: structFunc<a...>) -> connection<a...>;
-	wait: (self: event<a...>) -> a...;
-} & RBXScriptSignal
+	__insert: (self:event<T...>, connection_type, func<T...>) -> ();
+	connect: (self: event<T...>, responder: func<T...>) -> connection<T...>;
+	Connect: (self: event<T...>, responder: func<T...>) -> connection<T...>;
+	once: (self: event<T...>, responder: func<T...>) -> connection<T...>;
+	Once: (self: event<T...>, responder: func<T...>) -> connection<T...>;
+	wait: (self: event<T...>) -> T...;
+	Wait: (self: event<T...>) -> T...;
+	destroy: (self: event<T...>) -> ()
+} 
 
 local event = {}
 
 local Class = require('./Class')
 
-function event.new<a...>(): event<a...>
-	local object: event<a...> = disguise(setmetatable({}, event))
-	object.__availibleId = 0;
-	object.__queue = {}
+function event.new<T...>(): event<T...>
+	local object: event<T...> = disguise(setmetatable({}, event))
 	
 	return object
 end
 
 function event.__tostring()return '(Event)'end
 
-function event.__insert<a...>(self: event<a...>, ev, f)
+function event.__insert<T...>(self: event<T...>, ev, f)
 	assert(not self.isDestroyed, 'Attempting to use destroyed object')
+
+	local node: node<T...> = {
+		__connection = connection.new(f),
+	}
 	
-	self.__availibleId += 1
-	table.insert(self.__queue, {
-		subject = ev;
-		f = f;
-		id = self.__availibleId
-	})
+	if not self.first then
+		node.__prev = self
+		
+		self.first = node
+		self.last = node
+	else
+		node.__prev = self.last
+		self.last.__next = node
+		self.last = node
+	end
 end
 
-function event.connect<a...>(self: event<a...>, f)
-	self:__insert('connect', f)
-	
-	return connection.new(f, self.__availibleId, self.__queue)
+function event.connect<T...>(self: event<T...>, f)
+	return self:__insert('connect', f)
 end
 
-function event.wait<a...>(self:event<a...>)
+function event.wait<T...>(self:event<T...>)
 	local thread = coroutine.running()
 	
-	self:__insert('wait', function(...)
-		coroutine.resume(thread,...)
-	end)
+	self:__insert('wait', function(...)coroutine.resume(thread,...)end)
 	
 	return coroutine.yield(thread)
 end
 
-function event.once<a...>(self:event<a...>, f)
-	self:__insert('once', f)
+function event.once<T...>(self:event<T...>, f)
+	return self:__insert('once', f)
+end
 
-	return connection.new(f, self.__availibleId, self.__queue)
+function event.destroy<T...>(self: event<T...>)
+	if self.is_destroyed then return end
+	
+	self.is_destroyed = true
+	self.isDestroyed = true
+	
+	while self.first do
+		disconnect_node(self.first)
+	end
+	
+	self.first = nil
+	self.last = nil
 end
 
 event.ConnectParallel = Class.unimplemented
 event.Connect = event.connect
 event.Wait = event.wait
 event.Once = event.once
-event.__index = event
+event.Destroy = event.destroy
+
+Class.make_proper_class(event, '@CHL>EventPackage>Event')
 
 --###################################################################################
 --###################################################################################
 --###################################################################################
 
 -- package
-export type package<a...> = {
-	event: event<a...>;
+export type package<T...> = {
+	event: event<T...>;
 
-	fire: (self:package<a...>, a...) -> ();
+	fire: (self:package<T...>, T...) -> ();
 } & Destructable.object
 
 local package = {}
 
-function package.new<a...>(): package<a...>
-	local object: package<a...> = disguise(setmetatable({}, package))
+function package.new<T...>(): package<T...>
+	local object: package<T...> = disguise(setmetatable({}, package))
 
 	object.event = event.new()
 
@@ -150,35 +185,37 @@ end
 
 function package.__tostring()return '(EventPackage)'end
 
-
-function package.destroy<a...>(self: package<a...>)
+function package.destroy<T...>(self: package<T...>)
 	if self.isDestroyed then return end
 	
 	self.isDestroyed = true
-	self.event.isDestroyed = true
+	
+	self.event:destroy()
 	self.event = disguise()
 end
 
-function package.fire<a...>(self:package<a...>, ...:a...)
+function package.fire<T...>(self:package<T...>, ...:T...)
 	assert(not self.isDestroyed, 'Attempting to use destroyed value.')
 	
-	local i = 1
-	local q = self.event.__queue
+	local event = self.event
+	local current = event.first
 	
-	while i <= #q do
-		local v = q[i]
+	while current do
+		local connection = current.__connection
 		
-		v.f(...)
-		
-		if v.subject ~= 'connect' then
-			table.remove(q, i)
-			i -= 1
+		if not connection.is_disconnected then
+			connection.__f(...)
 		end
 		
-		i += 1
+		local temp = current.__next
+
+		if connection.connection_type ~= 'connect' or connection.is_disconnected then
+			disconnect_node(current)
+		end
+		
+		current = temp
 	end
 end
 
-package.__index = package
-
+Class.make_proper_class(package, '@CHL>EventPackage')
 return package
