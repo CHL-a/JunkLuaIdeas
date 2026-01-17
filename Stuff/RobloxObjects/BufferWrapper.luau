@@ -58,6 +58,7 @@ hexUpper = Radix.charRadix.hexdecUpper
 readu8 = buffer.readu8
 len = buffer.len
 insert = table.insert
+gdiv = Math.glass_div
 
 --#####################################################################################
 --#####################################################################################
@@ -197,7 +198,7 @@ function module.to_string(self: object, sType: number?, ...)
 		-- row_offset = arg1
 		arg1 = arg1 or 0
 		
-		local row_len = Math.glass_div(viewing_size, 0x10)
+		local row_len = gdiv(viewing_size, 0x10)
 		local rw_len = math.max(2, #hexUpper:formatSequence(len))
 		
 		local strings = {}
@@ -258,10 +259,10 @@ function module.to_string(self: object, sType: number?, ...)
 		local viewing_size = (arg2 or 1) * 0x100
 		
 		if arg2 == 0 then
-			viewing_size = 0x100 * (self:len() // 0x100)
+			viewing_size = 0x100 * math.max(1, gdiv(self:len(), 0x100))
 		end
 		
-		local row_len = Math.glass_div(viewing_size, 0x10)
+		local row_len = gdiv(viewing_size, 0x10)
 		local rw_len = math.max(2, #hexUpper:formatSequence(len))
 		local strs = {}
 		local line_1 = `+{('-'):rep(rw_len)}+-----------------------------------------------+`
@@ -273,7 +274,7 @@ function module.to_string(self: object, sType: number?, ...)
 		-- explicit return because clamp will error
 		if len == 0 then return table.concat(strs) end
 		
-		arg1 = math.clamp(arg1 or 0, 0, Math.glass_div(len, 0x100) - 1)
+		arg1 = math.clamp(arg1 or 0, 0, gdiv(len, 0x100) - 1)
 		
 		for r = 1, row_len do
 			r -= 1
