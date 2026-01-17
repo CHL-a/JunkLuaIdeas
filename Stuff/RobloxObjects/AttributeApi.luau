@@ -30,11 +30,11 @@ function module.get_attribute_name(self: object, suffix: string)
 end
 
 function module.get(self: object, suffix)
-	return self.instance:getattribute(self:get_attribute_name(suffix))
+	return self.instance:GetAttribute(self:get_attribute_name(suffix))
 end
 
 function module.set(self: object, suffix, value)
-	return self.instance:setattribute(self:get_attribute_name(suffix), value)
+	return self.instance:SetAttribute(self:get_attribute_name(suffix), value)
 end
 
 function module.get_dictionary(self: object)
