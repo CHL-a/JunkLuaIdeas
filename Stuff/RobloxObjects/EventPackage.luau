@@ -109,7 +109,7 @@ function event.__insert<T...>(self: event<T...>, ev, f)
 	assert(not self.isDestroyed, 'Attempting to use destroyed object')
 
 	local node: node<T...> = {
-		__connection = connection.new(f),
+		__connection = connection.new(ev, f),
 	}
 	
 	if not self.first then
@@ -218,4 +218,5 @@ function package.fire<T...>(self:package<T...>, ...:T...)
 end
 
 Class.make_proper_class(package, '@CHL>EventPackage')
+
 return package
