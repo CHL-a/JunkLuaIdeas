@@ -23,7 +23,7 @@ function module.create<A>(className: className, props: properties<A>?)
 	return module.create(className)(props)
 end
 
-function module.getOrCreate<A>(
+function module.get_or_create<A>(
 	parent: Instance, 
 	name: string, 
 	class: className, 
@@ -44,7 +44,7 @@ function module.getOrCreate<A>(
 	return result, isNewlyCreated
 end
 
-function module.findFirstDescendant<A>(parent: Instance, ...: string): A?
+function module.find_first_descendant<A>(parent: Instance, ...: string): A?
 	forEachArgs(function(a)
 		if not parent then return end;
 		parent = parent:FindFirstChild(a)
@@ -53,7 +53,7 @@ function module.findFirstDescendant<A>(parent: Instance, ...: string): A?
 	return disguise(parent)
 end
 
-function module.waitForDescendant<A>(parent: Instance, ...: string): A
+function module.wait_for_descendant<A>(parent: Instance, ...: string): A
 	forEachArgs(function(a)
 		parent = parent:WaitForChild(a)
 	end, ...)
@@ -72,7 +72,7 @@ function module.assert_descendant<A>(parent: Instance, ...: string): A
 	return disguise(parent)
 end
 
-function module.yieldUntilPresent<A>(parent: A): A
+function module.yield_until_present<A>(parent: A): A
 	local p = disguise(parent)
 
 	while not p:IsDescendantOf(game) do p.AncestryChanged:Wait()end
@@ -80,7 +80,7 @@ function module.yieldUntilPresent<A>(parent: A): A
 	return parent
 end
 
-function module.getOrClone<T>(parent: Instance, target: T): T
+function module.get_or_clone<T>(parent: Instance, target: T): T
 	local result = parent:FindFirstChild(disguise(target).Name)
 	
 	if not result then
@@ -96,14 +96,14 @@ end
 		if runtime is client, parent will wait for child of name,
 		otherwise, it will create from getOrCreate
 --]]
-function module.assumeObject1<T>(parent: Instance, 
+function module.assume_object_1<T>(parent: Instance, 
 	name: string, 
 	class: className, 
 	properties:  properties<T>?): T
 	
 	return isClient 
 		and disguise(parent):WaitForChild(name, 1/0)
-		or module.getOrCreate(parent, name, class, properties)
+		or module.get_or_create(parent, name, class, properties)
 end
 
 function module.get_tagged_ancestor(descendant: Instance, tag: string): Instance?
