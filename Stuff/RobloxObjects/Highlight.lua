@@ -64,7 +64,7 @@ end
 		2. bool, always returned, denotes desirability
 		3. int, may not be returned, denotes desirability from query
 --]]
-function module.getOrCreate(q: query): (Highlight, boolean, number?)
+function module.get_or_create(q: query): (Highlight, boolean, number?)
 	local found = module.find(q)
 	local result = found[1]
 	
