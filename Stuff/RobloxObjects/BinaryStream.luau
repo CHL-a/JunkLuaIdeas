@@ -314,7 +314,7 @@ Writer.writef32 = factory_buffer_use_write('writef32', 4)
 Writer.write_float = factory_buffer_use_write('writef32', 4)
 Writer.writef64 = factory_buffer_use_write('writef64', 8)
 Writer.write_double = factory_buffer_use_write('write_double', 8)
-Writer.writeu64 = factory_buffer_use_write('writeu64', 4)
+Writer.writeu64 = factory_buffer_use_write('writeu64', 8)
 
 
 module.writer = Writer
