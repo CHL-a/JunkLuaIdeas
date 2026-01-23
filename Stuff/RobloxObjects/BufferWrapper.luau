@@ -3,19 +3,17 @@ export type object = {
 	referral: buffer;
 	is_big_endian_default: boolean;
 	
-	write_bytes: (self: object, offset: number, ...number) -> ();
-	get_bytes: (self: object, offset: number, len: number?) -> {number};
-	read_float: (self: object, offset: number) -> number;
-	write_float: (self: object, offset: number, val: number) -> ();
-	read_double: (self: object, offset: number) -> number;
-	write_double: (self: object, offset: number, val: number) -> ();
-	-- swaps specific bytes at i and j, is_contiguous does the same for all bytes in between
-	swap_bytes: (self: object, offsetI: number, offsetJ: number, is_contiguous: boolean?) -> ();
-	
 	__len: (self: object) -> number;
 	len: (self: object) -> number;
 	__tostring: (self: object) -> string;
 	to_string: (self: object, sType: number?, ...any) -> string;
+	-- swaps specific bytes at i and j, is_contiguous does the same for all bytes in between
+	swap_bytes: (self: object, offsetI: number, offsetJ: number, is_contiguous: boolean?) -> ();
+	
+	get_bytes: (self: object, offset: number, len: number?) -> {number};
+	read_float: (self: object, offset: number) -> number;
+	read_double: (self: object, offset: number) -> number;
+	readstring: (self: object, offset: number, len: number) -> string;
 	readi8: (self: object, offset: number) -> number;
 	readu8: (self: object, offset: number) -> number;
 	readi16: (self: object, offset: number, is_big_endian: boolean?) -> number;
@@ -24,6 +22,12 @@ export type object = {
 	readu32: (self: object, offset: number, is_big_endian: boolean?) -> number;
 	readf32: (self: object, offset: number, is_big_endian: boolean?) -> number;
 	readf64: (self: object, offset: number, is_big_endian: boolean?) -> number;
+	readu64: (self: object, offset: number, is_big_endian: boolean?) -> number;
+
+	write_bytes: (self: object, offset: number, ...number) -> ();
+	write_float: (self: object, offset: number, val: number) -> ();
+	write_double: (self: object, offset: number, val: number) -> ();
+	writestring: (self: object, offset: number, val: string, count: number?) -> ();
 	writei8: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
 	writeu8: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
 	writei16: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
@@ -32,8 +36,8 @@ export type object = {
 	writeu32: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
 	writef32: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
 	writef64: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
-	readstring: (self: object, offset: number, len: number) -> string;
-	writestring: (self: object, offset: number, val: string, count: number?) -> ();
+	writeu64: (self: object, offset: number, val: number, is_big_endian: boolean?) -> ();
+	
 	copy: (self: object, fromOffset: number, to: buffer | object, toOffset: number?, 
 		count: number?) -> ();
 	fill: (self: object, offset: number, val: number, count: number?) -> ();
@@ -48,6 +52,7 @@ local Iterator = require('./@CHL>Iterator')
 local Class = require('./Class')
 local StringUtils = require('./@CHL>StringUtils')
 local Math = require('./@CHL>Math')
+local Bit32Ext = require('./@CHL>Bit32Ext')
 
 module = {}
 from = {}
@@ -371,6 +376,32 @@ function module.debug_find_diff(op_1: object, op_2: object): (boolean, string?)
 	end
 end
 
+function module.writeu64(self: object, offset: number, val: number, is_big_endian: boolean?)
+	local high, low = Bit32Ext.from_u64(val)
+	
+	if is_big_endian then
+		self:writeu32(offset, high, true)
+		self:writeu32(offset + 4, low, true)
+	else
+		self:writeu32(offset, low)
+		self:writeu32(offset + 4, high)
+	end
+end
+
+function module.readu64(self: object, offset: number, is_big_endian: boolean?): number
+	local high, low
+
+	if is_big_endian then
+		high = self:readu32(offset, true)
+		low = self:readu32(offset + 4, true)
+	else
+		high = self:readu32(offset + 4)
+		low = self:readu32(offset)
+	end
+	
+	return high * Bit32Ext.u32_max_after + low
+end
+
 module.readi8 = compose(enque_referral, buffer.readi8)
 module.readu8 = compose(enque_referral, readu8)
 module.readi16 = endian_applied(1, 2, buffer.readi16)
@@ -400,7 +431,7 @@ module.write_double = module.writef64
 module.from = from
 module.raw_constructors = raw_constructors
 
-Class.makeProperClass(module, '@CHL/BufferWrapper')
+Class.make_proper_class(module, '@CHL>BufferWrapper')
 
 --#####################################################################################
 --#####################################################################################
