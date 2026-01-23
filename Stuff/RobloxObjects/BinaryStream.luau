@@ -169,6 +169,7 @@ Reader.readf32 = factory_buffer_use_read('readf32', 4)
 Reader.read_float = factory_buffer_use_read('readf32', 4)
 Reader.readf64 = factory_buffer_use_read('readf64', 8)
 Reader.read_double = factory_buffer_use_read('read_double', 8)
+Reader.readu64 = factory_buffer_use_read('readu64', 8)
 
 Class.makeProperClass(Reader, '@CHL>BinaryStream>Reader')
 
@@ -192,8 +193,6 @@ export type writer = {
 	write_bytes: (self: writer, ...number) -> ();
 	write_string: (self: writer, s: string) -> ();
 
-	write_float: (self: writer, value: number, is_big_endian: boolean?) -> ();
-	write_double: (self: writer, is_big_endian: boolean?) -> ();
 	writei8: (self: writer, value: number) -> ();
 	writeu8: (self: writer, value: number) -> ();
 	writei16: (self: writer, value: number, is_big_endian: boolean?) -> ();
@@ -202,6 +201,12 @@ export type writer = {
 	writeu32: (self: writer, value: number, is_big_endian: boolean?) -> ();
 	writef32: (self: writer, value: number, is_big_endian: boolean?) -> ();
 	writef64: (self: writer, value: number, is_big_endian: boolean?) -> ();
+	writeu64: (self: writer, value: number, is_big_endian: boolean?) -> ();
+	
+	write_ubyte: (self: writer, value: number)->();
+	write_float: (self: writer, value: number, is_big_endian: boolean?) -> ();
+	write_double: (self: writer, is_big_endian: boolean?) -> ();
+	write_ushort: (self: writer, value: number, is_big_endian: boolean?) -> ();
 }
 
 Writer = {}
@@ -308,6 +313,8 @@ Writer.writef32 = factory_buffer_use_write('writef32', 4)
 Writer.write_float = factory_buffer_use_write('writef32', 4)
 Writer.writef64 = factory_buffer_use_write('writef64', 8)
 Writer.write_double = factory_buffer_use_write('write_double', 8)
+Writer.writeu64 = factory_buffer_use_write('writeu64', 4)
+
 
 module.writer = Writer
 
