@@ -2,6 +2,12 @@ local TableUtils = require('./@CHL>TableUtils')
 
 local module = {}
 
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+-- section dedicated for allocating highlights
+
 disguise = require('./LuaUTypes').disguise
 
 module.population = 0
@@ -12,7 +18,7 @@ function module.can_register(): boolean
 end
 
 function module.register(): Highlight
-	if module.can_register() then
+	if not module.can_register() then
 		warn('Attempting to register too many highlights')
 		return disguise()
 	end
@@ -78,5 +84,67 @@ function module.get_or_create(q: query): (Highlight, boolean, number?)
 		return module.objects[1], false
 	end
 end
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+-- idea for groups:
+--[[
+	Group definition: In order to store highlights more efficiently one highlight can be created but is placed under a group so
+	multiple parts can have their highlights rendered
+	
+	Group (Model)
+		Highlight
+		Humanoid
+]]
+
+local InstanceUtils = require('./@CHL>InstanceUtils')
+
+export type group = Model & {
+	Humanoid: Humanoid;
+}
+
+Group = {}
+
+function Group.get_default_parent(): Folder
+	if Group.default_parent then
+		return Group.default_parent
+	end
+	
+	local result = InstanceUtils.get_or_create(workspace, 'HighlightGroups', 'Folder')
+	
+	Group.default_parent = result
+	
+	return result
+end
+
+function Group.new(parent: Instance?): group
+	parent = parent or Group.get_default_parent()
+	
+	local self = Instance.new('Model')
+	local humanoid = Instance.new('Humanoid')
+	
+	humanoid.Parent = self
+	self.Parent = parent
+	
+	self:AddTag('__is_highlight_group')
+	
+	return self
+end
+
+function Group.from_highlight(highlight: Highlight, parent: Instance?): group
+	local self = Group.new(parent)
+	
+	highlight.Parent = self
+	
+	return self
+end
+
+function Group.get_highlight(group: group): Highlight
+	assert(group:FindFirstChildWhichIsA('Highlight'))
+end
+
+module.group = Group
 
 return module
