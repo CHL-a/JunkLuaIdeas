@@ -42,6 +42,7 @@ export type reader = {
 	readu32: (self: reader, is_big_endian: boolean?) -> number;
 	readf32: (self: reader, is_big_endian: boolean?) -> number;
 	readf64: (self: reader, is_big_endian: boolean?) -> number;
+	readu64: (self: reader, is_big_endian: boolean?) -> number;
 	read_string: (self: reader, len: number) -> string;
 	
 }
