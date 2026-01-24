@@ -619,7 +619,7 @@ export type library = {
 	Labeled: Labeled_module;
 	ProgressBar: ProgressBar_module;
 	Slider: Slider_module;
-	TextBox: Textbox_module;
+	Textbox: Textbox_module;
 	TitleBarButton: TitleBarButton_module;
 	ToggleableButton: ToggleableButton_module;
 	ViewButton: ViewButton_module;
