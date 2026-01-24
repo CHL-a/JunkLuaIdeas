@@ -238,6 +238,19 @@ function All.encode_from_buffer(buffer_arg: buffer): string
 	return consumer:get_string()
 end
 
+function All.decode_from_string(string_arg: string): BufferWrapper.object
+	local iterator = StringUtils.iterator.byte.new(string_arg)
+	local consumer = BufferWrapper.consumer.new()
+
+	local decoder = Decoder.new(iterator, consumer)
+
+	while decoder:can_proceed() do
+		decoder:proceed()
+	end
+
+	return consumer:build()
+end
+
 module.all = All
 
 return module
