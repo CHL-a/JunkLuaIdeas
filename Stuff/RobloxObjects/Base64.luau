@@ -14,7 +14,6 @@ function module.expected_encoded_size(decoded_size: number)
 	return gdiv(decoded_size, 3) * 4
 end
 
-
 --#####################################################################################
 --#####################################################################################
 --#####################################################################################
@@ -98,6 +97,7 @@ function Encoder.proceed(self: encoder)
 	
 	return result
 end
+
 
 Encoder.__iter = Iterator.simple.__iter
 module.alphabet = alphabet
@@ -216,5 +216,28 @@ Decoder.__iter = Iterator.simple.__iter
 Class.makeProperClass(Decoder, '@CHL>Base64>Decoder')
 
 module.decoder = Decoder
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+local StringUtils = require('./@CHL>StringUtils')
+
+All = {}
+
+function All.encode_from_buffer(buffer_arg: buffer): string
+	local iterator = BufferWrapper.iterator.new(buffer_arg)
+	local consumer = StringUtils.consumer.byte.new()
+	
+	local encoder = Encoder.new(iterator, consumer)
+	
+	while encoder:can_proceed() do
+		encoder:proceed()
+	end
+	
+	return consumer:get_string()
+end
+
+module.all = All
 
 return module
