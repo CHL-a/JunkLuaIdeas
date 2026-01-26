@@ -2,6 +2,7 @@
 
 local module = {}
 
+band = bit32.band
 bnot = bit32.bnot
 rshift = bit32.rshift
 countrz = bit32.countrz
@@ -28,6 +29,16 @@ function module.from_u64(u64: number): (number, number)
 		bor(u64, 0)
 	
 	return high, low
+end
+
+function module.flag_test(flag: number, mask: number): boolean
+	return band(flag, mask) ~= 0
+end
+
+-- takes a number, a mask and returns a number of equivilent internal value, with
+-- shifted
+function module.to_bit_enum(flag: number, mask: number): number
+	return rshift(band(flag, mask), countrz(mask))
 end
 
 module.last_bit_complement = bnot(0x01)
