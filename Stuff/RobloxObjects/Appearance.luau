@@ -477,6 +477,14 @@ function module.struct.to.basic_character(appearance: appearance_struct, charact
 			end
 		end
 		
+		for _, v in head:GetChildren() do
+			if not (v:IsA('Decal') and v.Name ~= 'face' and v.Face == Enum.NormalId.Front) then
+				continue
+			end
+			
+			v:Destroy()
+		end
+		
 		for _, v: face_struct in appearance.face_array do
 			local decal = Instance.new('Decal')
 			
