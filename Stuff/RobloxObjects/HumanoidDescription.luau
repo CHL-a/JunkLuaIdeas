@@ -95,6 +95,113 @@ struct.body_color_masks = {
 	right_arm = 0b_0000_0001,
 }
 
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+function module.get_accessory_type_from_asset_type(enum: Enum.AssetType): Enum.AccessoryType
+	if enum == Enum.AssetType.Hat then
+		return Enum.AccessoryType.Hat
+	end
+
+	local prefix = enum.Name:match('(%a+)Accessory$')
+
+	if prefix then
+		return Enum.AccessoryType:FromName(prefix)
+	end
+
+	return Enum.AccessoryType.Unknown
+end
+
+function module.is_accessory(enum: Enum.AssetType): boolean
+	return module.get_accessory_type_from_asset_type(enum) ~= Enum.AccessoryType.Unknown
+end
+
+function module.is_layered(enum: Enum.AssetType): boolean
+	local value = enum.Value
+	
+	return value >= 64 and value <= 72
+end
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+local MarketplaceService = require('./@CHL>MarketplaceService')
+
+--[[
+function module.get_singleton(): HumanoidDescription
+	if script:FindFirstChildWhichIsA('HumanoidDescription') then
+		return script:FindFirstChildWhichIsA('HumanoidDescription')
+	end
+	
+	local humanoiddescription = Instance.new('HumanoidDescription')
+	
+	humanoiddescription.Parent = script
+	
+	return humanoiddescription
+end
+
+function module.prompt_accessory_struct(product_info: MarketplaceService.product_info_result): accessory_struct
+	local singleton = module.get_singleton()
+	local asset_type = Enum.AssetType:FromValue(product_info.AssetTypeId)
+	local is_layered = module.is_layered(asset_type)
+	
+	local struct = {
+		AssetId = product_info.AssetId;
+		AccessoryType = module.get_accessory_type_from_asset_type(asset_type);
+		IsLayered = is_layered;
+	} :: accessory_struct
+	
+	if is_layered then
+		struct.Order = 1
+	end
+	
+	singleton:SetAccessories({struct}, true)
+	
+	print(singleton:GetAccessories(true))
+end
+
+--]]
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+accessory_struct = {}
+
+function accessory_struct.from_asset(asset: number): accessory_struct
+	local product_info = MarketplaceService.get_product_info_async(asset)
+	
+	return accessory_struct.from_product_info(product_info)
+end
+
+function accessory_struct.from_product_info(product_info: MarketplaceService.product_info_result): accessory_struct
+	local asset_type = Enum.AssetType:FromValue(product_info.AssetTypeId)
+	local is_layered = module.is_layered(asset_type)
+	local accessory_type = module.get_accessory_type_from_asset_type(asset_type)
+	
+	local result: accessory_struct = {}
+	result.AssetId = product_info.AssetId
+	result.AccessoryType = accessory_type
+	result.Position = Vector3.zero
+	result.Rotation = Vector3.zero
+	result.Scale = Vector3.one
+	result.IsLayered = is_layered
+	
+	if is_layered then
+		result.Order = 1
+		result.Puffiness = 1
+	end
+	return result
+end
+
+module.accessory_struct = accessory_struct
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
 function read_vector3(self: reader): Vector3
 	local result = Vector3.new(
 		self:readf32(),
@@ -457,6 +564,10 @@ function struct.to.buffer_w(description: description_struct): buffer_w
 end
 
 module.struct = struct
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
 
 --#####################################################################################
 --#####################################################################################
