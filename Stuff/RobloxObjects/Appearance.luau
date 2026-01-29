@@ -73,6 +73,47 @@ local BinaryStream = require('./@CHL>BinaryStream')
 local BufferWrapper = require('./@CHL>BufferWrapper')
 local Bit32Ext = require('./@CHL>Bit32Ext')
 
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################+
+
+face_struct = {}
+
+function face_struct.decal_to_struct(decal: Decal): face_struct
+	local uri = decal.TextureContent.Uri
+	local is_asset = get_asset_from_uri(uri)
+	
+	local face_struct: face_struct = {
+		content = decal.TextureContent;
+		name = decal.Name;
+		content_type = is_asset and 'asset' or 'content';
+		transparency = decal.Transparency;
+		z_index = decal.ZIndex;
+		color = decal.Color3;
+	}
+	
+	return face_struct
+end
+
+function face_struct.struct_to_face(struct: face_struct): Decal
+	local decal = Instance.new('Decal')
+
+	decal.TextureContent = struct.content
+
+	if struct.name         then decal.Name = struct.name                 end
+	if struct.color        then decal.Color3 = struct.color              end
+	if struct.transparency then decal.Transparency = struct.transparency end
+	if struct.z_index      then decal.ZIndex = struct.z_index            end
+
+	return decal
+end
+
+module.face_struct = face_struct
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
 type reader = BinaryStream.reader
 
 tinsert = table.insert
@@ -163,19 +204,8 @@ function module.struct.from.basic_character(character: Model, should_override_fa
 		for _, v in head:GetChildren() do
 			if not (v:IsA('Decal') and v.Face == Enum.NormalId.Front) then continue end
 			
-			local uri = v.TextureContent.Uri
-			local is_asset = get_asset_from_uri(uri)
-			
-			local face_struct: face_struct = {
-				content = v.TextureContent;
-				name = v.Name;
-				content_type = is_asset and 'asset' or 'content';
-				transparency = v.Transparency;
-				z_index = v.ZIndex;
-				color = v.Color3;
-			}
-			
-			tinsert(result.face_array, face_struct)
+			local face_struct_result = face_struct.decal_to_face_struct(v)
+			tinsert(result.face_array, face_struct_result)
 		end
 	end
 	
@@ -486,25 +516,7 @@ function module.struct.to.basic_character(appearance: appearance_struct, charact
 		end
 		
 		for _, v: face_struct in appearance.face_array do
-			local decal = Instance.new('Decal')
-			
-			decal.TextureContent = v.content
-			
-			if v.name then
-				decal.Name = v.name
-			end
-			
-			if v.color then
-				decal.Color3 = v.color
-			end
-			
-			if v.transparency then
-				decal.Transparency = v.transparency
-			end
-			
-			if v.z_index then
-				decal.ZIndex = v.z_index
-			end
+			local decal = face_struct.struct_to_face(v)
 			
 			decal.Parent = head
 		end
