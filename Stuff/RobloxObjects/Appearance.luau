@@ -32,6 +32,9 @@ export type appearance_struct = {
 	face_array: {face_struct};
 
 	game_accessories: {number} | {string};
+
+	pants_template: string?;
+	shirt_template: string?;
 	
 	pants_color: Color3;
 	shirt_color: Color3;
@@ -45,17 +48,39 @@ local module = {}
 --#####################################################################################
 
 module.flags = {}
+module.flags.v0 = {}
+module.flags.v0.is_byte_aligned        = 0b_1000_0000_0000_0000
+module.flags.v0.rig_type_keep          = 0b_0000_0000_0000_0000
+module.flags.v0.rig_type_r6            = 0b_0010_0000_0000_0000
+module.flags.v0.rig_type_r15           = 0b_0100_0000_0000_0000
+module.flags.v0.rig_type_custom        = 0b_0110_0000_0000_0000
+module.flags.v0.tail_size_mask         = 0b_0001_1100_0000_0000
+module.flags.v0.should_override_face   = 0b_0000_0010_0000_0000
+module.flags.v0.game_accessory_id_type = 0b_0000_0001_0000_0000
+module.flags.v0.has_pants_color        = 0b_0000_0000_1000_0000
+module.flags.v0.has_shirt_color        = 0b_0000_0000_0100_0000
+module.flags.v0.has_pants_texture      = 0b_0000_0000_0010_0000
+module.flags.v0.has_shirt_texture      = 0b_0000_0000_0001_0000
 
-module.flags.is_byte_aligned        = 0b_1000_0000_0000_0000
-module.flags.rig_type_keep          = 0b_0000_0000_0000_0000
-module.flags.rig_type_r6            = 0b_0010_0000_0000_0000
-module.flags.rig_type_r15           = 0b_0100_0000_0000_0000
-module.flags.rig_type_custom        = 0b_0110_0000_0000_0000
-module.flags.tail_size_mask         = 0b_0001_1100_0000_0000
-module.flags.should_override_face   = 0b_0000_0010_0000_0000
-module.flags.game_accessory_id_type = 0b_0000_0001_0000_0000
-module.flags.has_pants_color        = 0b_0000_0000_1000_0000
-module.flags.has_shirt_color        = 0b_0000_0000_0100_0000
+module.flags.v1 = {}
+module.flags.v1.is_byte_aligned        = 0b_1000_0000_0000_0000_0000_0000_0000_0000
+module.flags.v1.rig_type_keep          = 0b_0000_0000_0000_0000_0000_0000_0000_0000
+module.flags.v1.rig_type_r6            = 0b_0010_0000_0000_0000_0000_0000_0000_0000
+module.flags.v1.rig_type_r15           = 0b_0100_0000_0000_0000_0000_0000_0000_0000
+module.flags.v1.rig_type_custom        = 0b_0110_0000_0000_0000_0000_0000_0000_0000
+module.flags.v1.tail_size_mask         = 0b_0001_1100_0000_0000_0000_0000_0000_0000
+module.flags.v1.should_override_face   = 0b_0000_0010_0000_0000_0000_0000_0000_0000
+module.flags.v1.game_accessory_id_type = 0b_0000_0001_0000_0000_0000_0000_0000_0000
+module.flags.v1.has_pants_texture      = 0b_0000_0000_1000_0000_0000_0000_0000_0000
+module.flags.v1.ulong_pants_texture    = 0b_0000_0000_0100_0000_0000_0000_0000_0000
+module.flags.v1.has_pants_color        = 0b_0000_0000_0010_0000_0000_0000_0000_0000
+module.flags.v1.has_shirt_texture      = 0b_0000_0000_0001_0000_0000_0000_0000_0000
+module.flags.v1.ulong_shirt_texture    = 0b_0000_0000_0000_1000_0000_0000_0000_0000
+module.flags.v1.has_shirt_color        = 0b_0000_0000_0000_0100_0000_0000_0000_0000
+module.flags.v1.has_t_shirt_texture    = 0b_0000_0000_0000_0010_0000_0000_0000_0000
+module.flags.v1.ulong_t_shirt_texture  = 0b_0000_0000_0000_0001_0000_0000_0000_0000
+module.flags.v1.has_t_shirt_color      = 0b_0000_0000_0000_0000_1000_0000_0000_0000
+
 
 module.flags.content_type_asset     = 0b_0000_0000
 module.flags.content_type_content   = 0b_0100_0000
@@ -138,7 +163,7 @@ function read_length_string(self: reader): string
 	return self:read_string(length)
 end
 
-function get_asset_from_uri(uri: string)
+function get_asset_from_uri(uri: string): string
 	local result = uri:match('^rbxassetid://(%d+)$') or 
 		uri:match('^http://www%.roblox%.com/asset/%?id=(%d+)')
 	
@@ -220,48 +245,45 @@ function module.struct.from.basic_character(character: Model, should_override_fa
 	return result
 end
 
-function module.struct.from.data_blob(reader: reader): appearance_struct
-	local result: appearance_struct = module.struct.from.blank()
-	
-	-- version
-	result.version = reader:readu8()
-	
+module.struct.from.version = {}
+
+-- starts after version
+function module.struct.from.version.v0(result: appearance_struct, reader: reader): appearance_struct
 	-- flags
 	local flags = reader:readu16()
-	
-	local has_pants_color = flag_test(flags, module.flags.has_pants_color)
-	local has_shirt_color = flag_test(flags, module.flags.has_shirt_color)
-	
+
+	local has_pants_color = flag_test(flags, module.flags.v0.has_pants_color)
+	local has_shirt_color = flag_test(flags, module.flags.v0.has_shirt_color)
+	local has_pants_template = flag_test(flags, module.flags.v0.has_pants_texture)
+	local has_shirt_template = flag_test(flags, module.flags.v0.has_shirt_texture)
+
 	result.is_byte_aligned = flag_test(flags, module.flags.is_byte_aligned)
 	result.rig_type = module.struct.value_to_appearance_rig_type(
 		to_bit_enum(flags, module.flags.rig_type_custom)
 	)
 	result.tail_size = to_bit_enum(flags, module.flags.tail_size_mask)
 	result.should_override_face = flag_test(flags, module.flags.should_override_face)
-	
+
 	local game_accessory_id_type = module.struct.value_to_game_accessory_id_type(
 		to_bit_enum(flags, module.flags.game_accessory_id_type)
 	)
 	result.game_accessory_id_type = game_accessory_id_type
-	
-	local has_pants_color = flag_test(flags, module.flags.has_pants_color)
-	local has_shirt_color = flag_test(flags, module.flags.has_shirt_color)
-	
+
 	-- humanoid description
 	reader:readu32() -- size
-	
+
 	result.humanoid_description = HumanoidDescriptionLib.struct.from.reader(reader)
-	
+
 	while reader.offset ~= 0 do
 		reader:read_bits(1)
 	end
-	
+
 	-- faces
 	local faces_amount = reader:readu8()
-	
+
 	for i = 1, faces_amount do
 		local face_struct: face_struct = {}
-		
+
 		-- flags
 		local flags = reader:readu8()
 		local content_type: content_type = to_bit_enum(flags, module.flags.content_type_mask)
@@ -270,47 +292,47 @@ function module.struct.from.data_blob(reader: reader): appearance_struct
 		local has_transparency = flag_test(flags, module.flags.transparency_present)
 		local has_z_index = flag_test(flags, module.flags.z_index_present)
 		local has_name = flag_test(flags, module.flags.name_present)
-		
+
 		face_struct.content_type = content_type
-		
+
 		-- content
 		local content_uri;
-		
+
 		if content_type == 'asset' then
 			local asset = reader:readu64()
 			content_uri = `rbxassetid://{asset}`
 		else
 			content_uri = `rbxasset://{read_length_string(reader)}`
 		end
-		
+
 		face_struct.content = Content.fromUri(content_uri)
-		
+
 		-- color
 		if has_color then
 			face_struct.color = read_color3(reader)
 		end
-		
+
 		-- transparency
 		if has_transparency then
 			face_struct.transparency = reader:readu16() / 0xFFFF
 		end
-		
+
 		-- z index
 		if has_z_index then
 			face_struct.z_index = reader:readi8()
 		end
-		
+
 		-- name
 		if has_name then
 			face_struct.name = read_length_string(reader)
 		end
-		
+
 		tinsert(result.face_array, face_struct)
 	end
-	
+
 	-- accessories
 	local accessories_amount = reader:readu16()
-	
+
 	for i = 1, accessories_amount do
 		if game_accessory_id_type == 'uint' then
 			tinsert(result.game_accessories, reader:readu32())
@@ -318,14 +340,140 @@ function module.struct.from.data_blob(reader: reader): appearance_struct
 			tinsert(result.game_accessories, read_length_string(reader))
 		end
 	end
+
+	-- classic clothing color and template
+	if has_pants_color then
+		result.pants_color = read_color3(reader)
+	end
+
+	if has_shirt_color then
+		result.shirt_color = read_color3(reader)
+	end
+	
+end
+
+function module.struct.from.version.v1(result: appearance_struct, reader: reader): appearance_struct
+	-- flags
+	local flags = reader:readu32()
+	local v1_flags = module.flags.v1
+
+	local has_pants_template   = flag_test(flags, v1_flags.has_pants_texture)
+	local ulong_pants_template = flag_test(flags, v1_flags.ulong_pants_texture)
+	local has_pants_color      = flag_test(flags, v1_flags.has_pants_color)
+	
+	local has_shirt_template   = flag_test(flags, v1_flags.has_shirt_texture)
+	local ulong_shirt_template = flag_test(flags, v1_flags.ulong_shirt_texture)
+	local has_shirt_color      = flag_test(flags, v1_flags.has_shirt_color)
+
+	result.is_byte_aligned = flag_test(flags, v1_flags.is_byte_aligned)
+	result.rig_type = module.struct.value_to_appearance_rig_type(to_bit_enum(flags, v1_flags.rig_type_custom))
+	result.tail_size = to_bit_enum(flags, v1_flags.tail_size_mask)
+	result.should_override_face = flag_test(flags, v1_flags.should_override_face)
+
+	local game_accessory_id_type = module.struct.value_to_game_accessory_id_type(
+		to_bit_enum(flags, v1_flags.game_accessory_id_type)
+	)
+	result.game_accessory_id_type = game_accessory_id_type
+
+	local has_pants_color = flag_test(flags, module.flags.has_pants_color)
+	local has_shirt_color = flag_test(flags, module.flags.has_shirt_color)
+
+	-- humanoid description
+	reader:readu32() -- size
+
+	result.humanoid_description = HumanoidDescriptionLib.struct.from.reader(reader)
+
+	while reader.offset ~= 0 do
+		reader:read_bits(1)
+	end
+
+	-- faces
+	local faces_amount = reader:readu8()
+
+	for i = 1, faces_amount do
+		local face_struct: face_struct = {}
+
+		-- flags
+		local flags = reader:readu8()
+		local content_type: content_type = to_bit_enum(flags, module.flags.content_type_mask)
+			== module.flags.content_type_asset and 'asset' or 'content'
+		local has_color = flag_test(flags, module.flags.color_present)
+		local has_transparency = flag_test(flags, module.flags.transparency_present)
+		local has_z_index = flag_test(flags, module.flags.z_index_present)
+		local has_name = flag_test(flags, module.flags.name_present)
+
+		face_struct.content_type = content_type
+
+		-- content
+		local content_uri;
+
+		if content_type == 'asset' then
+			local asset = reader:readu64()
+			content_uri = `rbxassetid://{asset}`
+		else
+			content_uri = `rbxasset://{read_length_string(reader)}`
+		end
+
+		face_struct.content = Content.fromUri(content_uri)
+
+		if has_color        then face_struct.color        = read_color3(reader)       end
+		if has_transparency then face_struct.transparency = reader:readu16() / 0xFFFF end
+		if has_z_index      then face_struct.z_index      = reader:readi8()           end
+		if has_name         then face_struct.name = read_length_string(reader)        end
+
+		tinsert(result.face_array, face_struct)
+	end
+
+	-- accessories
+	local accessories_amount = reader:readu16()
+
+	for i = 1, accessories_amount do
+		if game_accessory_id_type == 'uint' then
+			tinsert(result.game_accessories, reader:readu32())
+		else
+			tinsert(result.game_accessories, read_length_string(reader))
+		end
+	end
+
+	-- classic clothing
+	if has_pants_template then
+		if ulong_pants_template then
+			result.pants_template = `rbxassetid://{reader:readu64()}`
+		else
+			result.pants_template = `rbxasset://{read_length_string(reader)}`
+		end
+	end
 	
 	if has_pants_color then
 		result.pants_color = read_color3(reader)
 	end
 	
+	if has_shirt_template then
+		if ulong_shirt_template then
+			result.shirt_template = `rbxassetid://{reader:readu64()}`
+		else
+			result.shirt_template = `rbxasset://{read_length_string(reader)}`
+		end
+	end
+	
 	if has_shirt_color then
 		result.shirt_color = read_color3(reader)
 	end
+	
+	
+end
+
+function module.struct.from.data_blob(reader: reader): appearance_struct
+	local result: appearance_struct = module.struct.from.blank()
+	
+	-- version
+	result.version = reader:readu8()
+	
+	local func = module.struct.from.version[`v{result.version}`]
+	
+	assert(func, `Unsupported version: {result.version}`)
+	
+	func(result, reader)
 	
 	return result
 end
@@ -362,31 +510,61 @@ function write_color3(self: BinaryStream.writer, c3: Color3)
 	self:writeu8((c3.B * 255) // 1)
 end
 
+-- current version: 1
 function module.struct.to.data_blob(appearance: appearance_struct, writer: writer)
 	-- version
-	writer:writeu8(0)
+	writer:writeu8(1)
 	
 	-- flags
-	local has_pants_color = appearance.pants_color and appearance.pants_color ~= Color3.fromRGB(255, 255, 255)
-	local has_shirt_color = appearance.shirt_color and appearance.shirt_color ~= Color3.fromRGB(255, 255, 255)
+	local v1_flags = module.flags.v1
 	
-	local flags = bor(
-		module.flags.is_byte_aligned,
-		module.flags.rig_type_keep,
+	local flags_1 = bor(
+		v1_flags.is_byte_aligned,
+		v1_flags.rig_type_keep,
 		-- tail size is 0x00
-		module.flags.should_override_face,
-		module.flags.game_accessory_id_type
+		v1_flags.should_override_face,
+		v1_flags.game_accessory_id_type
 	)
 	
-	if has_pants_color then
-		flags = bor(flags, module.flags.has_pants_color)
+	-- pants
+	local pants_template = appearance.pants_template
+	local pants_color = appearance.pants_color
+	local pants_is_ulong = false
+
+	if pants_template then
+		local asset = get_asset_from_uri(pants_template)
+
+		if asset then
+			asset = tonumber(asset)
+			assert(asset)
+			pants_is_ulong = true
+		end
 	end
 	
-	if has_shirt_color then
-		flags = bor(flags, module.flags.has_shirt_color)
+	if pants_template then flags_1 = bor(flags_1, v1_flags.has_pants_texture)   end
+	if pants_is_ulong then flags_1 = bor(flags_1, v1_flags.ulong_pants_texture) end
+	if pants_color    then flags_1 = bor(flags_1, v1_flags.has_pants_color)     end
+	
+	-- shirt
+	local shirt_template = appearance.shirt_template
+	local shirt_color = appearance.shirt_color
+	local shirt_is_ulong = false
+	
+	if shirt_template then
+		local asset = get_asset_from_uri(shirt_template)
+		if asset then
+			asset = tonumber(asset)
+			assert(asset)
+			shirt_is_ulong = true
+		end
 	end
 	
-	writer:writeu16(flags)
+	if shirt_template then flags_1 = bor(flags_1, v1_flags.has_shirt_texture)   end
+	if shirt_is_ulong then flags_1 = bor(flags_1, v1_flags.ulong_shirt_texture) end
+	if shirt_color    then flags_1 = bor(flags_1, v1_flags.has_shirt_color)     end
+	
+	
+	writer:writeu32(flags_1)
 
 	-- humanoid description
 	local data_blob = HumanoidDescriptionLib.struct.to.buffer_w(appearance.humanoid_description)
@@ -468,13 +646,43 @@ function module.struct.to.data_blob(appearance: appearance_struct, writer: write
 		write_length_string(writer, v)
 	end
 	
-	-- pants and shirt colors
-	if has_pants_color then
-		write_color3(writer, appearance.pants_color)
+
+	-- pants
+	if pants_template then
+		local asset = get_asset_from_uri(pants_template)
+
+		if asset then
+			asset = tonumber(asset)
+			assert(asset)
+			writer:writeu64(asset)
+		else
+			local suffix = pants_template:match('rbxasset://(.*)')
+			assert(suffix)
+			write_length_string(suffix)
+		end
+	end
+
+	if pants_color then
+		write_color3(writer, pants_color)
 	end
 	
-	if has_shirt_color then
-		write_color3(writer, appearance.shirt_color)
+	-- shirt
+	if shirt_template then
+		local asset = get_asset_from_uri(shirt_template)
+		
+		if asset then
+			asset = tonumber(asset)
+			assert(asset)
+			writer:writeu64(asset)
+		else
+			local suffix = shirt_template:match('rbxasset://(.*)')
+			assert(suffix)
+			write_length_string(writer, suffix)
+		end
+	end
+	
+	if shirt_color then
+		write_color3(writer, shirt_color)
 	end
 end
 
@@ -522,12 +730,24 @@ function module.struct.to.basic_character(appearance: appearance_struct, charact
 		end
 	end
 	
-	if pants and appearance.pants_color then
-		pants.Color3 = appearance.pants_color
+	if pants then
+		if appearance.pants_template then
+			pants.PantsTemplate = appearance.pants_template
+		end
+		
+		if appearance.pants_color then
+			pants.Color3 = appearance.pants_color
+		end
 	end
 	
-	if shirt and appearance.shirt_color then
-		shirt.Color3 = appearance.shirt_color
+	if shirt then
+		if appearance.shirt_template then
+			shirt.ShirtTemplate = appearance.shirt_template
+		end
+		
+		if appearance.shirt_color then
+			shirt.Color3 = appearance.shirt_color
+		end
 	end
 end
 
