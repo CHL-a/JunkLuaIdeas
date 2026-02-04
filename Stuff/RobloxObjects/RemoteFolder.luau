@@ -16,7 +16,7 @@ function module.construct()
 
 	Remotes = if IsClient 
 		then ReplicatedStorage:WaitForChild('Remotes', 1/0)
-		else InstanceUtils.getOrCreate(ReplicatedStorage, 'Remotes', 'Folder')
+		else InstanceUtils.get_or_create(ReplicatedStorage, 'Remotes', 'Folder')
 
 	Proxy = Proxy or setmetatable({}, {__index = function(_, i: string)
 		return Remotes:FindFirstChild(i)
@@ -56,9 +56,10 @@ function module.new<A>(map: observer_args): observer<A>
 end
 
 function module.static_get(name: string, class: string)
+	module.construct()
 	return if IsClient 
 		then Remotes:WaitForChild(name, 1/0)
-		else InstanceUtils.getOrCreate(Remotes, name, class)
+		else InstanceUtils.get_or_create(Remotes, name, class)
 end
 
 function module.static_get_event(name: string):RemoteEvent return module.static_get(name, 'RemoteEvent')end
