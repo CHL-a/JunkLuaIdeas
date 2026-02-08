@@ -1,8 +1,8 @@
 local module = {}
 
---#####################################################################################
---#####################################################################################
---#####################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
 
 local Map = require('./@CHL>Map')
 local GlobalAttachmentHolder = require('./@CHL>GlobalAttachmentHolder')
@@ -79,9 +79,15 @@ function default.link.new(from: position, to: position, label: string?, is_bidir
 	return result
 end
 
-function default.link.walk(from: position, to: position, is_bidirectional: boolean?): PathfindingLink return default.link.new(from, to, 'walk', is_bidirectional)end
-function default.link.jump(from: position, to: position, is_bidirectional: boolean?): PathfindingLink return default.link.new(from, to, 'Jump', is_bidirectional ~= false)end
-function default.link.warp(from: position, to: position, is_bidirectional: boolean?): PathfindingLink return default.link.new(from, to, 'warp', is_bidirectional)end
+function default.link.custom_link_factory(l_type: string)
+	return function(from: position, to: position, is_bidirectional: boolean?): PathfindingLink
+		return default.link.new(from, to, l_type, is_bidirectional)
+	end
+end
+
+default.link.walk = default.link.custom_link_factory('walk')
+default.link.jump = default.link.custom_link_factory('Jump')
+default.link.warp = default.link.custom_link_factory('warp')
 
 function default.get_node_folder():Folder return InstanceUtils.get_or_create(workspace, '__pathfinder_node_folder', 'Folder')end
 
@@ -119,9 +125,74 @@ end
 default.service = path_finding_service
 module.default = default
 
---#####################################################################################
---#####################################################################################
---#####################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+
+-- waypoint traveler:
+-- an iterative approach to pathfinding on small scale
+
+local Class = require('./Class')
+local Object = require('./Object')
+local Iterator = require('./@CHL>Iterator')
+
+export type waypoint_traveler = {
+	path: Path;
+	waypoints: {PathWaypoint};
+	i: number;
+	
+	start: Vector3;
+	goal: Vector3;
+	
+	-- upfront pathfinding on a small scale
+	compute_path: (self: waypoint_traveler, start: Vector3, finish: Vector3)->();
+	
+	-- an accessor only returning the current waypoint
+	get_waypoint: (self: waypoint_traveler)->PathWaypoint;
+} & Iterator.simple<PathWaypoint>
+
+waypoint_traveler = {}
+
+function waypoint_traveler.new(path: Path): waypoint_traveler
+	local self: waypoint_traveler = Object.simple.new(waypoint_traveler)
+	
+	self.path = path
+	
+	return self
+end
+
+function waypoint_traveler.compute_path(self: waypoint_traveler, start: Vector3, finish: Vector3)
+	self.start = start
+	self.goal = finish
+	
+	self.path:ComputeAsync(start, finish)
+	
+	local waypoints = self.path:GetWaypoints()
+	
+	self.waypoints = waypoints
+	self.i = 1
+	
+	return waypoints
+end
+
+function waypoint_traveler.can_proceed(self: waypoint_traveler)return self.i <= #self.waypoints end
+function waypoint_traveler.get_waypoint(self: waypoint_traveler)return self.waypoints[self.i]end
+
+function waypoint_traveler.proceed(self: waypoint_traveler)
+	local result = self:get_waypoint()
+	
+	self.i += 1
+
+	return result
+end
+
+Class.make_proper_class(waypoint_traveler, '@CHL>Pathfinder>WaypointTraveler')
+
+module.waypoint_traveler = waypoint_traveler
+
+--####################################################################################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
 
 -- below is incomplete
 export type node_type = 'walk' | 'climb' | 'jump'
@@ -138,8 +209,6 @@ export type node = {
 	get_edge_from_neighbor: (self: node, other: node) -> edge?;
 }
 
-local Class = require('./Class')
-local Object = require('./Object')
 
 node = {}
 
@@ -187,9 +256,10 @@ Class.make_proper_class(node, '@CHL>Pathfinder>Node')
 
 module.node = node
 
---#####################################################################################
---#####################################################################################
---#####################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+
 
 export type edge = {
 	node_1: node;
@@ -290,9 +360,9 @@ Class.make_proper_class(edge, '@CHL>Pathfinder>Edge')
 
 module.edge = edge
 
---#####################################################################################
---#####################################################################################
---#####################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
 
 export type graph = {
 	nodes: {node};
@@ -379,9 +449,9 @@ Class.make_proper_class(graph, '@CHL>Pathfinder>Graph')
 
 module.graph = graph
 
---#####################################################################################
---#####################################################################################
---#####################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
 
 local Set = require('./@CHL>Set')
 -- attempts to use a hierarchal graph path finder approach to allow scalability
@@ -405,7 +475,6 @@ export type finder = {
 	compute_waypoint_path: (self: finder, start: node, goal: node) -> ();
 	compute_waypoint_path_from_position: (self: finder, start: Vector3, goal: Vector3) -> ();
 }
-
 
 tinsert = table.insert
 tclear = table.clear
@@ -573,8 +642,117 @@ Class.make_proper_class(finder, '@CHL>Pathfinder>Finder')
 
 module.finder = finder
 
---#####################################################################################
---#####################################################################################
---#####################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+
+-- iterative approach to pathfinding
+--[[
+	Particularly useful for npcs chasing npcs where positions constantly change
+--]]
+
+export type node_traveler = {
+	finder: finder;
+	waypoint_traveler: waypoint_traveler;
+	
+	-- these states are for transparency to indicate when the traveler evaluates their path
+	start_node: node;
+	finish_node: node;
+	
+	finish_position: Vector3;
+	
+	nodes: {node};
+	node_i: number;
+	
+	-- uses node based algorithm from positions, sets up object, and calculates all path upfront
+	compute_path: (self: node_traveler, start: Vector3, finish: Vector3)->();
+	
+	-- these function are for node path transparency for smaller scale
+	get_current_node: (self: node_traveler)->(node);
+	get_succeeding_node: (self: node_traveler)->(node);
+	set_finish_position: (self: node_traveler, finish_position: Vector3)->();
+	
+} & Iterator.simple<PathWaypoint>
+
+node_traveler = {}
+
+function node_traveler.new(waypoint_traveler: waypoint_traveler, finder: finder): node_traveler
+	local self: node_traveler = Object.simple.new(node_traveler)
+	
+	self.waypoint_traveler = waypoint_traveler
+	self.finder = finder
+	
+	return self
+end
+
+function node_traveler.set_finish_position(self: node_traveler, finish_position: Vector3)
+	-- subject to revision
+	
+	self.finish_position = finish_position
+	
+	if self.finish_node ~= self.finder.graph:get_node_from_position(finish_position) then
+		self:compute_path(self.waypoint_traveler:get_waypoint().Position, finish_position)
+	end
+end
+
+function node_traveler.compute_path(self: node_traveler, start: Vector3, finish: Vector3)
+	local start_node = self.finder.graph:get_node_from_position(start)
+	local finish_node = self.finder.graph:get_node_from_position(finish)
+	
+	self.finder:compute_node_path(start_node, finish_node)
+	
+	self.nodes = self.finder.traversal_high
+	self.node_i = 0
+	
+	self.start_node = start_node
+	self.finish_node = finish_node
+	self.finish_position = finish
+	
+	self.waypoint_traveler:compute_path(start, self:get_succeeding_node().position)
+end
+
+function node_traveler.get_current_node(self: node_traveler): node return self.nodes[self.node_i]end
+function node_traveler.get_succeeding_node(self: node_traveler): node return self.nodes[self.node_i + 1]end
+
+function node_traveler.can_proceed(self: node_traveler)
+	local waypoint = self.waypoint_traveler:get_waypoint()
+	
+	if waypoint then
+		return waypoint.Position ~= self.finish_position
+	else
+		return self:get_succeeding_node() ~= nil
+	end
+end
+
+function node_traveler.proceed(self: node_traveler)
+	local waypoint_traveler = self.waypoint_traveler
+	
+	if not waypoint_traveler:can_proceed() then
+		self.node_i += 1
+		
+		if not self:get_succeeding_node() then
+			local last_node = self:get_current_node()
+			waypoint_traveler:compute_path(
+				last_node.position,
+				self.finish_position
+			)
+		else
+			waypoint_traveler:compute_path(
+				self:get_current_node().position,
+				self:get_succeeding_node().position
+			)
+		end
+	end
+	
+	if waypoint_traveler:can_proceed() then
+		return waypoint_traveler:proceed()
+	else
+		error('incomplete')
+	end
+end
+
+Class.make_proper_class(node_traveler, '@CHL>Pathfinder>Node>Traveler')
+
+module.node_traveler = node_traveler
 
 return module
