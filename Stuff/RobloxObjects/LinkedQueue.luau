@@ -178,7 +178,7 @@ export type tuple_node = node<vague_array>
 export type tuple_node_iterator = node_iterator<vague_array>
 
 export type tuple_value_iterator<T, U...> = {
-	node_iterator: tuple_node_iterator
+	node_iterator: tuple_node_iterator;
 } & simple_iterator<T, U...>
 
 tuple_value_iterator = {}
@@ -208,6 +208,7 @@ module.tuple_value_iterator = tuple_value_iterator
 export type tuple_queue<T, U...> = {
 	default_queue: object<vague_array>;
 	
+	get_size: (self: tuple_queue<T, U...>)->number;
 	get_node_iterator: (self: tuple_queue<T, U...>)->tuple_node_iterator;
 	get_value_iterator: (self: tuple_queue<T, U...>)->tuple_value_iterator<T, U...>;
 	enqueue: (self: tuple_queue<T, U...>, T, U...)->();
@@ -255,6 +256,8 @@ function tuple_queue.get_value_iterator<T, U...>(self: tuple_queue<T, U...>): tu
 	
 	return tuple_value_iterator.new(node_iterator)
 end
+
+function tuple_queue.get_size<T, U...>(self: tuple_queue<T, U...>): number return self.default_queue.size end
 
 tuple_queue.is_empty = compose(default_enqueue_call, default.is_empty)
 tuple_queue.clear = compose(default_enqueue_call, default.clear)
