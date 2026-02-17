@@ -6,15 +6,15 @@ local Math = require('./@CHL>Math')
 round = Math.round
 pi = math.pi
 
-function getRelativeVector(cf: CFrame, world: Vector3): Vector3
+function module.get_relative_vector(cf: CFrame, world: Vector3): Vector3
 	return cf.RightVector * world.X + 
 		cf.UpVector * world.Y + 
 		cf.LookVector * world.Z
 end
 
-export type worldPositionObject = BasePart | Attachment
+export type world_position_object = BasePart | Attachment
 
-function getAbsolutePosition(v: worldPositionObject): Vector3
+function module.get_absolute_position(v: world_position_object): Vector3
 	if typeof(v) == 'Instance' then
 		if v:IsA('BasePart') then
 			return v.Position
@@ -28,7 +28,7 @@ function getAbsolutePosition(v: worldPositionObject): Vector3
 	end
 end
 
-function components(v3: Vector3)return v3.X, v3.Y, v3.Z end
+function module.components(v3: Vector3)return v3.X, v3.Y, v3.Z end
 
 --[[
 	This function needs a comment to clarify what it returns.
@@ -40,9 +40,9 @@ function components(v3: Vector3)return v3.X, v3.Y, v3.Z end
 	
 	Yaw and pitch adjusted based on part orientation tests.
 ]]
-function getSphereCoordinates(v3: Vector3)
+function module.get_sphere_coordinates(v3: Vector3)
 	local mag = v3.Magnitude
-	local x, y, z = components(v3)
+	local x, y, z = module.components(v3)
 	local flat = (x * x + z * z) ^ .5
 
 	local yaw = math.atan2(-z, x) * 180 / pi
@@ -51,7 +51,7 @@ function getSphereCoordinates(v3: Vector3)
 	return mag, yaw, pitch
 end
 
-function getCloserVector3(x: Vector3, other: Vector3, ...: Vector3): Vector3
+function module.get_closer_vector3(x: Vector3, other: Vector3, ...: Vector3): Vector3
 	local result = other
 	local small = (x - other).Magnitude
 	
@@ -67,11 +67,11 @@ function getCloserVector3(x: Vector3, other: Vector3, ...: Vector3): Vector3
 	return result
 end
 
-function clamp(x: Vector3, min: Vector3, max: Vector3): Vector3
+function module.clamp(x: Vector3, min: Vector3, max: Vector3): Vector3
 	return Vector3.min(max, Vector3.max(x, min))
 end
 
-function between_magnitude_sum(a: {Vector3}): number 
+function module.between_magnitude_sum(a: {Vector3}): number 
 	local result = 0
 	
 	for i = 2, #a do
@@ -81,24 +81,19 @@ function between_magnitude_sum(a: {Vector3}): number
 	return result
 end
 
-function to_string(a: Vector3, digits: number?): string
+function module.to_string(a: Vector3, digits: number?): string
 	local d = digits or 3
 	return `{round(a.X,d)},{round(a.Y,d)},{round(a.Z,d)}`
 end
 
-function flip(v3: Vector3, normal: Vector3): Vector3
+function module.flip(v3: Vector3, normal: Vector3): Vector3
 	normal = normal.Unit
 	return v3 + normal * -2 * v3:Dot(normal)
 end
 
-module.flip = flip
-module.to_string = to_string
-module.between_magnitude_sum = between_magnitude_sum;
-module.getRelativeVector = getRelativeVector
-module.getAbsolutePosition = getAbsolutePosition
-module.getSphereCoordinates = getSphereCoordinates
-module.components = components
-module.getCloserVector3 = getCloserVector3
-module.clamp = clamp
+function module.is_ball_equal(left: Vector3, right: Vector3, epsilon: number?): boolean
+	local ep = epsilon or 0.001
+	return (left - right).Magnitude < ep
+end
 
 return module
