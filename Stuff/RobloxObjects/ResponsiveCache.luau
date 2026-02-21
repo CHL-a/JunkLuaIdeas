@@ -18,7 +18,7 @@ export type object<returns..., params...> = {
 	get: (self: object<returns..., params...>, params...) -> returns...;
 	decache: (self: object<returns..., params...>, params...) -> returns...;
 	exists: (self: object<returns..., params...>, params...) -> (boolean, returns...)
-} & Class.subclass<Object.object>
+}
 
 -- CLASS
 local ResponsiveCache = {}
@@ -27,7 +27,7 @@ local LuaUTypes = require('./LuaUTypes')
 
 disguise = LuaUTypes.disguise
 
-ResponsiveCache.nilRepresentitive = {} -- find something to replace this later
+ResponsiveCache.nil_representitive = {} -- find something to replace this later
 -- ^ lua doesn't allow nil indexes but allows anything else
 ResponsiveCache.indexes = {}
 
@@ -39,7 +39,7 @@ function ResponsiveCache.new<
 	assert(type(func) == 'function')
 
 	-- main
-	local self: object<returns..., params...> = Object.from.class(ResponsiveCache)
+	local self: object<returns..., params...> = Object.simple.new(ResponsiveCache)
 
 	self.cache = {}
 	self.func = func
@@ -47,7 +47,7 @@ function ResponsiveCache.new<
 	return self
 end
 
-function getIndex(v)
+function ResponsiveCache.get_index(v)
 	-- pre
 	v = v == nil and ResponsiveCache.nilRepresentitive or v
 
@@ -61,13 +61,13 @@ function getIndex(v)
 	return ResponsiveCache.indexes[v]
 end
 
-function getMegaIndex(...)
+function ResponsiveCache.get_mega_index(...)
 	local args = {...}
 	local result = ''
 
 	-- construct megaindex
 	for i = 1, #args do
-		result ..= getIndex(args[i])
+		result ..= ResponsiveCache.get_index(args[i])
 	end
 
 	return result
@@ -80,7 +80,7 @@ end
 function ResponsiveCache.get<r..., p...>(self: object<r... ,p...>, ...: p...)
 	-- main
 	local result
-	local megaIndex = getMegaIndex(...)
+	local megaIndex = ResponsiveCache.get_index(...)
 	
 	if not self.cache[megaIndex] then
 		self.cache[megaIndex] = {self.func(...)}
@@ -92,7 +92,7 @@ function ResponsiveCache.get<r..., p...>(self: object<r... ,p...>, ...: p...)
 end
 
 function ResponsiveCache.exists<r...,p...> (self:object<r...,p...>, ...:p...)
-	local mI = getMegaIndex(...)
+	local mI = ResponsiveCache.get_mega_index(...)
 
 	local isExist = false
 
@@ -109,14 +109,11 @@ function ResponsiveCache.decache<r..., p...>(self: object<r..., p...>, ...: p...
 	-- main
 	local result = {self:get(...)}
 
-	self.cache[getMegaIndex(...)] = nil
+	self.cache[ResponsiveCache.get_mega_index(...)] = nil
 
 	return unpack(result)
 end
 
-ResponsiveCache.getIndex = getIndex
-ResponsiveCache.getMegaIndex = getMegaIndex
-
-Class.makeProperClass(ResponsiveCache, '@CHL>ResponsiveCache')
+Class.make_proper_class(ResponsiveCache, '@CHL>ResponsiveCache')
 
 return ResponsiveCache
