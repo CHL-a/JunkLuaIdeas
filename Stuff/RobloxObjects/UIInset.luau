@@ -5,7 +5,7 @@ local InstanceUtils = require('./@CHL>InstanceUtils')
 local module = {}
 
 function get_screengui(): ScreenGui
-	return InstanceUtils.getOrCreate(script, 'ScreenGuiCheck', 'ScreenGui')
+	return InstanceUtils.get_or_create(script, 'ScreenGuiCheck', 'ScreenGui')
 end
 
 function module.get_inset(enum: Enum.ScreenInsets): Vector2
