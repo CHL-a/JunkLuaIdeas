@@ -56,6 +56,15 @@ function module.from_referral(to_attachment: Attachment, model: Model, referral:
 	return module.from_model(attachment, model)
 end
 
+
+function module.basepart_modify(basepart: Part)
+	basepart.Anchored = false
+	basepart.CanCollide = false
+	basepart.CanQuery = false
+	basepart.CanTouch = false
+	basepart.Massless = true
+end
+
 Class.make_proper_class(module, '@CHL>RobloxAccessory')
 
 return module
