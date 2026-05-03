@@ -211,12 +211,16 @@ local RemoteFolder = require('./@CHL>RemoteFolder')
 
 module.module_script = nil
 
-function module.get_module_script(): ModuleScript
+function module.get_module_script(refuse_wait: boolean): ModuleScript
 	if module.module_script then
 		return module.module_script
 	end
 	
 	local cmdr_module_script = script.Parent.Parent:FindFirstChild('CmdrClient')
+	
+	if not cmdr_module_script and not refuse_wait then
+		cmdr_module_script = script.Parent.Parent:WaitForChild('CmdrClient', 10)
+	end
 	
 	module.module_script = cmdr_module_script
 	
