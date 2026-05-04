@@ -6,6 +6,7 @@
 local shared = require('@game/ReplicatedStorage/Objects/@CHL>Cmdr>Api>Shared')
 local RemoteFolder = require('@game/ReplicatedStorage/Objects/@CHL>RemoteFolder')
 local LuaUTypes = require('@game/ReplicatedStorage/Objects/LuaUTypes')
+local InstanceUtils = require('@game/ReplicatedStorage/Objects/@CHL>InstanceUtils')
 
 export type registry = {
 	-- attempts to register commands of a container, with modulescript children
@@ -18,9 +19,16 @@ export type registry = {
 	RegisterCommand: (self: registry, commandScript: ModuleScript, commandServerScript: ModuleScript?, filter: ((command: shared.command_definition) -> boolean)?)->();
 	RegisterDefaultCommands: (self: registry, groups: {string})->();
 } & shared.registry
+
 export type cmdr = {
 	Registry: registry;
 } & shared.cmdr
+
+export type command_definition = shared.command_definition
+
+--############################################################################################################################################################
+--############################################################################################################################################################
+--############################################################################################################################################################
 
 local module = {}
 
@@ -51,6 +59,8 @@ function module.connect_client_bridge()
 	function remote_function.OnServerInvoke(player, index, ...)
 		if index == 'get_command_definitions' then
 			return module.used_command_definitions
+		elseif index == 'get_type_definitions' then
+			return module.registered_returnable_types
 		end
 		
 		error('unknown')
@@ -78,6 +88,52 @@ function module.add_super_user_hook()
 	local cmdr = module.get_module()
 	
 	cmdr.Registry:RegisterHook('BeforeRun', LuaUTypes.empty)
+end
+
+function get_or_create_folder(parent: Instance, name: string): Folder return InstanceUtils.get_or_create(parent, name, 'Folder') end
+
+function module.get_main_remotes_folder(): Folder return get_or_create_folder(game:GetService('ReplicatedStorage'), 'Remotes') end
+
+function module.get_remote_folder(...: string)
+	local parent = module.get_main_remotes_folder()
+	
+	for i = 1, select('#', ...) do
+		local name = select(i, ...)
+		
+		parent = get_or_create_folder(parent, name)
+	end
+	
+	return parent
+end
+
+module.registered_returnable_types = {}
+
+function module.add_type(name: string, type_definition: shared.type_definition)
+	local cmdr = module.get_module()
+	
+	if module.client_connected then
+		local returnable_type = table.clone(type_definition)
+		
+		for i, v in returnable_type do
+			if typeof(v) ~= 'function' then continue end
+			
+			local parent_folder = module.get_remote_folder('Types', name)
+			local remote_function_i: RemoteFunction = InstanceUtils.get_or_create(parent_folder, i, 'RemoteFunction')
+			
+			function remote_function_i.OnServerInvoke(player: Player, ...) return type_definition[i](...) end
+			
+			returnable_type[i] = true
+		end
+		
+		module.registered_returnable_types[name] = returnable_type
+		module.get_remote_event():FireAllClients('register_type', returnable_type)
+	end
+	
+	cmdr.Registry:RegisterType(name, type_definition)
+end
+
+function module.get_type(name: string)
+	return module.get_module().Registry:GetType(name)
 end
 
 return module
