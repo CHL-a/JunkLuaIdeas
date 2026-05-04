@@ -1,5 +1,3 @@
-local module = {}
-
 --############################################################################################################################################################
 --############################################################################################################################################################
 --############################################################################################################################################################
@@ -104,6 +102,20 @@ export type dispatcher = {
 	}?)-> string;
 }
 
+export type argument_context = {
+	Command: command_context;
+	Name: string;
+	Type: type_definition;
+	Required: boolean;
+	Executor: Player;
+	RawValue: string;
+	RawSegments: {string};
+	Prefix: string;
+
+	GetValue: <T>(self: argument_context)->T;
+	GetTransformedValue: <T...>(self: argument_context)->T...;
+}
+
 export type dispatcher_client = {
 	Run: (self: dispatcher, ...string)->string;
 	GetHistory: (self: dispatcher_client)->{string};
@@ -128,6 +140,7 @@ export type command_context = {
 	Description: string;
 	Executor: Player;
 	RawArguments: {string};
+	Arguments: {argument_context};
 	
 	--The command output, if the command has already been run. Typically only accessible in the AfterRun hook.
 	Response: string?;
@@ -155,7 +168,7 @@ export type command_context = {
 }
 
 export type registry = {
-	cmdr: cmdr;
+	--cmdr: cmdr;
 	RegisterType: (self: registry, name: string, _type: type_definition)->();
 	
 	-- Registers a Prefixed Union Type string for the given type. If there are already type prefixes for the given type name, they will 
@@ -207,9 +220,10 @@ export type cmdr_client = {
 --############################################################################################################################################################
 --############################################################################################################################################################
 
-local RemoteFolder = require('./@CHL>RemoteFolder')
+local module = {}
 
-module.module_script = nil
+local RemoteFolder = require('./@CHL>RemoteFolder')
+local InstanceUtils = require('./@CHL>InstanceUtils')
 
 function module.get_module_script(refuse_wait: boolean): ModuleScript
 	if module.module_script then
@@ -240,17 +254,41 @@ end
 
 function module.get_remote_event(): RemoteEvent return RemoteFolder.static_get_event('cmdr_api_event') end
 function module.get_remote_function(): RemoteFunction return RemoteFolder.static_get_function('cmdr_api_callback') end
+function module.get_remote_folder(): Folder return module.get_remote_event().Parent end
+
+function module.add_type(name: string, type_def: type_definition)
+	local cmdr: cmdr_client = module.get_module()
+	
+	for i, v in type_def do
+		if v == true then
+			type_def[i] = function(...)
+				return InstanceUtils.find_first_descendant(module.get_remote_folder(), 'Types', name, i):InvokeServer(...)
+			end
+		end
+	end
+	
+	cmdr.Registry:RegisterType(name, type_def)
+end
 
 function module.connect_client_bridge()
 	RemoteFolder.construct()
+	
+	local remote_function: RemoteFunction = module.get_remote_function()
 	
 	module.get_remote_event().OnClientEvent:Connect(function(...)
 		print('met', ...)
 	end)
 	
-	local used_cmds = module.get_remote_function():InvokeServer('get_command_definitions')
+	local used_cmds = remote_function:InvokeServer('get_command_definitions')
+	
 	for _, cmd_def in used_cmds do
 		module.get_module().Registry:RegisterCommandObject(cmd_def)
+	end
+	
+	local types = remote_function:InvokeServer('get_type_definitions')
+	
+	for name, type_def in types do
+		module.add_type(name, type_def)
 	end
 end
 
