@@ -136,4 +136,28 @@ function module.get_type(name: string)
 	return module.get_module().Registry:GetType(name)
 end
 
+function module.evaluate_and_run(cmd: string, player: Player): string
+	return module.get_module().Dispatcher:EvaluateAndRun(cmd, player)
+end
+
+function module.bulk_evaluate_and_run(cmd: string, player: Player): {any}
+	local lines = cmd:split('\n')
+	local dispatcher = module.get_module().Dispatcher
+	local i = 1
+	for _, line in lines do
+		local prespace, content = line:match('(%s*)(%S.+)%s*')
+		
+		if content then
+			lines[i] = dispatcher:EvaluateAndRun(content, player) 
+			i += 1
+		end
+	end
+	
+	for j = i, #lines do
+		lines[j] = nil
+	end
+	
+	return lines
+end
+
 return module
