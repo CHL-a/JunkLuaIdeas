@@ -109,20 +109,24 @@ disguise = require('./LuaUTypes').disguise
 module.modified = {}
 
 module.modified.object_states = {
-	andThen = 'and_then';
-	andThenCall = 'and_then_call';
-	andThenReturn = 'and_then_return';
-	awaitStatus = 'await_status';
-	finallyCall = 'finally_call';
-	finallyReturn = 'finally_return';
-	getStatus = 'get_status';
+	and_then        = 'andThen';
+	and_then_call   = 'andThenCall';
+	and_then_return = 'andThenReturn';
+	await_status    = 'awaitStatus';
+	finally_call    = 'finallyCall';
+	finally_return  = 'finallyReturn';
+	get_status      = 'getStatus';
+	-- additions
+	upon            = 'andThen';
+	upon_call       = 'andThenCall';
+	upon_return     = 'andThenReturn';
 }
 
 module.modified.module_states = {
-	allSettled = 'all_settled';
-	fromEvent = 'from_event';
-	onUnhandledRejection = 'on_unhandled_rejection';
-	retryWithDelay = 'retry_with_delay';
+	all_settled            = 'allSettled';
+	from_event             = 'fromEvent';
+	on_unhandled_rejection = 'onUnhandledRejection';
+	retry_with_delay       = 'retryWithDelay';
 }
 
 function module.modified.get(): modified_module
@@ -131,11 +135,11 @@ function module.modified.get(): modified_module
 	local proto = result.prototype
 	
 	for i, v in module.modified.object_states do
-		proto[v] = proto[i]
+		proto[i] = proto[v]
 	end
 	
 	for i, v  in module.modified.module_states do
-		result[v] = result[i]
+		result[i] = result[v]
 	end
 	
 	return result
