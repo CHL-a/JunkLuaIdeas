@@ -1,8 +1,7 @@
-local Objects = game:GetService('ReplicatedStorage').Objects
-local Map = require(Objects["@CHL>Map"])
-local Object = require(Objects.Object)
-local Class = require(Objects.Class)
-local Set = require(Objects["@CHL>Set"])
+local Map = require('@game/ReplicatedStorage/Objects/@CHL>Map')
+local Object = require('@game/ReplicatedStorage/Objects/Object')
+local Class = require('@game/ReplicatedStorage/Objects/Class')
+local Set = require('@game/ReplicatedStorage/Objects/@CHL>Set')
 
 type dict<A> = Map.dictionary<A>
 type map<I,V> = Map.simple<I,V>
