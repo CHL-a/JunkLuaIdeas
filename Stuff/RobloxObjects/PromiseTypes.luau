@@ -102,7 +102,7 @@ export type modified_module = {
 	from_event: <T...>(event: event, predicate: (T...) -> boolean?) -> modified_object<T...>;
 	on_unhandled_rejection: (callback: (promise: modified_object<...any>, error: any) -> ()) -> ();
 	retry_with_delay: <P, T>(executor: (...P)->modified_object<T>, seconds: number ,times: number) -> modified_object<T>;
-}
+} & module
 
 disguise = require('./LuaUTypes').disguise
 
