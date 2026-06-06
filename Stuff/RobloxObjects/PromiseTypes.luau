@@ -95,7 +95,29 @@ export type modified_object<T...> = {
 	upon: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
 	upon_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
 	upon_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
-} & object<T...>
+	
+	-- availible functions
+	resolve: (self: modified_object<T...>,T...)->();
+	reject: (self: modified_object<T...>,T...)->();
+	
+	-- inherited calls, reflected to return modified_object
+	andThen: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
+	andThenCall: (self: modified_object<T...>, callback: any_func, ...any)->object<T...>;
+	andThenReturn: (self: modified_object<T...>, ...any)->object<T...>;
+	await: (self: modified_object<T...>) -> (boolean, T...);
+	awaitStatus: (self: modified_object<T...>) -> (status, T...);
+	cancel: (self: modified_object<T...>) -> ();
+	catch: (self: modified_object<T...>, on_reject: any_func) -> modified_object<T...>;
+	expect: (self: modified_object<T...>) -> (T...);
+	finally: (self: modified_object<T...>, on_resolve: any_func) -> modified_object<T...>;
+	finallyCall: (self: modified_object<T...>, callback: any_func, ...any)->object<T...>;
+	finallyReturn: (self: modified_object<T...>, ...any)->object<T...>;
+	getStatus: (self: modified_object<T...>)->Status;
+	now: (self: modified_object<T...>, rejection_value: any?) -> modified_object<T...>;
+	tap: (self: modified_object<T...>, tap_callback: any_func) -> modified_object<T...>;
+	timeout: (self: modified_object<T...>, seconds: number, rejection_value: any?) -> modified_object<T...>;
+	
+}
 
 export type modified_module = {
 	all_settled: (promises: {modified_object<...any>})->object<{status}>;
@@ -120,6 +142,9 @@ module.modified.object_states = {
 	upon            = 'andThen';
 	upon_call       = 'andThenCall';
 	upon_return     = 'andThenReturn';
+	
+	resolve         = '_resolve';
+	reject          = '_reject';
 }
 
 module.modified.module_states = {
