@@ -6,7 +6,8 @@ dominions = {}
 --##############################################################################################################################################
 --##############################################################################################################################################
 
--- very easily accessable version of an icon since these ones are always accessable, albiet, the domain is rather small
+-- very easily accessable version of an icon since these ones are always 
+-- accessable via content folder, albiet, the domain is rather small
 
 export type insertable_size = '' | '@2x' | '@3x'
 export type insertable_color_theme = 'Dark' | 'Light'
@@ -28,15 +29,25 @@ dominions.insertable = insertable
 --##############################################################################################################################################
 --##############################################################################################################################################
 
-dominions.stable = {}
+-- another method of fetching icon, however this one is more studio based, and
+-- therefore requires plugin security
 
-export type stable_struct = {
+local PluginToolset = require('./@CHL>PluginToolset')
+
+dominions.studio = {}
+
+export type studio_struct = {
 	Image: Content;
 	ImageRectOffset: Vector2;
 	ImageRectSize: Vector2;
 }
 
-function dominions.stable.get(class: string): stable_struct
+function dominions.studio.get(class: string): studio_struct
+	if not PluginToolset.is_plugin_space():expect() then
+		warn('attempted to fetch studio icon outside of plugin space')
+		return
+	end
+	
 	local result = game:GetService('StudioService'):GetClassIcon(class)
 	
 	result.Image = Content.fromUri(result.Image)
