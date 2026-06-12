@@ -1,27 +1,26 @@
-export type editableMesh = {
-	GetUVs: (self: editableMesh)->{number};
-	GetFaces: (self: editableMesh)->{number};
-	GetColors: (self: editableMesh)->{number};
-	GetFaceUVs: (self: editableMesh, face_id: number)->{number};
-	GetNormals: (self: editableMesh)->{number};
-	GetVertices: (self: editableMesh)->{number};
-	GetFaceColors: (self: editableMesh, face_id: number)->{number};
-	GetFaceNormals: (self: editableMesh, face_id: number)->{number};
-	GetFaceVertices: (self: editableMesh, face_id: number)->{number};
-	GetAdjacentFaces: (self: editableMesh, face_id: number)->{number};
-	GetAdjacentVertices: (self: editableMesh, vertex_id: number)->{number};
-	GetFacesWithAttribute: (self: editableMesh, at_id:number)->{number};
-	GetVerticesWithAttribute: (self: editableMesh, at_id:number)->{number};
+export type editable_mesh = {
+	GetUVs: (self: editable_mesh)->{number};
+	GetFaces: (self: editable_mesh)->{number};
+	GetColors: (self: editable_mesh)->{number};
+	GetFaceUVs: (self: editable_mesh, face_id: number)->{number};
+	GetNormals: (self: editable_mesh)->{number};
+	GetVertices: (self: editable_mesh)->{number};
+	GetFaceColors: (self: editable_mesh, face_id: number)->{number};
+	GetFaceNormals: (self: editable_mesh, face_id: number)->{number};
+	GetFaceVertices: (self: editable_mesh, face_id: number)->{number};
+	GetAdjacentFaces: (self: editable_mesh, face_id: number)->{number};
+	GetAdjacentVertices: (self: editable_mesh, vertex_id: number)->{number};
+	GetFacesWithAttribute: (self: editable_mesh, at_id:number)->{number};
+	GetVerticesWithAttribute: (self: editable_mesh, at_id:number)->{number};
 	
-	SetFaceUVs: (self: editableMesh, face_id: number, uv_ids: {number})->();
-	SetFaceColors: (self: editableMesh, face_id: number, color_ids: {number})->();
-	SetFaceNormals: (self: editableMesh, face_id: number, normals_ids: {number})->();
-	SetFaceVertices: (self: editableMesh, face_id: number, vertex_ids: {number})->();
+	SetFaceUVs: (self: editable_mesh, face_id: number, uv_ids: {number})->();
+	SetFaceColors: (self: editable_mesh, face_id: number, color_ids: {number})->();
+	SetFaceNormals: (self: editable_mesh, face_id: number, normals_ids: {number})->();
+	SetFaceVertices: (self: editable_mesh, face_id: number, vertex_ids: {number})->();
 	
-	RemoveUnused: (self: editableMesh)->{number};
-	RaycastLocal: (self: editableMesh, origin: Vector3, dir: Vector3)->(number?, Vector3, any);
-	FindVerticesWithinSphere: (self: editableMesh) -> {number};
-	
+	RemoveUnused: (self: editable_mesh)->{number};
+	RaycastLocal: (self: editable_mesh, origin: Vector3, dir: Vector3)->(number?, Vector3, any);
+	FindVerticesWithinSphere: (self: editable_mesh) -> {number};
 } & EditableMesh
 
 local module = {}
@@ -30,9 +29,8 @@ local module = {}
 --##########################################################################################
 --##########################################################################################
 
-local Objects = script.Parent
-local Vector3Utils = require(Objects["@CHL/Vector3Utils"])
-local Vector2Utils = require(Objects["@CHL/Vector2Utils"])
+local Vector3Utils = require('./@CHL>Vector3Utils')
+local Vector2Utils = require('./@CHL>Vector2Utils')
 
 export type to_string_args = {
 	vertices: boolean?;
@@ -45,7 +43,7 @@ insert = table.insert
 v3_to_string = Vector3Utils.to_string
 v2_to_string = Vector2Utils.to_string
 
-function module.to_string(e: editableMesh, args: to_string_args): string
+function module.to_string(e: editable_mesh, args: to_string_args): string
 	assert(args, 'missing args set')
 	local lines = {`EditableMesh 0x{tostring(e)}`}
 	
@@ -111,8 +109,8 @@ end
 --##########################################################################################
 --##########################################################################################
 
-local Dash = require(Objects["@CHL/DashSingular"])
-local OBJ = require(Objects["@CHL/OBJ"])
+local Dash = require('./@CHL>DashSingular')
+local OBJ = require('./@CHL>OBJ')
 
 AssetService = game:GetService('AssetService')
 from = {}
@@ -120,19 +118,19 @@ compose = Dash.compose
 map = Dash.map
 
 -- returns an EditableMesh based on the mesh content of the meshpart
-function from.meshpart(m: MeshPart): editableMesh
+function from.meshpart(m: MeshPart): editable_mesh
 	return from.content(m.MeshContent)
 end
 
-function from.content(c:Content): editableMesh
+function from.content(c:Content): editable_mesh
 	assert(c.SourceType ~= Enum.ContentSourceType.None, 'content is nil.')
 	return AssetService:CreateEditableMeshAsync(c)
 end
 
-function from.blank(): editableMesh return AssetService:CreateEditableMesh()end
+function from.blank(): editable_mesh return AssetService:CreateEditableMesh()end
 
 -- possibly buggy because points are often recreated for faces, o:compress() is suggested
-function from.OBJ(o: OBJ.object): editableMesh
+function from.OBJ(o: OBJ.object): editable_mesh
 	local result = from.blank()
 	
 	local vertices=map(o.vertices,function(a0)return result:AddVertex(a0) end)
@@ -155,7 +153,7 @@ function from.OBJ(o: OBJ.object): editableMesh
 	return result
 end
 
-from.asset_string = compose(Content.fromUri, from.content):: (string)->editableMesh
+from.asset_string = compose(Content.fromUri, from.content):: (string)->editable_mesh
 
 module.from = from
 
@@ -166,7 +164,7 @@ module.from = from
 to = {}
 
 -- returns OBJ object
-function to.OBJ(e: editableMesh): OBJ.object
+function to.OBJ(e: editable_mesh): OBJ.object
 	local result = OBJ.obj.new()
 	
 	local faces = e:GetFaces()
@@ -248,7 +246,7 @@ function to.OBJ(e: editableMesh): OBJ.object
 end
 
 -- returns meshpart from editablemesh
-function to.meshpart(e: editableMesh)
+function to.meshpart(e: editable_mesh)
 	return AssetService:CreateMeshPartAsync(Content.fromObject(e))
 end
 
