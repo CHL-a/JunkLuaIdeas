@@ -73,8 +73,10 @@ export type module = {
 
 module = {}
 
+local disguise = require('./LuaUTypes').disguise
+
 function module.get(): module
-	return require('./@evaera>Promise')
+	return disguise(require)('./@evaera>Promise')
 end
 
 --#######################################################################################
@@ -116,7 +118,6 @@ export type modified_object<T...> = {
 	now: (self: modified_object<T...>, rejection_value: any?) -> modified_object<T...>;
 	tap: (self: modified_object<T...>, tap_callback: any_func) -> modified_object<T...>;
 	timeout: (self: modified_object<T...>, seconds: number, rejection_value: any?) -> modified_object<T...>;
-	
 }
 
 export type modified_module = {
@@ -124,7 +125,40 @@ export type modified_module = {
 	from_event: <T...>(event: event, predicate: (T...) -> boolean?) -> modified_object<T...>;
 	on_unhandled_rejection: (callback: (promise: modified_object<...any>, error: any) -> ()) -> ();
 	retry_with_delay: <P, T>(executor: (...P)->modified_object<T>, seconds: number ,times: number) -> modified_object<T>;
-} & module
+	
+	Status: {
+		Started: 'Started';
+		Resolved: 'Resolved';
+		Rejected: 'Rejected';
+		Cancelled: 'Cancelled';
+	};
+	all: <T...>(promises: {modified_object<T...>}) -> modified_object<T...>;
+	allSettled: (promises: {modified_object<...any>}) -> modified_object<{status}>;
+	any: <T...>(promises: {modified_object<T...>}) -> modified_object<T...>;
+	defer: <T...>(executor)->modified_object<T...>;
+	delay: <T...>(seconds: number) -> modified_object<T...>;
+	each: <T, U>(
+		list: {T | modified_object<T>},
+		predicate: (value: T, index: number) -> U | modified_object<U>
+	) -> modified_object<{U}>;
+	fold: <T, U>(
+		list: {T | modified_object<T>},
+		reducer: (accumulator: U, value: T, index: number) -> U | modified_object<U>,
+		init: U
+	) -> ();
+	fromEvent: <T...>(event: event, predicate: (T...) -> boolean?) -> modified_object<T...>;
+	is: (any)->boolean;
+	new: <T...>(executor: executor) -> modified_object<T...>;
+	onUnhandledRejection: (event: (promise: modified_object<...any>, error: any) -> ()) -> ();
+	promisify: <T..., U...>(callback: (T...) -> U...) -> (T...) -> modified_object<U...>;
+	race: <T>(promises: {modified_object<T>}) -> modified_object<T>;
+	reject: <T...>(T...) -> modified_object<T...>;
+	resolve: <T...>(T...) -> modified_object<T...>;
+	retry: <P..., T...>(executor: (P...)->modified_object<T...>, times: number) -> modified_object<T...>;
+	retryWithDelay: <P..., T...>(executor: (P...)->modified_object<T...>, seconds: number ,times: number) -> modified_object<T...>;
+	some: <T>(promises: {modified_object<T>}, count: number) -> modified_object<{T}>;
+	try: <T..., U...>(callback: (T...) -> U..., T...) -> modified_object<U...>;
+}
 
 disguise = require('./LuaUTypes').disguise
 
