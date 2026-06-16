@@ -119,5 +119,34 @@ module._positionVelocity = NevermoreSpring._positionVelocity
 module.SetTarget = NevermoreSpring.SetTarget
 module.className = '@CHL>Spring'
 
+--##################################################################################################################################################
+--##################################################################################################################################################
+--##################################################################################################################################################
+
+export type modified_object<T> = {
+	Impulse: (self: modified_object<T>, velocity: T) -> ();
+	TimeSkip: (self: modified_object<T>, delta: number) -> ();
+	impulse: (self: modified_object<T>, velocity: T) -> ();
+	update: (self: modified_object<T>, delta: number) -> ();
+} & SpringInterface.nevermore<T>
+
+export type modified_module = {
+	new: <T>(position: T, clock: (()->number)?) -> modified_object<T>;
+}
+
+module.modified = {}
+
+function module.modified.get(): modified_module
+	local result = disguise(NevermoreSpring)
+	
+	result.update = NevermoreSpring.TimeSkip
+	result.impulse = NevermoreSpring.Impulse
+	
+	return result
+end
+
+--##################################################################################################################################################
+--##################################################################################################################################################
+--##################################################################################################################################################
 
 return module
