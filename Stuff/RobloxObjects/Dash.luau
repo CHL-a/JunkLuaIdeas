@@ -1,3 +1,4 @@
+local AssetService = require('./@CHL>AssetService')
 local Promise = require('./@CHL>Promise')
 local LuaULibs = require('./LuaULibs')
 
@@ -315,5 +316,6 @@ module.promise = AssetService.load_asset(module.asset_id)
 	:upon(LuaULibs.middle.imprint)
 	:append_args(module, module.library_index_add)
 	:upon(LuaULibs.middle.imprint)
+
 
 return module :: typeof(module) & module
