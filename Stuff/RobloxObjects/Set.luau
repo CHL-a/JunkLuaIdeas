@@ -1,11 +1,12 @@
 --// TYPES
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 local LuaUTypes = require('./LuaUTypes')
 
-export type simple<I> = Dash.Set<I>
+export type simple<I> = Dash.set<I>
 export type array_set<V> = {V}
 
 --// MAIN
+Dash.promise:await()
 
 disguise = LuaUTypes.disguise
 per_arg = Dash.forEachArgs
