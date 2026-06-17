@@ -29,7 +29,7 @@ export type object<T...> = {
 	timeout: (self: object<T...>, seconds: number, rejection_value: any?) -> object<T...>;
 }
 
-export type executor = (resolve: any_func, reject: any_func, on_cancel: (abortHandler: any_func?) -> boolean) -> ()
+export type executor<T...> = <U...>(resolve: (T...)->(), reject: (U...)->(), on_cancel: (abortHandler: any_func?) -> boolean) -> ()
 
 export type event = {
 	Connect: any_func;
@@ -46,7 +46,7 @@ export type module = {
 	all: (promises: {object<...any>}) -> object<...any>;
 	allSettled: (promises: {object<...any>}) -> object<{status}>;
 	any: (promises: {object<...any>}) -> object<...any>;
-	defer: (executor)->object<...any>;
+	defer: <T...>(executor<T...>)->object<...any>;
 	delay: (seconds: number) -> object<...any>;
 	each: <T, U>(
 		list: {T | object<T>},
@@ -59,7 +59,7 @@ export type module = {
 	) -> ();
 	fromEvent: <T...>(event: event, predicate: (T...) -> boolean?) -> object<T...>;
 	is: (any)->boolean;
-	new: (executor: executor) -> object<...any>;
+	new: <T...>(executor: executor<T...>) -> object<...any>;
 	onUnhandledRejection: (event: (promise: object<...any>, error: any) -> ()) -> ();
 	promisify: <T...>(callback: (T...) -> ()) -> (T...) -> object<...any>;
 	race: <T>(promises: {object<T>}) -> object<T>;
@@ -75,13 +75,11 @@ module = {}
 
 local disguise = require('./LuaUTypes').disguise
 
-function module.get(): module
-	return disguise(require)('./@evaera>Promise')
-end
+function module.get(): module return disguise(require)('./@evaera>Promise') end
 
---#######################################################################################
---#######################################################################################
---#######################################################################################
+--########################################################################################################################################################
+--########################################################################################################################################################
+--########################################################################################################################################################
 
 export type modified_object<T...> = {
 	and_then: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
@@ -135,7 +133,7 @@ export type modified_module = {
 	all: <T...>(promises: {modified_object<T...>}) -> modified_object<T...>;
 	allSettled: (promises: {modified_object<...any>}) -> modified_object<{status}>;
 	any: <T...>(promises: {modified_object<T...>}) -> modified_object<T...>;
-	defer: <T...>(executor)->modified_object<T...>;
+	defer: <T...>(executor<T...>)->modified_object<T...>;
 	delay: <T...>(seconds: number) -> modified_object<T...>;
 	each: <T, U>(
 		list: {T | modified_object<T>},
@@ -148,7 +146,7 @@ export type modified_module = {
 	) -> ();
 	fromEvent: <T...>(event: event, predicate: (T...) -> boolean?) -> modified_object<T...>;
 	is: (any)->boolean;
-	new: <T...>(executor: executor) -> modified_object<T...>;
+	new: <T...>(executor: executor<T...>) -> modified_object<T...>;
 	onUnhandledRejection: (event: (promise: modified_object<...any>, error: any) -> ()) -> ();
 	promisify: <T..., U...>(callback: (T...) -> U...) -> (T...) -> modified_object<U...>;
 	race: <T>(promises: {modified_object<T>}) -> modified_object<T>;
@@ -188,20 +186,32 @@ module.modified.module_states = {
 	retry_with_delay       = 'retryWithDelay';
 }
 
-function module.modified.get(): modified_module
-	local result = disguise(module.get())
+--########################################################################################################################################################
+--########################################################################################################################################################
+--########################################################################################################################################################
+
+function module.implant()
+	if module.is_implanted then
+		return
+	end
 	
-	local proto = result.prototype
+	local default = module.get()
+	
+	for i, v in default do
+		module[i] = v
+	end
+	
+	local proto = module.prototype
 	
 	for i, v in module.modified.object_states do
 		proto[i] = proto[v]
 	end
 	
-	for i, v  in module.modified.module_states do
-		result[i] = result[v]
+	for i, v in module.modified.module_states do
+		module[i] = module[v]
 	end
 	
-	return result
+	module.is_implanted = true
 end
 
-return module
+return module :: typeof(module) & modified_module
