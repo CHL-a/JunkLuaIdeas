@@ -1,8 +1,8 @@
 local module = {}
 
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 
-type map<I,V> = Dash.Map<I,V>
+type map<I,V> = Dash.map<I,V>
 
 export type struct = {
 	scheme: string;
@@ -18,14 +18,18 @@ export type struct = {
 }
 
 disguise = require('./LuaUTypes').disguise
-last = Dash.last
 
 function module.parse(s: string): struct?
 	local i = 1
 	local j = 1
 	local n = #s
 	local result: struct = disguise{}
-
+	local last;
+	
+	Dash.promise:expect()
+	
+	last = Dash.last
+	
 	-- scheme
 	local slash_split = s:split('/')
 	
