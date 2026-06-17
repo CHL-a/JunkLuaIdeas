@@ -1,6 +1,3 @@
-local Objects = script.Parent
-local Dash = require('./@CHL>DashSingular')
-
 export type pages<A> = {
 	GetCurrentPage: (self: pages<A>)->A;
 } & Pages
