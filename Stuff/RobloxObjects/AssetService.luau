@@ -1,4 +1,4 @@
-local Promise = require('./@CHL>PromiseTypes')
+local Promise = require('./@CHL>Promise')
 
 type promise<T> = Promise.modified_object<T>
 
