@@ -1,6 +1,6 @@
 local module = {}
 
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 local Math = require('./@CHL>Math')
 
 round = Math.round
