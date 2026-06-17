@@ -46,13 +46,15 @@ export type object = {
 
 --// MAIN
 local LuaUTypes = require('./LuaUTypes')
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 local Radix = require('./@CHL>Radix')
 local Iterator = require('./@CHL>Iterator')
 local Class = require('./Class')
 local StringUtils = require('./@CHL>StringUtils')
 local Math = require('./@CHL>Math')
 local Bit32Ext = require('./@CHL>Bit32Ext')
+
+Dash.promise:await()
 
 module = {}
 from = {}
