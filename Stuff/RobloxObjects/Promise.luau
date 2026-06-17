@@ -82,24 +82,6 @@ function module.get(): module return disguise(require)('./@evaera>Promise') end
 --########################################################################################################################################################
 
 export type modified_object<T...> = {
-	and_then: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
-	and_then_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
-	and_then_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
-	await_status: (self: modified_object<T...>) -> (status, T...);
-	finally_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
-	finally_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
-	get_status: (self: modified_object<T...>) -> status;
-	
-	-- additions
-	-- same as and_then
-	upon: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
-	upon_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
-	upon_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
-	
-	-- availible functions
-	resolve: (self: modified_object<T...>,T...)->();
-	reject: (self: modified_object<T...>,T...)->();
-	
 	-- inherited calls, reflected to return modified_object
 	andThen: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
 	andThenCall: (self: modified_object<T...>, callback: any_func, ...any)->object<T...>;
@@ -116,6 +98,27 @@ export type modified_object<T...> = {
 	now: (self: modified_object<T...>, rejection_value: any?) -> modified_object<T...>;
 	tap: (self: modified_object<T...>, tap_callback: any_func) -> modified_object<T...>;
 	timeout: (self: modified_object<T...>, seconds: number, rejection_value: any?) -> modified_object<T...>;
+	
+	and_then: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
+	and_then_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
+	and_then_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
+	await_status: (self: modified_object<T...>) -> (status, T...);
+	finally_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
+	finally_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
+	get_status: (self: modified_object<T...>) -> status;
+	
+	-- additions
+	-- same as and_then
+	upon: (self: modified_object<T...>, on_success: any_func, on_fail: any_func?)->modified_object<T...>;
+	upon_call: (self: modified_object<T...>, callback: any_func, ...any)->modified_object<T...>;
+	upon_return: (self: modified_object<T...>, ...any)->modified_object<T...>;
+	
+	-- availible functions
+	resolve: (self: modified_object<T...>,T...) -> ();
+	reject: (self: modified_object<T...>,T...) -> ();
+	
+	append_args: (self: modified_object<T...>, ...any)->modified_object<T...>;
+	
 }
 
 export type modified_module = {
@@ -209,6 +212,17 @@ function module.implant()
 	
 	for i, v in module.modified.module_states do
 		module[i] = module[v]
+	end
+	
+	function proto.append_args<T..., U...>(self: modified_object<T...>, ...: U...): modified_object<T...>
+		local u_args = { ... }
+		return self:upon(function(...)
+			local t_args = { ... }
+			
+			table.move(u_args, 1, #u_args, #t_args + 1, t_args)
+			
+			return unpack(t_args)
+		end)
 	end
 	
 	module.is_implanted = true
