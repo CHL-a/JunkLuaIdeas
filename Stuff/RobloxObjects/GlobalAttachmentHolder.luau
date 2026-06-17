@@ -1,6 +1,8 @@
 local module = {}
 
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
+
+Dash.promise:await()
 
 compose = Dash.compose
 
