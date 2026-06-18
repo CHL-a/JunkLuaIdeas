@@ -215,7 +215,7 @@ function module.implant()
 	end
 	
 	function proto.append_args<T..., U...>(self: modified_object<T...>, ...: U...): modified_object<T...>
-		local u_args = { ... }
+		local u_args = { disguise(...) }
 		return self:upon(function(...)
 			local t_args = { ... }
 			
