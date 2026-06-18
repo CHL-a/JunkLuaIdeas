@@ -4,10 +4,12 @@ export type className = string
 export type properties<A> = Map.dictionary<any>
 
 local TableUtils = require('./@CHL>TableUtils')
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 
 --// MAIN
 local module = {} 
+
+Dash.promise:await()
 
 isClient = game:GetService('RunService'):IsClient()
 disguise = require('./LuaUTypes').disguise
@@ -47,7 +49,7 @@ end
 function module.find_first_descendant<A>(parent: Instance, ...: string): A?
 	forEachArgs(function(a)
 		if not parent then return end;
-		parent = parent:FindFirstChild(a)
+		parent = disguise(parent):FindFirstChild(a)
 	end, ...)
 
 	return disguise(parent)
