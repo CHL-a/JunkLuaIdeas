@@ -9,11 +9,12 @@ local module = {}
 --############################################################################################################################################
 --############################################################################################################################################
 
-local PromiseTypes = require('@game/ReplicatedStorage/Objects/@CHL>PromiseTypes')
-local Promise = PromiseTypes.modified.get()
-local Dash = require('@game/ReplicatedStorage/Objects/@CHL>DashSingular')
+local Promise = require('./@CHL>Promise')
+local Dash = require('./@roblox>Dash')
 
-type promise<T...> = PromiseTypes.modified_object<T...>
+type promise<T...> = Promise.modified_object<T...>
+
+Dash.promise:await()
 
 service = game:GetService('StarterGui')
 compose = Dash.compose
