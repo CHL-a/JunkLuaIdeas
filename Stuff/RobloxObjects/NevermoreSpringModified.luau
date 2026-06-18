@@ -1,148 +1,105 @@
--- a version of NevermoreSpring that is considered mutable
--- https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua#L98
+--[[
+	A version of spring where the math is derived from NevermoreEngine
+	
+	made because the nevermore engine preemptively uses update regardless of the actual time it's in
+
+	https://github.com/Quenty/NevermoreEngine/blob/main/src/spring/src/Shared/Spring.lua#L98
+]]
+export type object<T> = {
+	position: T;
+	velocity: T;
+	target: T;
+	damper: number;
+	speed: number;
+	enabled: boolean;
+	
+	impulse: (self: object<T>, velocity: T) -> ();
+	time_skip: (self: object<T>, dt: number) -> (T, T);
+	update: (self: object<T>, dt: number) -> ();
+}
 
 -- type
-local Object = require('./Object')
-local SpringInterface = require('./@CHL>SpringInterfaces')
-local NevermoreSpring = require('./NevermoreSpring')
 local Class = require('./Class')
-local RuntimeUpdater = require('./@CHL>RuntimeUpdater')
-
-export type clock_function = ()->number;
-
-export type object<A> = {
-	-- is in spring
-	SetTarget: (self: object<A>, A, boolean)->();
-} & Class.subclass<SpringInterface.nevermore<A>>
-  & Object.object_inheritance
-  & RuntimeUpdater.updatable
+local Object = require('./Object')
 
 -- main
 local module = {}
-local LuaUTypes = require('./LuaUTypes')
 
-module.from = {}
-disguise = LuaUTypes.disguise
+disguise = require('./LuaUTypes').disguise
 
-function module.new<A>(p: A, runtimer: clock_function?): object<A>
-	runtimer = runtimer or module.defaults.runtimer
+Class.make_proper_class(module, '@CHL>Spring')
+
+function module.new<T>(position_0: T): object<T>
 	
-	local old = NevermoreSpring.new(p, runtimer)
-	setmetatable(old, nil)
-	local self: object<A> = Object.from.rawStruct(old):__inherit(module)
-	self.canUpdate = true
-	self.shouldDisconnect = false
+	local self: object<T> = Object.simple.new(module)
+	
+	self.position = position_0
+	self.velocity = 0 * position_0
+	self.target = position_0
+	self.damper = 1
+	self.speed = 1
+	self.enabled = true
 	
 	return self
 end
 
-function module.from.values<A>(
-	position0: A,
-	position1: A?,
-	velocity: A?,
-	damper: number?,
-	speed: number?,
-	clock: clock_function?): object<A>
-	local self = module.new(position0, clock)
-	
-	if position1 then self.t = position1 end
-	if velocity then self.v = velocity end
-	if damper then self.d = damper end
-	if speed then self.s = speed end
-	return self
+function module.impulse<T>(self: object<T>, velocity: T)
+	self.velocity += velocity
 end
 
-function module.__index<A>(self: object<A>, i: string)
-	local _s = disguise(self)
-	local alias = module.property_aliases[i]
+--[[
+	the main state fetch function
+]]
+function module.time_skip<T>(self: object<T>, dt: number)
+	local p = self.position
+	local v = self.velocity
+	local t = self.target
+	local d = self.damper
+	local s = self.speed
+	local d2 = d * d
 	
-	if module[i] then return module[i]
-	elseif alias then return _s[alias]
-	elseif i == "Position" then
-		local position = _s:_positionVelocity(_s._clock())
-		return position
-	elseif i == "Velocity" then
-		local _, velocity = _s:_positionVelocity(_s._clock())
-		return velocity
-	elseif i == "Target" then return _s._target
-	elseif i == "Damper" then return _s._damper
-	elseif i == "Speed" then return _s._speed
-	elseif i == "Clock" then return _s._clock
-	else return _s.__super[i]end
-end
-
-function module.__newindex<A, B>(self: object<A>, i: string, v: B)
-	local _s = disguise(self)
-	local now = _s._clock()
+	dt *= s
 	
-	local p, ve = _s:_positionVelocity(now)
-	_s._position0 = p
-	_s._velocity0 = ve
-	_s._time0 = now
-	
-	local alias = module.property_aliases[i]
-	if alias then
-		_s[alias] = v
-	elseif i == "Position" then
-		_s._position0 = v
-	elseif i == "Velocity" then
-		_s._velocity0 = v
-	elseif i == "Target" then
-		_s._target = v
-	elseif i == "Damper" then
-		_s._damper = v
-	elseif i == "Speed" then
-		_s._speed = math.max(0, disguise(v))
-	elseif i == "Clock" then
-		_s._clock = v
-		_s._time0 = disguise(v)()
+	local h, si, co
+	if d2 < 1 then
+		h = math.sqrt(1 - d2)
+		local ep = math.exp(-d * dt) / h
+		co, si = ep * math.cos(h * dt), ep * math.sin(h * dt)
+	elseif d2 == 1 then
+		h = 1
+		local ep = math.exp(-d * dt) / h
+		co, si = ep, ep * dt
 	else
-		rawset(_s, i, v)
+		h = math.sqrt(d2 - 1)
+		local u = math.exp((-d + h) * dt) / (2 * h)
+		local v = math.exp((-d - h) * dt) / (2 * h)
+		co, si = u + v, u - v
 	end
+	
+	local a0: number = h * co + d * si
+	local a1: number = 1 - (h * co + d * si)
+	local a2: number = si / s
+	
+	local b0: number = -s * si
+	local b1: number = s * si
+	local b2: number = h * co - d * si
+	
+	return a0 * p + a1 * t + a2 * v,
+	       b0 * p + b1 * t + b2 * v
 end
 
-module.property_aliases = {
-	p = 'Position';
-	Value = 'Position';
-	v = 'Velocity';
-	t = 'Target';
-	d = 'Damper';
-	s = 'Speed';
+function module.update<T>(self: object<T>, dt: number)
+	if not self.enabled then return end
+	local p, v
 	
-}
-module.defaults = {}
-module.defaults.runtimer = function(): number return workspace.DistributedGameTime end
-module.Impulse = NevermoreSpring.Impulse
-module.TimeSkip = NevermoreSpring.TimeSkip
-module.update = module.TimeSkip
-module._positionVelocity = NevermoreSpring._positionVelocity
-module.SetTarget = NevermoreSpring.SetTarget
-module.className = '@CHL>Spring'
-
---##################################################################################################################################################
---##################################################################################################################################################
---##################################################################################################################################################
-
-export type modified_object<T> = {
-	Impulse: (self: modified_object<T>, velocity: T) -> ();
-	TimeSkip: (self: modified_object<T>, delta: number) -> ();
-	impulse: (self: modified_object<T>, velocity: T) -> ();
-	update: (self: modified_object<T>, delta: number) -> ();
-} & SpringInterface.nevermore<T>
-
-export type modified_module = {
-	new: <T>(position: T, clock: (()->number)?) -> modified_object<T>;
-}
-
-module.modified = {}
-
-function module.modified.get(): modified_module
-	local result = disguise(NevermoreSpring)
+	repeat
+		local p_0, v_0 = self.position, self.velocity
+		p, v = self:time_skip(dt)
+		local p_1, v_1 = self.position, self.velocity
+	until p_0 == p_1 and v_0 == v_1
 	
-	result.update = NevermoreSpring.TimeSkip
-	result.impulse = NevermoreSpring.Impulse
-	
-	return result
+	self.position = p
+	self.velocity = v
 end
 
 --##################################################################################################################################################
