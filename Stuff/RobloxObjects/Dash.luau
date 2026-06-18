@@ -211,111 +211,46 @@ export type module = {
 
 --// MAIN
 local module = {}
+local is_client = game:GetService('RunService'):IsClient()
 
 module.asset_id = 15239197565
 
 module.library_index_presence = {
-	all          = true;
-	append       = true;
-	assertEqual  = true;
-	assign       = true;
-	chain        = true;
-	class        = true;
-	collect      = true;
-	collectArray = true;
-	collectSet   = true;
-	compose      = true;
-	copy         = true;
-	count        = true;
-	cycles       = true;
-	endsWith     = true;
-	Error        = true;
-	filter       = true;
-	find         = true;
-	findIndex    = true;
-	flat         = true;
-	forEach      = true;
-	forEachArgs  = true;
-	format       = true;
-	formatValue  = true;
-	freeze       = true;
-	frequencies  = true;
-	getOrSet     = true;
-	groupBy      = true;
-	identity     = true;
-	includes     = true;
-	isCallable   = true;
-	isLowercase  = true;
-	isUppercase  = true;
-	iterable     = true;
-	iterator     = true;
-	join         = true;
-	joinDeep     = true;
-	keyBy        = true;
-	keys         = true;
-	last         = true;
-	leftPad      = true;
-	map          = true;
-	mapFirst     = true;
-	mapLast      = true;
-	mapOne       = true;
-	max          = true;
-	min          = true;
-	None         = true;
-	noop         = true;
-	omit         = true;
-	pick         = true;
-	pretty       = true;
-	product      = true;
-	reduce       = true;
-	reverse      = true;
-	rightPad     = true;
-	shallowEqual = true;
-	slice        = true;
-	some         = true;
-	splitOn      = true;
-	startsWith   = true;
-	sum          = true;
-	Symbol       = true;
-	trim         = true;
-	Types        = true;
-	values       = true;
-	zip          = true;
+	all         = true; append       = true; assertEqual = true; assign   = true; chain       = true; class      = true;
+	collect     = true; collectArray = true; collectSet  = true; compose  = true; copy        = true; count      = true;
+	cycles      = true; endsWith     = true; Error       = true; filter   = true; find        = true; findIndex  = true;
+	flat        = true; forEach      = true; forEachArgs = true; format   = true; formatValue = true; freeze     = true;
+	frequencies = true; getOrSet     = true; groupBy     = true; identity = true; includes    = true; isCallable = true;
+	isLowercase = true; isUppercase  = true; iterable    = true; iterator = true; join        = true; joinDeep   = true;
+	keyBy       = true; keys         = true; last        = true; leftPad  = true; map         = true; mapFirst   = true;
+	mapLast     = true; mapOne       = true; max         = true; min      = true; None        = true; noop       = true;
+	omit        = true; pick         = true; pretty      = true; product  = true; reduce      = true; reverse    = true;
+	rightPad    = true; shallowEqual = true; slice       = true; some     = true; splitOn     = true; startsWith = true;
+	sum         = true; Symbol       = true; trim        = true; Types    = true; values      = true; zip        = true;
 }
 
 module.library_index_add = {
-	assert_equal  = 'assertEqual';
-	collect_array = 'collectArray';
-	collect_set   = 'collectSet';
-	ends_with     = 'endsWith';
-	find_index    = 'findIndex';
-	for_each      = 'forEach';
-	for_each_args = 'forEachArgs';
-	get_or_set    = 'getOrSet';
-	group_by      = 'groupBy';
-	is_callable   = 'isCallable';
-	is_lowercase  = 'isLowercase';
-	is_uppercase  = 'isUppercase';
-	join_deep     = 'joinDeep';
-	key_by        = 'keyBy';
-	left_pad      = 'leftPad';
-	map_first     = 'mapFirst';
-	map_last      = 'mapLast';
-	map_one       = 'mapOne';
-	none          = 'None';
-	right_pad     = 'rightPad';
-	shallow_equal = 'shallowEqual';
-	split_on      = 'splitOn';
-	starts_with   = 'startsWith';
+	assert_equal  = 'assertEqual' ; collect_array = 'collectArray'; collect_set   = 'collectSet' ; ends_with    = 'endsWith'   ;
+	find_index    = 'findIndex'   ; for_each      = 'forEach'     ; for_each_args = 'forEachArgs'; get_or_set   = 'getOrSet'   ;
+	group_by      = 'groupBy'     ; is_callable   = 'isCallable'  ; is_lowercase  = 'isLowercase'; is_uppercase = 'isUppercase';
+	join_deep     = 'joinDeep'    ; key_by        = 'keyBy'       ; left_pad      = 'leftPad'    ; map_first    = 'mapFirst'   ;
+	map_last      = 'mapLast'     ; map_one       = 'mapOne'      ; none          = 'None'       ; right_pad    = 'rightPad'   ;
+	shallow_equal = 'shallowEqual'; split_on      = 'splitOn'     ; starts_with   = 'startsWith' ;
 }
 
-module.promise = AssetService.load_asset(module.asset_id)
-	:upon(LuaULibs.middle.get_module_script)
+if not is_client then
+	module.module_script = AssetService.load_asset(module.asset_id)
+		:upon(LuaULibs.middle.get_module_script)
+		:tap(LuaULibs.middle.move_to_repo)
+else
+	module.module_script = Promise.try(LuaULibs.middle.repo_await, 'Dash')
+end
+
+module.promise = module.module_script
 	:upon(require)
 	:append_args(module, module.library_index_presence)
 	:upon(LuaULibs.middle.imprint)
 	:append_args(module, module.library_index_add)
 	:upon(LuaULibs.middle.imprint)
-
 
 return module :: typeof(module) & module
