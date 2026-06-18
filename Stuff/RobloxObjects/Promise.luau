@@ -117,7 +117,7 @@ export type modified_object<T...> = {
 	resolve: (self: modified_object<T...>,T...) -> ();
 	reject: (self: modified_object<T...>,T...) -> ();
 	
-	append_args: (self: modified_object<T...>, ...any)->modified_object<T...>;
+	append_args: <U...>(self: modified_object<T...>, U...)->modified_object<T...>;
 	
 }
 
