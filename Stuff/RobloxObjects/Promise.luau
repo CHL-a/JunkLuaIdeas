@@ -216,13 +216,15 @@ function module.implant()
 	
 	function proto.append_args<T..., U...>(self: modified_object<T...>, ...: U...): modified_object<T...>
 		local u_args = { disguise(...) }
-		return self:upon(function(...)
+		local function func(...)
 			local t_args = { ... }
 			
 			table.move(u_args, 1, #u_args, #t_args + 1, t_args)
 			
 			return unpack(t_args)
-		end)
+		end
+		
+		return self:upon(func, func)
 	end
 	
 	module.is_implanted = true
