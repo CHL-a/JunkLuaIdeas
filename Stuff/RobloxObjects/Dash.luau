@@ -1,3 +1,7 @@
+--[[
+	https://roblox.github.io/jest-roblox-internal/
+]]
+
 local AssetService = require('./@CHL>AssetService')
 local Promise = require('./@CHL>Promise')
 local LuaULibs = require('./LuaULibs')
@@ -242,6 +246,7 @@ if not is_client then
 	module.module_script = AssetService.load_asset(module.asset_id)
 		:upon(LuaULibs.middle.get_module_script)
 		:tap(LuaULibs.middle.move_to_repo)
+		:timeout(20)
 else
 	module.module_script = Promise.try(LuaULibs.middle.repo_await, 'Dash')
 end
@@ -252,5 +257,6 @@ module.promise = module.module_script
 	:upon(LuaULibs.middle.imprint)
 	:append_args(module, module.library_index_add)
 	:upon(LuaULibs.middle.imprint)
+	:catch(warn)
 
 return module :: typeof(module) & module
