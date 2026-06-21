@@ -147,7 +147,7 @@ export type temporal<T> = {
 
 temporal = {}
 
-function temporal.new<T>(init_position: T, clock: (()->number)?)
+function temporal.new<T>(init_position: T, clock: (()->number)?): temporal<T>
 	local self: temporal<T> = Object.simple.new(temporal)
 	
 	self.timeless = timeless.new(init_position)
