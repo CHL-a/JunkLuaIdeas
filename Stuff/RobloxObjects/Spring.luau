@@ -38,7 +38,7 @@ function timeless.new<T>(position_0: T): timeless<T>
 	local self: timeless<T> = Object.simple.new(timeless)
 	
 	self.position = position_0
-	self.velocity = 0 * position_0
+	self.velocity = disguise(0 * disguise(position_0))
 	self.target = position_0
 	self.damper = 1
 	self.speed = 1
@@ -47,7 +47,7 @@ function timeless.new<T>(position_0: T): timeless<T>
 	return self
 end
 
-function timeless.impulse<T>(self: timeless<T>, velocity: T) self.velocity += velocity end
+function timeless.impulse<T>(self: timeless<T>, velocity: T) disguise(self).velocity += velocity end
 
 --[[
 	the main state fetch function
@@ -78,13 +78,13 @@ function module.time_skip<T>(
 		co, si = u + v, u - v
 	end
 	
-	local a0: number = h * co + d * si
-	local a1: number = 1 - a0
-	local a2: number = si / s
+	local a0 = h * co + d * si
+	local a1 = 1 - a0
+	local a2 = si / s
 	
-	local b0: number = -s * si
-	local b1: number = -b0
-	local b2: number = h * co - d * si
+	local b0 = -s * si
+	local b1 = -b0
+	local b2 = h * co - d * si
 	
 	return a0 * p_0 + a1 * p_1 + a2 * v,
 	       b0 * p_0 + b1 * p_1 + b2 * v
@@ -179,7 +179,7 @@ function temporal.set_position<T>(self: temporal<T>, position: T)
 end
 
 function temporal.set_velocity<T>(self: temporal<T>, velocity: T)
-	local position = self:time_skip_now()
+	local position = disguise(self):time_skip_now()
 	self.timeless.position = position
 	self.timeless.velocity = velocity
 	self.timestamp = self.clock()
