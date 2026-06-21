@@ -142,6 +142,7 @@ export type temporal<T> = {
 	time_skip: (self: temporal<T>, dt: number) -> (T, T);
 	time_skip_now: (self: temporal<T>) -> (T, T);
 	update: (self: temporal<T>, dt: number) -> ();
+	impulse: (self: temporal<T>, velocity: T) -> ();
 }
 
 temporal = {}
@@ -161,6 +162,7 @@ function temporal.time_skip<T>(self: temporal<T>, dt: number) return self.timele
 function temporal.time_skip_now<T>(self: temporal<T>) return self:time_skip(self:get_dt()) end
 function temporal.clock() return workspace.DistributedGameTime end
 function temporal_get_factory(index: string)return function<T>(self: temporal<T>) return self.timeless[index] end end
+function temporal.impulse<T>(self: temporal<T>, velocity: T)self:set_velocity(disguise(self):get_velocity() + velocity)end
 
 function temporal.update<T>(self: temporal<T>, dt: number)
 	local timeless = self.timeless
