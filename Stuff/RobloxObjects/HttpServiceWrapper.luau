@@ -2,10 +2,12 @@ local Map = require('@game/ReplicatedStorage/Objects/@CHL>Map')
 local Object = require('@game/ReplicatedStorage/Objects/Object')
 local Class = require('@game/ReplicatedStorage/Objects/Class')
 local Set = require('@game/ReplicatedStorage/Objects/@CHL>Set')
+local Promise = require('@game/ReplicatedStorage/Objects/@CHL>Promise')
 
 type dict<A> = Map.dictionary<A>
 type map<I,V> = Map.simple<I,V>
 type set<A> = Set.simple<A>
+type promise<T...> = Promise.object<T...>
 
 export type request_method = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'OPTION' | 'TRACE' | 'PATCH'
 
@@ -116,5 +118,16 @@ Instead.invoke = Class.abstractMethod
 Class.makeProperClass(Instead, '@CHL>HttpServiceWrapper>WebInstead')
 
 module.instead = Instead
+
+--########################################################################################
+--########################################################################################
+--########################################################################################
+
+export type promised_response = promise<response>
+
+module.promise = {}
+module.promise.request = Promise.promisify(module.request) :: (request)->promised_response
+module.promise.get = Promise.promisify(module.get) :: (url: string, headers: dict<any>?, body: string?, compress: Enum.HttpCompression?) -> promised_response
+module.promise.post = Promise.promisify(module.post) :: (url: string, headers: dict<any>?, body: string?, compress: Enum.HttpCompression?) -> promised_response
 
 return module
