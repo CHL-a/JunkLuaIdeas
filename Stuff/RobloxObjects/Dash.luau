@@ -1,7 +1,3 @@
---[[
-	https://roblox.github.io/jest-roblox-internal/
-]]
-
 local AssetService = require('./@CHL>AssetService')
 local Promise = require('./@CHL>Promise')
 local LuaULibs = require('./LuaULibs')
@@ -242,13 +238,27 @@ module.library_index_add = {
 	shallow_equal = 'shallowEqual'; split_on      = 'splitOn'     ; starts_with   = 'startsWith' ;
 }
 
-if not is_client then
+local present_module_script_check = script.Parent:FindFirstChild('Dash')
+
+if present_module_script_check then
+	module.module_script = Promise.resolve(present_module_script_check)
+elseif not is_client then
 	module.module_script = AssetService.load_asset(module.asset_id)
 		:upon(LuaULibs.middle.get_module_script)
 		:tap(LuaULibs.middle.move_to_repo)
-		:timeout(20)
 else
 	module.module_script = Promise.try(LuaULibs.middle.repo_await, 'Dash')
+		:tap(function(module_script)
+			local promises = {}
+			
+			for i in module.library_index_presence do
+				table.insert(promises, Promise.try(LuaULibs.middle.await_child, module_script, i))
+			end
+			
+			local single_ton = Promise.all(promises)
+			
+			single_ton:await()
+		end)
 end
 
 module.promise = module.module_script
@@ -257,6 +267,5 @@ module.promise = module.module_script
 	:upon(LuaULibs.middle.imprint)
 	:append_args(module, module.library_index_add)
 	:upon(LuaULibs.middle.imprint)
-	:catch(warn)
 
 return module :: typeof(module) & module
