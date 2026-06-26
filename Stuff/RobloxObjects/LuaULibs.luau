@@ -18,11 +18,15 @@ is_client = game:GetService('RunService'):IsClient()
 module.middle = {}
 
 function module.middle.get_module_script(model: Model): ModuleScript
-	return model:FindFirstChildWhichIsA('ModuleScript')
+	return disguise(model:FindFirstChildWhichIsA('ModuleScript'))
 end
 
 function module.middle.move_to_repo(instance: Instance)
 	instance.Parent = script.Parent
+end
+
+function module.middle.await_child(instance: Instance, name: string): Instance
+	return instance:WaitForChild(name, 10)
 end
 
 function module.middle.repo_await(...: string)
@@ -50,7 +54,7 @@ function module.middle.imprint<T>(from: T, to: any, specific_indices: any?): T
 	for i, v in iterable do
 		local j = typeof(v) == 'string' and v or i
 		
-		to[i] = from[j]
+		to[i] = disguise(from)[j]
 	end
 	
 	return from
