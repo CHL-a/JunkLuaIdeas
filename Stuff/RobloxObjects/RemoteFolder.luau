@@ -29,10 +29,9 @@ end
 
 local Class = require('./Class')
 local Map = require('./@CHL>Map')
-local PromiseTypes = require('./@CHL>PromiseTypes')
-local Promise = PromiseTypes.modified.get()
+local Promise = require('./@CHL>Promise')
 
-type promise<T...> = PromiseTypes.modified_object<T...>
+type promise<T...> = Promise.modified_object<T...>
 type map<I,V> = Map.simple<I,V>
 
 export type observer<RemoteMap> = {
