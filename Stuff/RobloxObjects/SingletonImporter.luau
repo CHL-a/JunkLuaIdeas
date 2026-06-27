@@ -132,7 +132,7 @@ function module.import(arg: import_arg)
 	end
 end
 
-function ()
+function si_exp()
 	if IN_SCRIPT then return warn('attempting to use cmd bar script in script') end
 	
 	local folder = Instance.new('Folder')
