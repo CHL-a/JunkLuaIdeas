@@ -122,8 +122,10 @@ function module.import(arg: import_arg)
 		
 		if parent:IsA('StarterCharacterScripts') and not should_respawn and character then
 			instance:Clone().Parent = character
-		elseif parent:IsA('StarterPlayerScripts') then
+		elseif parent:IsA('StarterPlayerScripts') and player then
 			module.get_player_scripts_transfer(instance).Parent = player.PlayerGui
+		elseif parent:IsA('StarterPack') and player then
+			instance:Clone().Parent = player.Backpack
 		end
 	end
 	
