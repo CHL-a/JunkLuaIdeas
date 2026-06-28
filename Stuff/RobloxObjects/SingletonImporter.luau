@@ -21,6 +21,7 @@ module.flags = {}
 module.flags.attempt_distribute    = 0b_0000_0000_0000_0001
 module.flags.invoke_require        = 0b_0000_0000_0000_0010
 module.flags.reject_export_destroy = 0b_0000_0000_0000_0100
+module.flags.move_only_on_absense  = 0b_0000_0000_0000_1000
 
 function module.eval_breadcrumb(bc: string)
 	local split = bc:split('.')
@@ -117,6 +118,10 @@ function module.import(arg: import_arg)
 		end
 		
 		if not did_distribute then
+			if btest(module.flags.move_only_on_absense, flags) and parent:FindFirstChild(instance.Name) then
+				continue
+			end
+			
 			instance.Parent = parent
 		end
 		
