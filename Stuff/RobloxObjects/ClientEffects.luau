@@ -56,7 +56,10 @@ function particle_emitter.set_attachment(self: particle_emitter, attachment: Att
 	self.particle_emitter.Parent = attachment
 end
 
-function particle_emitter.destroy(self: particle_emitter) self.particle_emitter:Destroy() self.particle_emitter = nil end
+function particle_emitter.destroy(self: particle_emitter)
+	if not self.particle_emitter then return end;
+	self.particle_emitter:Destroy() self.particle_emitter = nil 
+end
 
 Class.make_proper_class(particle_emitter, 'ClientEffects>ParticleEmitter')
 
@@ -96,7 +99,12 @@ function sound_emitter.set_attachment(self: sound_emitter, attachment: Attachmen
 	self.sound.Parent = attachment
 end
 
-function sound_emitter.destroy(self: sound_emitter) self.sound:Destroy() self.sound = nil end
+function sound_emitter.destroy(self: sound_emitter) 
+	if not self.sound then return end
+	
+	self.sound:Destroy()
+	self.sound = nil 
+end
 
 function sound_emitter.from.id(id: number, attachment: Attachment): sound_emitter
 	local sound = Instance.new('Sound')
@@ -172,7 +180,6 @@ function sound_list_emitter_array.destroy(self: sound_list_emitter_array)
 	self.sounds = nil
 end
 
-
 function sound_list_emitter_array.set_attachment(self: sound_list_emitter_array, attachment: Attachment)
 	self.attachment = attachment
 
@@ -207,6 +214,76 @@ end
 Class.make_proper_class(sound_list_emitter_array, 'ClientEffects>SoundListEmitter>Array')
 
 module.sound_list_emitter_array = sound_list_emitter_array
+
+--####################################################################################################################################################
+--####################################################################################################################################################
+--####################################################################################################################################################
+
+export type sound_list_emitter_random = {
+	sounds: {Sound};
+	i: number;
+	random: Random;
+	
+	get_playing_sound: (self: sound_list_emitter_random) -> Sound?;
+} & sound_list_emitter
+
+sound_list_emitter_random = {}
+sound_list_emitter_random.from = {}
+
+function sound_list_emitter_random.new(sounds: {Sound}, attachment: Attachment?, random: Random?): sound_list_emitter_random
+	local self: sound_list_emitter_random = Object.simple.new(sound_list_emitter_random)
+	
+	self.sounds = sounds or {}
+	self.random = random or Random.new()
+	self:set_attachment(attachment)
+	
+	return self
+end
+
+function sound_list_emitter_random.from.ids(ids: {number}, attachment: Attachment?, random: Random?): sound_list_emitter_random
+	for i, v in ids do
+		local sound = Instance.new('Sound')
+		sound.SoundId = 'rbxassetid://'..tostring(v)
+		ids[i] = sound
+	end
+	
+	return sound_list_emitter_random.new(ids, attachment, random)
+end
+
+function sound_list_emitter_random.set_attachment(self: sound_list_emitter_random, attachment: Attachment): Sound
+	self.attachment = attachment
+	
+	for _, v in self.sounds do
+		v.Parent = attachment
+	end
+end
+
+function sound_list_emitter_random.destroy(self: sound_list_emitter_random)
+	for _, v in self.sounds do
+		v:Destroy()
+	end
+	
+	self.sounds = nil
+end
+
+function sound_list_emitter_random.play(self: sound_list_emitter_random)
+	local size = #self.sounds
+	local i = self.random:NextInteger(1, size)
+	
+	self.i = i
+	
+	local sound = self.sounds[i]
+	
+	sound:Play()
+end
+
+function sound_list_emitter_random.get_playing_sound(self: sound_list_emitter_random)
+	return self.i and self.sounds[self.i]
+end
+
+Class.make_proper_class(sound_list_emitter_random, 'ClientEffects>SoundListEmitter>Random')
+
+module.sound_list_emitter_random = sound_list_emitter_random
 
 --####################################################################################################################################################
 --####################################################################################################################################################
