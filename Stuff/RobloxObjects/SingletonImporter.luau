@@ -98,6 +98,10 @@ function module.import(arg: import_arg)
 			continue
 		end
 		
+		if not instance:GetAttribute('si_breadcrumb') then
+			print(instance, instance:GetFullName())
+		end
+		
 		local parent: Instance = module.eval_breadcrumb(assert(instance:GetAttribute('si_breadcrumb')))
 		
 		local did_distribute = false
@@ -125,9 +129,10 @@ function module.import(arg: import_arg)
 			instance.Parent = parent
 		end
 		
+		
 		if parent:IsA('StarterCharacterScripts') and not should_respawn and character then
 			instance:Clone().Parent = character
-		elseif parent:IsA('StarterPlayerScripts') and player then
+		elseif parent.ClassName == 'StarterPlayerScripts' and player then
 			module.get_player_scripts_transfer(instance).Parent = player.PlayerGui
 		elseif parent:IsA('StarterPack') and player then
 			instance:Clone().Parent = player.Backpack
