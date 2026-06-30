@@ -20,7 +20,7 @@ function module.award_badge(user: User, badge_id: number): promise<boolean>
 		:catch(function()return false end)
 end
 
-function module.check_user_badges_async(user: User, badge_ids: {number}): promise<{number}>
+function module.check_user_badges(user: User, badge_ids: {number}): promise<{number}>
 	return Promise.try(module.service.CheckUserBadgesAsync, module.service, user, badge_ids)
 		:catch(function()return {} end)
 end
@@ -33,13 +33,13 @@ export type badge_info = {
 	success: boolean;
 }
 
-function module.get_badge_info_async(badge_id: number): promise<badge_info>
+function module.get_badge_info(badge_id: number): promise<badge_info>
 	return Promise.try(module.service.GetBadgeInfoAsync, module.service, badge_id)
 		:catch(function()return {} end)
 		:tap(function(struct: badge_info) struct.success = not not struct.Name end)
 end
 
-function module.user_has_badge_async(user: User, badge_id: number): promise<boolean>
+function module.user_has_badge(user: User, badge_id: number): promise<boolean>
 	return Promise.try(module.service.UserHasBadgeAsync, module.service, user, badge_id)
 		:catch(function()return false end)
 end
