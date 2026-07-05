@@ -21,7 +21,6 @@ module.flags = {}
 module.flags.attempt_distribute    = 0b_0000_0000_0000_0001
 module.flags.invoke_require        = 0b_0000_0000_0000_0010
 module.flags.reject_export_destroy = 0b_0000_0000_0000_0100
-module.flags.move_only_on_absense  = 0b_0000_0000_0000_1000
 
 function module.eval_breadcrumb(bc: string)
 	local split = bc:split('.')
@@ -75,6 +74,8 @@ export type import_arg = {
 function module.import(arg: import_arg)
 	if not IN_SCRIPT then return end
 	
+	arg = arg or {}
+	
 	local should_respawn = arg.respawn_player
 	
 	local instances = script.Parent:FindFirstChildWhichIsA('Folder'):GetChildren()
@@ -98,10 +99,6 @@ function module.import(arg: import_arg)
 			continue
 		end
 		
-		if not instance:GetAttribute('si_breadcrumb') then
-			print(instance, instance:GetFullName())
-		end
-		
 		local parent: Instance = module.eval_breadcrumb(assert(instance:GetAttribute('si_breadcrumb')))
 		
 		local did_distribute = false
@@ -122,13 +119,8 @@ function module.import(arg: import_arg)
 		end
 		
 		if not did_distribute then
-			if btest(module.flags.move_only_on_absense, flags) and parent:FindFirstChild(instance.Name) then
-				continue
-			end
-			
 			instance.Parent = parent
 		end
-		
 		
 		if parent:IsA('StarterCharacterScripts') and not should_respawn and character then
 			instance:Clone().Parent = character
