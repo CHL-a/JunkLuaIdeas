@@ -13,6 +13,7 @@ disguise = require('./LuaUTypes').disguise
 
 local Iterator = require('./@CHL>Iterator')
 local Class = require('./Class')
+local Object = require('./Object')
 
 --[[
 	Note: Uses iterator as a foundation, override canProceed and Proceed only
@@ -20,12 +21,12 @@ local Class = require('./Class')
 export type page_base<A> = {
 	current_value: A
 } & pages<A>
-  & Class.subclass<Iterator.object<A, ()>>
+  & Iterator.simple<A, ()>
 
 PagesBase = {}
 
 function PagesBase.new<A>(): page_base<A>
-	local self: page_base<A> = Iterator.new():__inherit(PagesBase)
+	local self: page_base<A> = Object.simple.new(PagesBase)
 
 	return self
 end
@@ -35,10 +36,10 @@ function PagesBase.GetCurrentPage<A>(self: page_base<A>)
 end
 
 function PagesBase.AdvanceToNextPageAsync<A>(self: page_base<A>)
-	if self.IsFinished then return;end
-
+	if disguise(self).IsFinished then return end
+	
 	self.current_value = self:proceed()
-	self.IsFinished = not self:canProceed()
+	self.IsFinished = not self:can_proceed()
 end
 
 function PagesBase.__index<A>(self: page_base<A>, i: string)
@@ -54,7 +55,7 @@ function PagesBase.__index<A>(self: page_base<A>, i: string)
 	return PagesBase[i] or self.__super[i]
 end
 
-Class.makeProperClass(PagesBase, '@CHL>Pages>Base')
+Class.make_proper_class(PagesBase, '@CHL>Pages>Base')
 
 module.base = PagesBase
 
