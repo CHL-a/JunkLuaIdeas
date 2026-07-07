@@ -36,10 +36,8 @@ end
 --#####################################################################################
 --#####################################################################################
 
-local Objects = game:GetService("ReplicatedStorage"):WaitForChild("Objects")
-
-local BufferWrapper = require(Objects["@CHL>BufferWrapper"])
-local BinaryStream = require(Objects["@CHL>BinaryStream"])
+local BufferWrapper = require('@game/ReplicatedStorage/Objects/@CHL>BufferWrapper')
+local BinaryStream = require('@game/ReplicatedStorage/Objects/@CHL>BinaryStream')
 
 type buffer_w = BufferWrapper.object
 
@@ -136,13 +134,13 @@ end
 --#####################################################################################
 --#####################################################################################
 
-local Map = require(Objects["@CHL>Map"])
-local Object = require(Objects.Object)
-local Class = require(Objects.Class)
-local Dash = require(Objects["@CHL>DashSingular"])
+local Map = require('@game/ReplicatedStorage/Objects/@CHL>Map')
+local Object = require('@game/ReplicatedStorage/Objects/Object')
+local Class = require('@game/ReplicatedStorage/Objects/Class')
+local Dash = require('@game/ReplicatedStorage/Objects/@roblox>Dash')
 local http = require('./@CHL>HttpServiceWrapper') -- subject to revision because plugin has a different environment
-local MultipartFormData = require(Objects['@CHL>MutlipartFormData'])
-local DiscordObjects = require(Objects["@CHL>DiscordObjects"])
+local MultipartFormData = require('@game/ReplicatedStorage/Objects/@CHL>MultipartFormData')
+local DiscordObjects = require('@game/ReplicatedStorage/Objects/@CHL>DiscordObjects')
 
 type map<I, V> = Map.simple<I, V>
 type dict<T> = Map.dictionary<T>
@@ -177,14 +175,16 @@ export type object = {
 	attachments: {attachment};
 	
 	add_attachment: (self: object, content: string, mime_type: string?, file_name: string?)->attachment;
-	post: (object: object) -> ();
+	post: (object: object) -> http.promised_response;
 }
+
+Dash.promise:await()
 
 compose = Dash.compose
 module.object = {}
 module.object.from = {}
 quick_to_url = compose(module.struct.from.buffer, module.struct.to.string) :: (webhook: buffer) -> string
-disguise = require(Objects.LuaUTypes).disguise
+disguise = require('@game/ReplicatedStorage/Objects/LuaUTypes').disguise
 
 function module.object.new(webhook: buffer): object
 	local self: object = Object.simple.new(module.object)
@@ -211,7 +211,7 @@ function module.object.add_attachment(self: object, content: string, mime_type: 
 	return attachment
 end
 
-function module.object.post(self: object): http.response
+function module.object.post(self: object): http.promised_response
 	local webhook = self.webhook
 	local json_payload = http.service:JSONEncode(self.payload)
 	
@@ -240,7 +240,7 @@ function module.object.post(self: object): http.response
 	local body =  mutlipart:to_string()
 	local boundary = mutlipart.boundary
 	
-	return http.post(
+	return http.promise.post(
 		quick_to_url(webhook),
 		{['Content-Type'] = mutlipart:get_header_value()},
 		body
