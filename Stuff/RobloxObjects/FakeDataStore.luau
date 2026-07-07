@@ -10,10 +10,9 @@ local module = {}
 --######################################################################################
 --######################################################################################
 
-local Objects = game:GetService('ReplicatedStorage').Objects
-local Object = require(Objects.Object)
-local Map = require(Objects["@CHL>Map"])
-local Class = require(Objects.Class)
+local Object = require('@game/ReplicatedStorage/Objects/Object')
+local Map = require('@game/ReplicatedStorage/Objects/@CHL>Map')
+local Class = require('@game/ReplicatedStorage/Objects/Class')
 
 type map<I,V> = Map.simple<I,V>
 
@@ -68,12 +67,12 @@ module.normal = Normal
 --######################################################################################
 --######################################################################################
 
-local Pages = require(Objects["@CHL>Pages"])
+local Pages = require('@game/ReplicatedStorage/Objects/@CHL>Pages')
 
 export type page<A> = {
 	list: {A};
 	i: number
-} & Class.subclass<Pages.page_base<A>>
+} & Class.subclass<Pages.mock_pages<A>>
 
 DataPage = {}
 
