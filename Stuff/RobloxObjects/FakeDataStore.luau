@@ -39,10 +39,10 @@ function Global.new(): global
 end
 
 function Global.GetAsync(self: global, k: string)return self.data[k]end
-function Global.SetAsync(self: global, k: string, v)self.data[k]=k end
+function Global.SetAsync(self: global, k: string, v)self.data[k]=v end
 function Global.UpdateAsync(self:global,k:string,f)self.data[k]=f(self.data[k])end
 
-Class.makeProperClass(Global, '@CHL>FakeDataStore>Global')
+Class.make_proper_class(Global, '@CHL>FakeDataStore>Global')
 
 module.global = Global
 
@@ -57,10 +57,10 @@ export type normal = {
 Normal = {}
 
 function Normal.new(): normal
-	return Global.new():__inherit(Normal)
+	return Global.new() -- :__inherit(Normal)
 end
 
-Class.makeProperClass(Normal, '@CHL>FakeDataStore>Normal')
+Class.make_proper_class(Normal, '@CHL>FakeDataStore>Normal')
 module.normal = Normal
 
 --######################################################################################
@@ -94,7 +94,7 @@ function DataPage.proceed<A>(self: page<A>)
 	return result
 end
 
-Class.makeProperClass(DataPage, '@CHL>FakeDataStore>Page')
+Class.make_proper_class(DataPage, '@CHL>FakeDataStore>Page')
 
 module.page = DataPage
 
@@ -123,7 +123,7 @@ function Ordered.GetSortedAsync(self: ordered)
 	return Ordered.latest
 end
 
-Class.makeProperClass(Ordered, '@CHL>FakeDataStore>Ordered')
+Class.make_proper_class(Ordered, '@CHL>FakeDataStore>Ordered')
 module.ordered = Ordered
 
 --######################################################################################
@@ -159,7 +159,7 @@ function Service.GetOrderedDataStore(self:service, s)
 	return self.data_stores[s]
 end
 
-Class.makeProperClass(Service, '@CHL>FakeDataStore>Service')
+Class.make_proper_class(Service, '@CHL>FakeDataStore>Service')
 
 module.singleton = Service.new() :: service
 module.service = Service
