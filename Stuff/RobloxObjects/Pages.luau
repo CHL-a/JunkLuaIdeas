@@ -1,5 +1,7 @@
-export type pages<A> = {
-	GetCurrentPage: (self: pages<A>)->A;
+export type pages<T> = {
+	IsFinished: boolean;
+	AdvanceToNextPageAsync: (self: pages<T>) -> ();
+	GetCurrentPage: (self: pages<T>)->{T};
 } & Pages
 
 local module = {}
@@ -11,53 +13,92 @@ disguise = require('./LuaUTypes').disguise
 --######################################################################################
 --######################################################################################
 
-local Iterator = require('./@CHL>Iterator')
 local Class = require('./Class')
 local Object = require('./Object')
+local Iterator = require('./@CHL>Iterator')
 
---[[
-	Note: Uses iterator as a foundation, override canProceed and Proceed only
---]]
-export type page_base<A> = {
-	current_value: A
-} & pages<A>
-  & Iterator.simple<A, ()>
+type iterator_simple<T> = Iterator.simple<T, ()>
 
-PagesBase = {}
+export type pages_iterator<T> = {
+	pages: pages<T>;
+} & iterator_simple<T>
 
-function PagesBase.new<A>(): page_base<A>
-	local self: page_base<A> = Object.simple.new(PagesBase)
+pages_iterator = {}
 
+function pages_iterator.new<T>(pages: pages<T>): pages_iterator<T>
+	local self: pages_iterator<T> = Object.simple.new(pages_iterator)
+	
+	self.pages = pages
+	
 	return self
 end
 
-function PagesBase.GetCurrentPage<A>(self: page_base<A>)
-	return self.current_value
+function pages_iterator.can_proceed<T>(self: pages_iterator<T>) : boolean return not self.pages.IsFinished end
+function pages_iterator.proceed<T>(self: pages_iterator<T>): {T}
+	local pages: pages<T> = self.pages
+	
+	if pages.IsFinished then return end
+	
+	local result = pages:GetCurrentPage()
+	
+	pages:AdvanceToNextPageAsync()
+	
+	return result
 end
 
-function PagesBase.AdvanceToNextPageAsync<A>(self: page_base<A>)
+Class.make_proper_class(pages_iterator, '@CHL>Pages>Iterator')
+
+module.pages_iterator = pages_iterator
+
+--######################################################################################
+--######################################################################################
+--######################################################################################
+
+--[[
+	Note: mock pages are for faking data
+--]]
+export type mock_pages<T> = {
+	iterator: iterator_simple<{T}>;
+	current_value: {T};
+} & pages<T>
+  & iterator_simple<T>
+
+local Dash = require('@game/ReplicatedStorage/Objects/@roblox>Dash')
+
+Dash.promise:await()
+
+compose = Dash.compose
+
+mock_pages = {}
+mock_pages.from = {}
+
+function mock_pages.new<T>(iterator: iterator_simple<T>): mock_pages<T>
+	local self: mock_pages<T> = Object.simple.new(mock_pages)
+	
+	self.iterator = iterator
+	self.IsFinished = not iterator:can_proceed()
+	
+	if not self.IsFinished then
+		self.current_value = iterator:proceed()
+	end
+	
+	return self
+end
+
+mock_pages.from.pages = compose(pages_iterator.new, mock_pages.new) :: <T>(pages: pages<T>) -> mock_pages<T>
+
+function mock_pages.GetCurrentPage<A>(self: mock_pages<A>) return self.current_value end
+
+function mock_pages.AdvanceToNextPageAsync<A>(self: mock_pages<A>)
 	if disguise(self).IsFinished then return end
 	
-	self.current_value = self:proceed()
-	self.IsFinished = not self:can_proceed()
+	self.current_value = self.iterator:proceed()
+	self.IsFinished = not self.iterator:can_proceed()
 end
 
-function PagesBase.__index<A>(self: page_base<A>, i: string)
-	if i == 'IsFinished' then
-		self.IsFinished = not self:canProceed()
-		return self.IsFinished
-	elseif i == 'current_value' then
-		if not rawget(self, i) and not self.IsFinished then
-			self.current_value = self:proceed()
-		end
-	end
+Class.make_proper_class(mock_pages, '@CHL>Pages>Base')
 
-	return PagesBase[i] or self.__super[i]
-end
-
-Class.make_proper_class(PagesBase, '@CHL>Pages>Base')
-
-module.base = PagesBase
+module.mock_pages = mock_pages
 
 --######################################################################################
 --######################################################################################
