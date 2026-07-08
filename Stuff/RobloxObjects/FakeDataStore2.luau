@@ -108,7 +108,7 @@ function module.init()
 	end)
 end
 
-module.import_data_from_json = compose(Encoders.encoding.json.decode, module.import_data_from_spec) :: (string) -> () 
+module.import_data_from_json = compose(Encoders.encoding.json.decode, module.import_data) :: (string) -> () 
 
 module.singleton = FakeDataStore.singleton
 module.bulk_data = Promise.new(empty)
