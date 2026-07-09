@@ -102,7 +102,7 @@ function module.core.set.default_invoke<T>(set_core_type: set_core_type, arg: T)
 
 function invokable_set_core<T...>(parameter: set_core_type)
 	return compose(
-		function()return parameter end,
+		function(...)return parameter, ... end,
 		module.core.set.default_invoke
 	)
 end
