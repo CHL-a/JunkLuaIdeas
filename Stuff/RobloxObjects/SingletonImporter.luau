@@ -39,9 +39,9 @@ function module.eval_breadcrumb(bc: string)
 	return current
 end
 
-module.local_script_source = "local gui=script.Parent;local player_scripts=game:GetService'Players'.LocalPlayer:WaitForChild'PlayerScripts'\z
-for _,v in gui:GetChildren()do v.Parent=player_scripts;end;for _,v in game:GetService'CollectionService':GetTagged'si_enabled' do if v:IsA'\z
-LocalScript'and v:IsDescendantOf(player_scripts)then v.Enabled=true;end;end"
+module.local_script_source = "local gui=script.Parent;if not gui:IsA('PlayerScripts')then return end local player_scripts=game:GetService'P\z
+layers'.LocalPlayer:WaitForChild'PlayerScripts'for _,v in gui:GetChildren()do v.Parent=player_scripts;end;for _,v in game:GetService'Collec\z
+tionService':GetTagged'si_enabled' do if v:IsA'LocalScript'and v:IsDescendantOf(player_scripts)then v.Enabled=true;end;end"
 module.transfer_message = `Missing player scripts transfer: Run following command, then parent screengui under SingletonImporter: \nlocal g\z
 ui=Instance.new('ScreenGui', workspace)gui.Name='player_scripts_transfer_holder'gui.ResetOnSpawn=false;local local_script=Instance.new('Loc\z
 alScript',gui)local_script.Source=[[{module.local_script_source}]]game:GetService'Selection':Set\{gui}\z`
