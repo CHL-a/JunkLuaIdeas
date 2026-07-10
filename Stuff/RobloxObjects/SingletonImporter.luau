@@ -39,9 +39,9 @@ function module.eval_breadcrumb(bc: string)
 	return current
 end
 
-module.local_script_source = "local gui=script.Parent;if not gui:IsA('PlayerScripts')then return end local player_scripts=game:GetService'P\z
-layers'.LocalPlayer:WaitForChild'PlayerScripts'for _,v in gui:GetChildren()do v.Parent=player_scripts;end;for _,v in game:GetService'Collec\z
-tionService':GetTagged'si_enabled' do if v:IsA'LocalScript'and v:IsDescendantOf(player_scripts)then v.Enabled=true;end;end"
+module.local_script_source = "local gui=script.Parent;if gui:IsA('PlayerScripts')then return end local player_scripts=game:GetService'Playe\z
+rs'.LocalPlayer:WaitForChild'PlayerScripts'for _,v in gui:GetChildren()do v.Parent=player_scripts;end;for _,v in game:GetService'Collection\z
+Service':GetTagged'si_enabled' do if v:IsA'LocalScript'and v:IsDescendantOf(player_scripts)then v.Enabled=true;end;end"
 module.transfer_message = `Missing player scripts transfer: Run following command, then parent screengui under SingletonImporter: \nlocal g\z
 ui=Instance.new('ScreenGui', workspace)gui.Name='player_scripts_transfer_holder'gui.ResetOnSpawn=false;local local_script=Instance.new('Loc\z
 alScript',gui)local_script.Source=[[{module.local_script_source}]]game:GetService'Selection':Set\{gui}\z`
@@ -124,10 +124,8 @@ function module.import(arg: import_arg)
 		
 		if parent:IsA('StarterCharacterScripts') and not should_respawn and character then
 			instance:Clone().Parent = character
-		elseif parent.ClassName == 'StarterPlayerScripts' and player then
+		elseif parent:IsA('StarterPlayerScripts') then
 			module.get_player_scripts_transfer(instance).Parent = player.PlayerGui
-		elseif parent:IsA('StarterPack') and player then
-			instance:Clone().Parent = player.Backpack
 		end
 	end
 	
