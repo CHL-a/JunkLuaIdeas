@@ -47,6 +47,8 @@ function module.place_cframe(world_cframe: CFrame): Attachment
 	
 	module.place(result)
 	
+	result.WorldCFrame = world_cframe
+	
 	return result
 end
 
