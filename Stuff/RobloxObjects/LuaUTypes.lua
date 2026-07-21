@@ -62,7 +62,6 @@ export type __legacyObject<metamethods> = typeof(
 --#######################################################################################
 
 
-
 --#######################################################################################
 --#######################################################################################
 --#######################################################################################
@@ -70,6 +69,7 @@ export type __legacyObject<metamethods> = typeof(
 --// methods
 module.assertify = function<A>(val: A?): A return disguise(val)end
 module.disguise = disguise
+module.explicit_cast = disguise
 module.same = same
 module.empty = empty
 module.metamethods = {
