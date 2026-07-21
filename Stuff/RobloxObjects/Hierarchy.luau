@@ -17,7 +17,7 @@ export type hierarchal_query_struct = {
 
 local Class = require('./Class')
 local Object = require('./Object')
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 
 local module = {}
 
@@ -29,9 +29,13 @@ function module.new(h_query: hierarchal_query_struct): object
 	self.i = 1
 	self.root = root
 	
-	if self.list[1] == '' then
+	if h_query.query:sub(1,1) == module.symbols.separator then
 		self.current = root
 		self.i = 2
+		
+		if #h_query.query == 1 then
+			self.i = 3
+		end
 	else
 		self.current = assert(h_query.current_working_instance)
 	end
@@ -74,6 +78,8 @@ function module.all(self: object)
 	
 	return result
 end
+
+Dash.promise:await()
 
 module.invoke_query = Dash.compose(module.new, module.all) :: (hierarchal_query_struct)->Instance?
 
