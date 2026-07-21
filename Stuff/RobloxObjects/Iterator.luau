@@ -41,7 +41,7 @@ end
 module.proceed = Class.abstractMethod
 module.canProceed = Class.abstractMethod
 module.can_proceed = Class.abstractMethod
-Class.makeProperClass(module, '@CHL>Iterator')
+Class.make_proper_class(module, '@CHL>Iterator')
 
 --#####################################################################################
 --#####################################################################################
@@ -76,7 +76,7 @@ end
 simple.proceed = Class.abstractMethod
 simple.can_proceed = Class.abstractMethod
 
-Class.makeProperClass(simple, '@CHL>Iterator>simple')
+Class.make_proper_class(simple, '@CHL>Iterator>simple')
 module.simple = simple
 
 --#####################################################################################
