@@ -74,6 +74,10 @@ function singular_rig_animation_player.touch_track(self: singular_rig_animation_
 	local animator = self.animator
 	local track = animator:GetTrackByAnimationId(animation.AnimationId) or animator:LoadAnimation(animation)
 	
+	if self.current_track then
+		self.current_track:expect():Stop(0)
+	end
+	
 	self.current_track = Promise.try(await_track_load, track, explicit_length)
 		:upon(function(track)
 			if not track.IsPlaying then
@@ -89,11 +93,14 @@ function singular_rig_animation_player.touch_track(self: singular_rig_animation_
 end
 
 function singular_rig_animation_player.set_frame(self: singular_rig_animation_player, frame: number)
-	local track = assert(self.current_track, 'current track is not set')
+	local track = assert(self.current_track, 'current track is not set'):expect()
 	
-	track.TimePosition = frame
-	
-	return Promise.from_event(RunService.PreSimulation)
+	return Promise.try(function()
+		track.TimePosition = frame
+		
+		RunService.PreSimulation:Wait()
+		return RunService.PreSimulation:Wait()
+	end)
 end
 
 Class.make_proper_class(singular_rig_animation_player, '@CHL>BulkRecord>SingularRigAnimation')
