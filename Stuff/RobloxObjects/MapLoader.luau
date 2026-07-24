@@ -192,7 +192,7 @@ end
 --###############################################################################################################################################################################################################
 
 -- class responsible for exclusively loading a continent when invoking a zone listener
-local Zone = require('./QuickZone')
+local Zone = require('./@Clinkety>QuickZone')
 local Class = require('./Class')
 local Object = require('./Object')
 
