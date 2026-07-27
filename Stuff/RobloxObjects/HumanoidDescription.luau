@@ -59,7 +59,7 @@ local BufferWrapper = require('./@CHL>BufferWrapper')
 local BinaryStream = require('./@CHL>BinaryStream')
 local Bit32Ext = require('./@CHL>Bit32Ext')
 local Iterator = require('./@CHL>Iterator')
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 
 type buffer_w = BufferWrapper.object
 type writer = BinaryStream.writer
