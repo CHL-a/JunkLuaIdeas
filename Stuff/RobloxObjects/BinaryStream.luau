@@ -172,7 +172,7 @@ Reader.readf64 = factory_buffer_use_read('readf64', 8)
 Reader.read_double = factory_buffer_use_read('read_double', 8)
 Reader.readu64 = factory_buffer_use_read('readu64', 8)
 
-Class.makeProperClass(Reader, '@CHL>BinaryStream>Reader')
+Class.make_proper_class(Reader, '@CHL>BinaryStream>Reader')
 
 module.reader = Reader
 
@@ -302,7 +302,7 @@ function factory_buffer_use_write(b_index: string, length: number)
 	end
 end
 
-Class.makeProperClass(Writer, '@CHL>BinaryStream>Writer')
+Class.make_proper_class(Writer, '@CHL>BinaryStream>Writer')
 
 Writer.writei8 = factory_buffer_use_write('writei8', 1)
 Writer.writeu8 = factory_buffer_use_write('writeu8', 1)
