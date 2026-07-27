@@ -61,7 +61,7 @@ from = {}
 raw_constructors = {}
 disguise = LuaUTypes.disguise
 compose = Dash.compose
-hexUpper = Radix.charRadix.hexdecUpper
+hex_upper = Radix.char_radix.hex_upper
 readu8 = buffer.readu8
 len = buffer.len
 insert = table.insert
@@ -184,7 +184,7 @@ function module.to_string(self: object, sType: number?, ...)
 		local bytes = self:get_bytes(0, len)
 
 		for i = 1, len do
-			bytes[i] = hexUpper:formatSequence(bytes[i], 2)
+			bytes[i] = hex_upper:format_sequence(bytes[i], 2)
 		end
 
 		return table.concat(bytes, '_')
@@ -206,7 +206,7 @@ function module.to_string(self: object, sType: number?, ...)
 		arg1 = arg1 or 0
 		
 		local row_len = gdiv(viewing_size, 0x10)
-		local rw_len = math.max(2, #hexUpper:formatSequence(len))
+		local rw_len = math.max(2, #hex_upper:format_sequence(len))
 		
 		local strings = {}
 		local line_1 = `+{('-'):rep(rw_len)}+----------------+`
@@ -221,7 +221,7 @@ function module.to_string(self: object, sType: number?, ...)
 		-- this part inserts to the table by row, starting with the index then content
 		for r = 1, row_len do
 			r -= 1
-			insert(strings, `|{hexUpper:formatSequence(r, rw_len-1)}0|`)
+			insert(strings, `|{hex_upper:format_sequence(r, rw_len-1)}0|`)
 			
 			for c = 1, 0x10 do
 				c -= 1
@@ -270,7 +270,7 @@ function module.to_string(self: object, sType: number?, ...)
 		end
 		
 		local row_len = gdiv(viewing_size, 0x10)
-		local rw_len = math.max(2, #hexUpper:formatSequence(len))
+		local rw_len = math.max(2, #hex_upper:format_sequence(len))
 		local strs = {}
 		local line_1 = `+{('-'):rep(rw_len)}+-----------------------------------------------+`
 		
@@ -285,7 +285,7 @@ function module.to_string(self: object, sType: number?, ...)
 		
 		for r = 1, row_len do
 			r -= 1
-			insert(strs, `|{hexUpper:formatSequence(arg1 * (viewing_size / 0x10) + r,rw_len-1)}0|`)
+			insert(strs, `|{hex_upper:format_sequence(arg1 * (viewing_size / 0x10) + r,rw_len-1)}0|`)
 
 			for c = 1, 0x10 do
 				c -= 1
@@ -300,7 +300,7 @@ function module.to_string(self: object, sType: number?, ...)
 					if sType == 4 and StringUtils.char.is_printable(char) then
 						set = ` {char}`
 					else
-						set = hexUpper:formatSequence(byte, 2)
+						set = hex_upper:format_sequence()(byte, 2)
 					end
 					
 				end
@@ -503,7 +503,7 @@ function b_iterator.proceed(self: iterator)
 	return byte
 end
 
-Class.makeProperClass(b_iterator, '@CHL>BufferWrapper>Iterator')
+Class.make_proper_class(b_iterator, '@CHL>BufferWrapper>Iterator')
 
 b_iterator.__iter = Iterator.simple.__iter
 
@@ -632,7 +632,7 @@ Stream.write_float = Stream.writef32
 Stream.read_double = Stream.readf64
 Stream.write_double = Stream.writef64
 
-Class.makeProperClass(Stream, '@CHL/BufferWrapper/Stream')
+Class.make_proper_class(Stream, '@CHL/BufferWrapper/Stream')
 
 module.Stream = Stream
 
@@ -678,7 +678,7 @@ function b_consumer.consume(self: to_buffw_consumer, byte: number)
 	self.size += 1
 end
 
-Class.makeProperClass(b_consumer, '@CHL/BufferWrapper/Consumer')
+Class.make_proper_class(b_consumer, '@CHL/BufferWrapper/Consumer')
 
 module.consumer = b_consumer
 
