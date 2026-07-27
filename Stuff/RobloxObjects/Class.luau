@@ -385,7 +385,7 @@ function makeProperClass<A>(CLASS: A, name: string)
 		c.__index = c
 	end
 	
-	c.className = assert(name)
+	c.class_name = assert(name)
 end
 
 --########################################################################################
@@ -401,4 +401,17 @@ Class.abstractMethod = getErrorFunc'Attempting to use abstract method.'
 Class.unimplemented = getErrorFunc'Attempting to use an unimplemented method.'
 Class.make_proper_class = makeProperClass
 
+--########################################################################################
+--########################################################################################
+--########################################################################################
+
+Class.simple = {}
+
+function Class.simple.assign_sub_class(SUPER, SUB)
+	setmetatable(SUPER, SUB)
+end
+
+--########################################################################################
+--########################################################################################
+--########################################################################################
 return Class
