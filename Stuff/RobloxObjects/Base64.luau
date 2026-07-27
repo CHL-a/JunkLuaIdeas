@@ -1,4 +1,4 @@
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 local Iterator = require('./@CHL>Iterator')
 local BufferWrapper = require('./@CHL>BufferWrapper')
 local Class = require('./Class')
@@ -103,7 +103,7 @@ Encoder.__iter = Iterator.simple.__iter
 module.alphabet = alphabet
 module.padding = padding
 
-Class.makeProperClass(Encoder, '@CHL>Base64>Encoder')
+Class.make_proper_class(Encoder, '@CHL>Base64>Encoder')
 
 module.encoder = Encoder
 
@@ -213,7 +213,7 @@ end
 
 Decoder.__iter = Iterator.simple.__iter
 
-Class.makeProperClass(Decoder, '@CHL>Base64>Decoder')
+Class.make_proper_class(Decoder, '@CHL>Base64>Decoder')
 
 module.decoder = Decoder
 
