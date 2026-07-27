@@ -96,7 +96,7 @@ function abstract.update(self:object, delta: number)
 	end
 end
 
-Class.makeProperClass(abstract, '@CHL>RuntimeUpdater')
+Class.make_proper_class(abstract, '@CHL>RuntimeUpdater')
 abstract.commence = Class.abstractMethod
 
 local module = {}
