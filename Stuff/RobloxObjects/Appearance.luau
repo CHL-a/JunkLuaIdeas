@@ -40,7 +40,7 @@ export type appearance_struct = {
 	shirt_color: Color3;
 }
 
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 local module = {}
 
 --#####################################################################################
