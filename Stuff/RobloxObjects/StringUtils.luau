@@ -244,7 +244,7 @@ function b_iterator.proceed(self: byte_iterator)
 end
 
 b_iterator.__iter = Iterator.simple.__iter
-Class.makeProperClass(b_iterator, '@CHL>StringUtils>Iterator>Byte')
+Class.make_proper_class(b_iterator, '@CHL>StringUtils>Iterator>Byte')
 
 module.iterator.byte = b_iterator
 
@@ -286,7 +286,7 @@ function c_iterator.proceed(self: char_iterator)
 end
 
 c_iterator.__iter = Iterator.simple.__iter
-Class.makeProperClass(c_iterator, '@CHL>StringUtils>Iterator>Char')
+Class.make_proper_class(c_iterator, '@CHL>StringUtils>Iterator>Char')
 
 module.iterator.char = c_iterator
 
@@ -312,7 +312,7 @@ function c_consumer.consume(self: char_consumer, s: string)
 	self.referral ..= s
 end
 
-Class.makeProperClass(c_consumer, '@CHL>StringUtils>Consumer>Char')
+Class.make_proper_class(c_consumer, '@CHL>StringUtils>Consumer>Char')
 
 module.consumer = {}
 module.consumer.char = c_consumer
@@ -343,7 +343,7 @@ function b_consumer.get_string(self: byte_consumer)
 	return self.c_consumer.referral
 end
 
-Class.makeProperClass(b_consumer, '@CHL>StringUtils>Consumer>Byte')
+Class.make_proper_class(b_consumer, '@CHL>StringUtils>Consumer>Byte')
 
 module.consumer.byte = b_consumer
 
