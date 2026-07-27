@@ -40,7 +40,7 @@ export type appearance_struct = {
 	shirt_color: Color3;
 }
 
-local Dash = require('./@roblox>Dash')
+local Dash = require('./@CHL>DashSingular')
 local module = {}
 
 --#####################################################################################
@@ -492,6 +492,10 @@ module.struct.from.humanoid_description = compose(HumanoidDescriptionLib.struct.
 --#####################################################################################
 --#####################################################################################
 
+local PromiseTypes = require('./@CHL>PromiseTypes')
+local Promise = PromiseTypes.modified.get()
+
+type promise<T...> = PromiseTypes.object<T...>
 type writer = BinaryStream.writer
 type buffer_w = BufferWrapper.object
 
@@ -695,60 +699,63 @@ function module.struct.to.buffer_w(appearance: appearance_struct): buffer_w
 	return consumer:build()
 end
 
-function module.struct.to.basic_character(appearance: appearance_struct, character: Model)
+function module.struct.to.basic_character(appearance: appearance_struct, character: Model): promise<HumanoidDescription>
 	local humanoid = character:FindFirstChildOfClass('Humanoid')
 	assert(humanoid, 'No humanoid found in character')
 	
 	humanoid:ApplyDescriptionAsync(
 		HumanoidDescriptionLib.struct.to.humanoid_description(appearance.humanoid_description)
 	)
-
-	local head = character:FindFirstChild('Head')
-	local pants = character:FindFirstChildWhichIsA('Pants')
-	local shirt = character:FindFirstChildWhichIsA('Shirt')
 	
-	if head then
-		if appearance.should_override_face then
-			local face = head:FindFirstChild('face')
-			if face then
-				face:Destroy()
-			end
-		end
-		
-		for _, v in head:GetChildren() do
-			if not (v:IsA('Decal') and v.Name ~= 'face' and v.Face == Enum.NormalId.Front) then
-				continue
+	return Promise.from_event(humanoid.ApplyDescriptionFinished)
+		:upon(function()
+			local head = character:FindFirstChild('Head')
+			local pants = character:FindFirstChildWhichIsA('Pants')
+			local shirt = character:FindFirstChildWhichIsA('Shirt')
+			
+			if head then
+				if appearance.should_override_face then
+					local face = head:FindFirstChild('face')
+					if face then
+						face:Destroy()
+					end
+				end
+				
+				for _, v in head:GetChildren() do
+					if not (v:IsA('Decal') and v.Name ~= 'face' and v.Face == Enum.NormalId.Front) then
+						continue
+					end
+					
+					v:Destroy()
+				end
+				
+				for _, v: face_struct in appearance.face_array do
+					local decal = face_struct.struct_to_face(v)
+					
+					decal.Parent = head
+				end
 			end
 			
-			v:Destroy()
-		end
-		
-		for _, v: face_struct in appearance.face_array do
-			local decal = face_struct.struct_to_face(v)
+			if pants then
+				if appearance.pants_template then
+					pants.PantsTemplate = appearance.pants_template
+				end
+				
+				if appearance.pants_color then
+					pants.Color3 = appearance.pants_color
+				end
+			end
 			
-			decal.Parent = head
-		end
-	end
-	
-	if pants then
-		if appearance.pants_template then
-			pants.PantsTemplate = appearance.pants_template
-		end
-		
-		if appearance.pants_color then
-			pants.Color3 = appearance.pants_color
-		end
-	end
-	
-	if shirt then
-		if appearance.shirt_template then
-			shirt.ShirtTemplate = appearance.shirt_template
-		end
-		
-		if appearance.shirt_color then
-			shirt.Color3 = appearance.shirt_color
-		end
-	end
+			if shirt then
+				if appearance.shirt_template then
+					shirt.ShirtTemplate = appearance.shirt_template
+				end
+				
+				if appearance.shirt_color then
+					shirt.Color3 = appearance.shirt_color
+				end
+			end
+		end)
 end
 
 module.struct.appearance_rig_types = {
