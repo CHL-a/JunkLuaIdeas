@@ -15,7 +15,7 @@ function flip_array<A>(a: {A}): simple<A, number>
 end
 
 module.simple = simple
-module.simple.flipArray = flip_array
+module.simple.flip_array = flip_array
 
 --#####################################################################################
 --#####################################################################################
