@@ -40,7 +40,7 @@ export type appearance_struct = {
 	shirt_color: Color3;
 }
 
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 local module = {}
 
 --#####################################################################################
@@ -120,9 +120,7 @@ function face_struct.decal_to_struct(decal: Decal): face_struct
 	return face_struct
 end
 
-function face_struct.struct_to_face(struct: face_struct): Decal
-	local decal = Instance.new('Decal')
-
+function face_struct.struct_onto_face(decal: Decal, struct: face_struct): Decal
 	decal.TextureContent = struct.content
 
 	if struct.name         then decal.Name = struct.name                 end
@@ -131,6 +129,12 @@ function face_struct.struct_to_face(struct: face_struct): Decal
 	if struct.z_index      then decal.ZIndex = struct.z_index            end
 
 	return decal
+end
+
+function face_struct.struct_to_face(struct: face_struct): Decal
+	local decal = Instance.new('Decal')
+
+	return face_struct.struct_onto_face(decal, struct)
 end
 
 module.face_struct = face_struct
@@ -492,10 +496,9 @@ module.struct.from.humanoid_description = compose(HumanoidDescriptionLib.struct.
 --#####################################################################################
 --#####################################################################################
 
-local PromiseTypes = require('./@CHL>PromiseTypes')
-local Promise = PromiseTypes.modified.get()
+local Promise = require('./@CHL>Promise')
 
-type promise<T...> = PromiseTypes.object<T...>
+type promise<T...> = Promise.modified_object<T...>
 type writer = BinaryStream.writer
 type buffer_w = BufferWrapper.object
 
@@ -721,19 +724,24 @@ function module.struct.to.basic_character(appearance: appearance_struct, charact
 					end
 				end
 				
+				local negative_set = {face = true}
+				
+				for _, v: face_struct in appearance.face_array do
+					local decal = face_struct.struct_onto_face(head:FindFirstChild(v.name) or Instance.new('Decal'), v)
+					decal.Face = Enum.NormalId.Front
+					negative_set[v.name] = true
+					
+					decal.Parent = head
+				end
+				
 				for _, v in head:GetChildren() do
-					if not (v:IsA('Decal') and v.Name ~= 'face' and v.Face == Enum.NormalId.Front) then
+					if not (v:IsA('Decal') and not negative_set[v.Name] and v.Face == Enum.NormalId.Front) then
 						continue
 					end
 					
 					v:Destroy()
 				end
 				
-				for _, v: face_struct in appearance.face_array do
-					local decal = face_struct.struct_to_face(v)
-					
-					decal.Parent = head
-				end
 			end
 			
 			if pants then
