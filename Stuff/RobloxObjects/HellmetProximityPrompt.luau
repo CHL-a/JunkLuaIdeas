@@ -156,7 +156,84 @@ function proximity_prompt.update(self: proximity_prompt, dt: number)
 	end
 end
 
-Class.make_proper_class(proximity_prompt, 'HellmetUI>ProximityPrompt')
+function proximity_prompt.new_instance()
+	local custom_prox = Instance.new('Frame')
+	custom_prox.BackgroundTransparency = 1
+	custom_prox.Position = UDim2.fromScale(.5, .5)
+	custom_prox.Size = UDim2.fromOffset(30, 30)
+	custom_prox.Name = 'custom_prox'
+	
+	local sound_loop = Instance.new('Sound')
+	sound_loop.Name = 'long'
+	sound_loop.Volume = .2
+	sound_loop.SoundId = 'rbxassetid://9113977066'
+	sound_loop.PlaybackSpeed = .9
+	sound_loop.Looped = true
+	sound_loop.Parent = custom_prox
+	
+	local sound_short = Instance.new('Sound')
+	sound_short.Name = 'short'
+	sound_short.Volume = .21
+	sound_short.SoundId = 'rbxassetid://111707482281665'
+	sound_short.Parent = custom_prox
+	
+	local prompt_referral = Instance.new('ObjectValue')
+	prompt_referral.Name = 'prompt'
+	prompt_referral.Parent = custom_prox
+	
+	local bottom_progress = Instance.new('Frame')
+	bottom_progress.Name = 'bottom_progress'
+	bottom_progress.AnchorPoint = Vector2.new(.5, 1)
+	bottom_progress.BackgroundColor3 = Color3.new(1, 1, 1)
+	bottom_progress.Position = UDim2.new(.5, 0, 1, 2)
+	bottom_progress.Size = UDim2.new(0, 34, 0, 1)
+	bottom_progress.Parent = custom_prox
+	
+	local left_progress = Instance.new('Frame')
+	left_progress.Name = 'left_progress'
+	left_progress.AnchorPoint = Vector2.new(1, 1)
+	left_progress.BackgroundColor3 = Color3.new(1, 1, 1)
+	left_progress.Position = UDim2.new(0, -2, 1, 2)
+	left_progress.Size = UDim2.new(0, 1, 0, 36)
+	left_progress.Parent = custom_prox
+	
+	local right_progress = Instance.new('Frame')
+	right_progress.Name = 'right_progress'
+	right_progress.AnchorPoint = Vector2.new(1, 1)
+	right_progress.BackgroundColor3 = Color3.new(1, 1, 1)
+	right_progress.Position = UDim2.new(1, 3, 1, 2)
+	right_progress.Size = UDim2.new(0, 1, 0, 36)
+	right_progress.Parent = custom_prox
+	
+	local top_progress = Instance.new('Frame')
+	top_progress.Name = 'top_progress'
+	top_progress.AnchorPoint = Vector2.new(.5, 1)
+	top_progress.BackgroundColor3 = Color3.new(1, 1, 1)
+	top_progress.Position = UDim2.new(.5, 0, 0, -3)
+	top_progress.Size = UDim2.new(0, 34, 0, 1)
+	top_progress.Parent = custom_prox
+	
+	local bg = Instance.new('Frame')
+	bg.Name = 'bg'
+	bg.AnchorPoint = Vector2.new(.5, .5)
+	bg.BackgroundColor3 = Color3.new(0, 0, 0)
+	bg.BorderColor3 = Color3.new(1, 1, 1)
+	bg.BorderSizePixel = 1
+	bg.Position = UDim2.new(.5, 0, .5, -1)
+	bg.Size = UDim2.fromOffset(30, 30)
+	bg.Parent = custom_prox
+	
+	local icon = Instance.new('ImageLabel')
+	icon.BackgroundTransparency = 1
+	icon.Position = UDim2.fromScale(.5, .5)
+	icon.Size = UDim2.new(1, -3, 1, -3)
+	icon.Image = 'rbxassetid://89303973545283'
+	icon.Parent = bg
+	
+	return custom_prox
+end
+
+Class.make_proper_class(proximity_prompt, 'HellmetProximityPrompt>ProximityPrompt')
 
 proximity_prompt.template_frame = InstanceUtils.find_first_descendant(game:GetService('ReplicatedStorage'), 'custom_prox')
 module.parent = player.PlayerGui:WaitForChild('hm_ui_prox', 5) -- subject to be a promise
