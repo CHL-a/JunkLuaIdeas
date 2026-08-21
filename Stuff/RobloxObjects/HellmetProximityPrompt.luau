@@ -126,7 +126,15 @@ function proximity_prompt.get_proximity_prompt(self: proximity_prompt): Proximit
 end
 
 function proximity_prompt.get_world_position(self: proximity_prompt)
-	return self:get_proximity_prompt().Parent.Position
+	local parent = self:get_proximity_prompt().Parent
+		
+	if parent:IsA('BasePart') then
+		return parent.Position
+	elseif parent:IsA('Model') then
+		return parent:GetBoundingBox().Position
+	else
+		warn('unknown')
+	end
 end
 
 function proximity_prompt.update(self: proximity_prompt, dt: number)
@@ -162,6 +170,8 @@ function proximity_prompt.new_instance()
 	custom_prox.Position = UDim2.fromScale(.5, .5)
 	custom_prox.Size = UDim2.fromOffset(30, 30)
 	custom_prox.Name = 'custom_prox'
+	custom_prox:SetAttribute('class', 'proximity_prompt')
+	custom_prox:SetAttribute('elapsed', 0)
 	
 	local sound_loop = Instance.new('Sound')
 	sound_loop.Name = 'long'
@@ -186,7 +196,8 @@ function proximity_prompt.new_instance()
 	bottom_progress.AnchorPoint = Vector2.new(.5, 1)
 	bottom_progress.BackgroundColor3 = Color3.new(1, 1, 1)
 	bottom_progress.Position = UDim2.new(.5, 0, 1, 2)
-	bottom_progress.Size = UDim2.new(0, 34, 0, 1)
+	bottom_progress.Size = UDim2.new(0, 36, 0, 1)
+	bottom_progress.BorderSizePixel = 0
 	bottom_progress.Parent = custom_prox
 	
 	local left_progress = Instance.new('Frame')
@@ -195,6 +206,7 @@ function proximity_prompt.new_instance()
 	left_progress.BackgroundColor3 = Color3.new(1, 1, 1)
 	left_progress.Position = UDim2.new(0, -2, 1, 2)
 	left_progress.Size = UDim2.new(0, 1, 0, 36)
+	left_progress.BorderSizePixel = 0
 	left_progress.Parent = custom_prox
 	
 	local right_progress = Instance.new('Frame')
@@ -203,6 +215,7 @@ function proximity_prompt.new_instance()
 	right_progress.BackgroundColor3 = Color3.new(1, 1, 1)
 	right_progress.Position = UDim2.new(1, 3, 1, 2)
 	right_progress.Size = UDim2.new(0, 1, 0, 36)
+	right_progress.BorderSizePixel = 0
 	right_progress.Parent = custom_prox
 	
 	local top_progress = Instance.new('Frame')
@@ -210,7 +223,8 @@ function proximity_prompt.new_instance()
 	top_progress.AnchorPoint = Vector2.new(.5, 1)
 	top_progress.BackgroundColor3 = Color3.new(1, 1, 1)
 	top_progress.Position = UDim2.new(.5, 0, 0, -3)
-	top_progress.Size = UDim2.new(0, 34, 0, 1)
+	top_progress.Size = UDim2.new(0, 36, 0, 1)
+	top_progress.BorderSizePixel = 0
 	top_progress.Parent = custom_prox
 	
 	local bg = Instance.new('Frame')
@@ -225,8 +239,9 @@ function proximity_prompt.new_instance()
 	
 	local icon = Instance.new('ImageLabel')
 	icon.BackgroundTransparency = 1
+	icon.AnchorPoint = Vector2.one * .5
 	icon.Position = UDim2.fromScale(.5, .5)
-	icon.Size = UDim2.new(1, -3, 1, -3)
+	icon.Size = UDim2.new(1, -2, 1, -2)
 	icon.Image = 'rbxassetid://89303973545283'
 	icon.Parent = bg
 	
@@ -382,7 +397,7 @@ function module.init()
 		object:release()
 		object:detach()
 	end)
-	
+	print('met')
 end
 
 function module.update(dt: number)
@@ -394,7 +409,7 @@ function module.update(dt: number)
 		elseif class == 'fading_frame' then
 			element = fading_frame.new(frame)
 		else
-			print(class)
+			print(class, frame)
 		end
 		
 		element:update(dt)
