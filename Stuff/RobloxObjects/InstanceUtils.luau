@@ -137,10 +137,24 @@ function Weld.apply(part0: BasePart, part1: BasePart, c0: CFrame?, c1: CFrame?)
 	return result
 end
 
+module.weld = Weld
+
 --###########################################################################################
 --###########################################################################################
 --###########################################################################################
 
-module.weld = Weld
+local Promise = require('./@CHL>Promise')
+
+type promise<T...> = Promise.modified_object<T...>
+
+promise_lib = {}
+
+promise_lib.wait_for_descendant = Promise.promisify(module.wait_for_descendant) :: <A>(parent: Instance, ...string) -> promise<A>
+
+module.promise = promise_lib
+
+--###########################################################################################
+--###########################################################################################
+--###########################################################################################
 
 return module
