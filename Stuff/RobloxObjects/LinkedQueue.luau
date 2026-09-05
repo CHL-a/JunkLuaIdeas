@@ -89,6 +89,7 @@ export type object<T> = {
 	has: (self: object<T>, T)->boolean;
 	is_empty: (self: object<T>)->boolean;
 	clear: (self: object<T>)->();
+	to_array: (self: object<T>)->{T};
 }
 
 default = {}
@@ -164,6 +165,19 @@ function default.clear<T>(self: object<T>)
 	self.size = 0
 end
 
+function default.to_array<T>(self: object<T>): {T}
+	local array = {}
+	
+	local iterator = self:get_value_iterator()
+	
+	while iterator:can_proceed() do
+		local value = iterator:proceed()
+		table.insert(array, value)
+	end
+	
+	return array
+end
+
 Class.make_proper_class(default, '@CHL>LinkedQueue>Default')
 
 module.default = default
@@ -218,7 +232,7 @@ export type tuple_queue<T, U...> = {
 	clear: (self: tuple_queue<T, U...>)->();
 }
 
-local Dash = require('./@CHL>DashSingular')
+local Dash = require('./@roblox>Dash')
 
 compose = Dash.compose
 tuple_queue = {}
