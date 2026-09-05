@@ -65,7 +65,7 @@ function module.peek_node<T>(self: object<T>): node<T>?
 end
 
 function module.push<T>(self: object<T>, value: T)
-	self:push({value = value})
+	self:push_node({value = value})
 end
 
 function module.pop<T>(self: object<T>): T?
