@@ -24,24 +24,24 @@ export type object = {
 	
 	impulse: (self: object, position: Vector3?, rotation: Vector3?)->();
 	update: (self: object, dt: number)->();
-	set_target: (self: object, target: CFrame, is_snapped: boolean?)->();
 	
+	get: <T>(self: object, i: string)->(T, T);
+	get_cframe_value_of: (self: object, i: string)->CFrame;
 	get_position: (self: object)->CFrame;
-	set_position: (self: object, CFrame)->();
-	
 	get_velocity: (self: object)-> CFrame;
+	get_target: (self: object) -> (CFrame);
+	get_damper: (self: object)->(number, number);
+	get_speed: (self: object)->(number, number);
+	get_clock: (self: object)->(clock, clock);
+	
+	set: <T>(self: object, i: string, p: T, r: T)->();
+	set_cframe_value_of: (self: object, i: string, CFrame)->();
+	set_target: (self: object, target: CFrame, is_snapped: boolean?)->();
+	set_position: (self: object, CFrame)->();
 	set_velocity: (self: object, CFrame)->();
 	set_velocity_from_pair: (self: object, position: Vector3, rotation: quaternion)->();
-	
-	get_target: (self: object) -> (CFrame);
-	
-	get_damper: (self: object)->(number, number);
 	set_damper: (self: object, number, number)->();
-	
-	get_speed: (self: object)->(number, number);
 	set_speed: (self: object, number, number)->();
-
-	get_clock: (self: object)->(clock, clock);
 	set_clock: (self: object, clock, clock)->();
 }
 
@@ -96,34 +96,38 @@ function module.set_target(self: object, value: CFrame, is_snapped: boolean?)
 	else
 		self.rotation_spring.t = q
 	end
-	
 	-- self.rotation_spring:SetTarget(q_from_cframe(value), is_snapped)
 end
 
-function get_pair(self: object, i: string)
-	return self.position_spring:get(i), self.rotation_spring[i]
+function module.get(self: object, i: string)
+	return self.position_spring:get(i:lower()), self.rotation_spring[i]
 end
 
-function get_pair_f(i: string)
-	return function(self: object)
-		return get_pair(self, i)
-	end
-end
-
-function get_cf_from_pair(self: object, i: string)
-	local p: Vector3, r: quaternion = get_pair(self, i)
+function module.get_cframe_value_of(self: object, i: string)
+	local p: Vector3, r: quaternion = self:get(i)
 	return r:ToCFrame(p)
 end
 
-function get_cf_from_pair_f(i: string)
+function get_pair_factory(i: string)
 	return function(self: object)
-		return get_cf_from_pair(self, i)
+		return self:get(i)
 	end
 end
 
-function set_pair(self: object, i: string, positional_value, rotational_value)
+function get_cf_from_pair_factory(i: string)
+	return function(self: object)
+		return self:get_cframe_value_of(i)
+	end
+end
+
+function module.set(self: object, i: string, positional_value, rotational_value)
+	if i:lower() == 'target' then
+		self:set_target(positional_value, rotational_value)
+		return
+	end
+	
 	if positional_value then
-		self.position_spring:set(i, positional_value)
+		self.position_spring:set(i:lower(), positional_value)
 	end
 	
 	if rotational_value then
@@ -131,35 +135,36 @@ function set_pair(self: object, i: string, positional_value, rotational_value)
 	end
 end
 
-function set_pair_f(i: string)
+function set_pair_factory(i: string)
 	return function(self: object, p, r)
-		return set_pair(self, i, p, r)
+		return self:set(i, p, r)
 	end
 end
 
-function set_cf_from_pair(self: object, i: string, cf: CFrame)
+function module.set_cframe_value_of(self: object, i: string, cf: CFrame)
 	local position, rotation = cf.Position, q_from_cframe(cf)
-	set_pair(self, i, position, rotation)
+	self:set(i, position, rotation)
 end
 
-function set_cf_from_pair_f(i: string)
+function set_cf_from_pair_factory(i: string)
 	return function(self: object, cf: CFrame)
-		set_cf_from_pair(self, i, cf)
+		self:set_cframe_value_of(i, cf)
 	end
 end
 
-module.get_position = get_cf_from_pair_f('Position')
-module.set_position = set_cf_from_pair_f('Position')
-module.get_velocity = get_cf_from_pair_f('Velocity')
-module.set_velocity = set_cf_from_pair_f('Velocity')
-module.set_velocity_from_pair = set_pair_f('Velocity')
-module.get_target = get_cf_from_pair_f('Target')
-module.get_damper = get_pair_f('Damper')
-module.set_damper = set_pair_f('Damper')
-module.get_speed = get_pair_f('Speed')
-module.set_speed = set_pair_f('Speed')
-module.get_clock = get_pair_f('Clock')
-module.set_clock = set_pair_f('Clock')
+module.get_position = get_cf_from_pair_factory('Position')
+module.get_velocity = get_cf_from_pair_factory('Velocity')
+module.get_target = get_cf_from_pair_factory('Target')
+module.get_damper = get_pair_factory('Damper')
+module.get_speed = get_pair_factory('Speed')
+module.get_clock = get_pair_factory('Clock')
+
+module.set_position = set_cf_from_pair_factory('Position')
+module.set_velocity = set_cf_from_pair_factory('Velocity')
+module.set_velocity_from_pair = set_pair_factory('Velocity')
+module.set_damper = set_pair_factory('Damper')
+module.set_speed = set_pair_factory('Speed')
+module.set_clock = set_pair_factory('Clock')
 
 module.__index = module
 
