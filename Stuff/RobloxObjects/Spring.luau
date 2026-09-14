@@ -131,6 +131,7 @@ export type temporal<T> = {
 	get_damper: (self: temporal<T>) -> number;
 	get_speed: (self: temporal<T>) -> number;
 	is_enabled: (self: temporal<T>) -> boolean;
+	get: <V>(self: temporal<T>, i: string) -> V;
 	
 	set_position: (self: temporal<T>, value: T) -> ();
 	set_velocity: (self: temporal<T>, value: T) -> ();
@@ -138,6 +139,7 @@ export type temporal<T> = {
 	set_damper: (self: temporal<T>, value: number) -> ();
 	set_speed: (self: temporal<T>, value: number) -> ();
 	set_enabled: (self: temporal<T>, value: boolean) -> ();
+	set: <V>(self: temporal<T>, i: string, value: V) -> ();
 	
 	time_skip: (self: temporal<T>, dt: number) -> (T, T);
 	time_skip_now: (self: temporal<T>) -> (T, T);
@@ -161,8 +163,9 @@ function temporal.get_temporal_difference<T>(self: temporal<T>) return self.cloc
 function temporal.time_skip<T>(self: temporal<T>, dt: number) return self.timeless:time_skip(dt) end
 function temporal.time_skip_now<T>(self: temporal<T>) return self:time_skip(self:get_dt()) end
 function temporal.clock() return workspace.DistributedGameTime end
-function temporal_get_factory(index: string)return function<T>(self: temporal<T>) return self.timeless[index] end end
+function temporal_get_factory(index: string)return function<T>(self: temporal<T>) return self:get(index) end end
 function temporal.impulse<T>(self: temporal<T>, velocity: T)self:set_velocity(disguise(self):get_velocity() + velocity)end
+function temporal.get<T>(self: temporal<T>, i: string) return self.timeless[i] end
 
 function temporal.update<T>(self: temporal<T>, dt: number)
 	local timeless = self.timeless
@@ -187,14 +190,24 @@ function temporal.set_velocity<T>(self: temporal<T>, velocity: T)
 	self.timestamp = self.clock()
 end
 
-function temporal_set_factory(index: string)
-	return function<T>(self: temporal<T>, value: T)
+function temporal.set<T, V>(self: temporal<T>, i: string, v: V)
+	if i == 'position' then
+		self:set_position(v)
+	elseif i == 'velocity' then
+		self:set_velocity(v)
+	else
 		local timeless = self.timeless
 		local position, velocity = self:time_skip_now()
 		timeless.position = position
 		timeless.velocity = velocity
-		timeless[index] = value
+		timeless[i] = v
 		self.timestamp = self.clock()
+	end
+end
+
+function temporal_set_factory(index: string)
+	return function<T>(self: temporal<T>, value: T)
+		self:set(index, value)
 	end
 end
 
