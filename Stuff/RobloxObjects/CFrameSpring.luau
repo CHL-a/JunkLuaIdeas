@@ -7,16 +7,16 @@
 --]]
 
 local Object = require('./Object')
-local NevermoreSpring = require('./NevermoreSpring')
-local Dash = require('./@CHL>DashSingular')
+local Spring = require('./@CHL>Spring')
+local Dash = require('./@roblox>Dash')
 local Quaternion = require('./Quaternion')
 local QuaternionSpring = require('./QuaternionSpring')
 
 type quaternion = Quaternion.Quaternion
 type quaternion_spring = QuaternionSpring.QuaternionSpring
-type spring<T> = NevermoreSpring.Spring<T>
+type spring<T> = Spring.temporal<T>
 
-export type clock = NevermoreSpring.SpringClock
+export type clock = ()->number
 
 export type object = {
 	position_spring: spring<Vector3>;
@@ -46,6 +46,9 @@ export type object = {
 }
 
 module = {}
+
+Dash.promise:await()
+
 q_from_cframe = Quaternion.fromCFrame
 compose = Dash.compose
 pi = math.pi
@@ -55,13 +58,13 @@ function module.new(init: CFrame?, clock: clock?): object
 	local i = init or CFrame.identity
 	local clock = clock or module.default_clock
 	
-	local self = Object.simple.from.struct({
-		position_spring = NevermoreSpring.new(i.Position, clock);
-		rotation_spring = QuaternionSpring.new(q_from_cframe(i), nil, nil, clock)
-	}, module)
+	local self: object = Object.simple.new(module)
 	
-	self.rotation_spring.d = self.position_spring.d
-	self.rotation_spring.s = self.position_spring.s
+	self.position_spring = Spring.temporal.new(i.Position, clock);
+	self.rotation_spring = QuaternionSpring.new(q_from_cframe(i), nil, nil, clock)
+	
+	self.rotation_spring.d = self.position_spring:get_damper()
+	self.rotation_spring.s = self.position_spring:get_speed()
 	
 	return self
 end
@@ -69,17 +72,17 @@ end
 function module.default_clock() return workspace.DistributedGameTime end
 
 function module.impulse(self: object, position: Vector3, rotation: Vector3)
-	self.position_spring:Impulse(position or Vector3.zero)
+	self.position_spring:impulse(position or Vector3.zero)
 	self.rotation_spring:Impulse(rotation or Vector3.zero)
 end
 
 function module.update(self: object, dt: number)
-	self.position_spring:TimeSkip(dt)
+	self.position_spring:update(dt)
 	self.rotation_spring:TimeSkip(dt)
 end
 
 function module.set_target(self: object, value: CFrame, is_snapped: boolean?)
-	self.position_spring:SetTarget(value.Position, is_snapped)
+	self.position_spring:set_target(value.Position, is_snapped)
 	
 	local rotation = self.rotation_spring
 	local q = q_from_cframe(value)
@@ -98,7 +101,7 @@ function module.set_target(self: object, value: CFrame, is_snapped: boolean?)
 end
 
 function get_pair(self: object, i: string)
-	return self.position_spring[i], self.rotation_spring[i]
+	return self.position_spring:get(i), self.rotation_spring[i]
 end
 
 function get_pair_f(i: string)
@@ -120,7 +123,7 @@ end
 
 function set_pair(self: object, i: string, positional_value, rotational_value)
 	if positional_value then
-		self.position_spring[i] = positional_value
+		self.position_spring:set(i, positional_value)
 	end
 	
 	if rotational_value then
