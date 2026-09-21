@@ -56,10 +56,18 @@ function module.find_first_descendant<A>(parent: Instance, ...: string): A?
 end
 
 function module.wait_for_descendant<A>(parent: Instance, ...: string): A
-	forEachArgs(function(a)
-		parent = parent:WaitForChild(a)
-	end, ...)
+	return module.impatient_wait_for_descendant(1/0, parent, ...)
+end
 
+function module.impatient_wait_for_descendant<A>(await_time: number, parent: Instance, ...: string): A
+	forEachArgs(function(a)
+		if not parent then
+			return
+		end
+		
+		parent = parent:WaitForChild(a, await_time)
+	end, ...)
+	
 	return disguise(parent)
 end
 
@@ -150,6 +158,8 @@ type promise<T...> = Promise.modified_object<T...>
 promise_lib = {}
 
 promise_lib.wait_for_descendant = Promise.promisify(module.wait_for_descendant) :: <A>(parent: Instance, ...string) -> promise<A>
+promise_lib.impatient_wait_for_descendant = Promise.promisify(module.impatient_wait_for_descendant) 
+	:: <A>(await_time: number, parent: Instance, ...string) -> promise<A>
 
 module.promise = promise_lib
 
