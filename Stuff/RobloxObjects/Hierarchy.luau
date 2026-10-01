@@ -83,6 +83,31 @@ module.parser = parser
 --######################################################################################################################################################################################################
 --######################################################################################################################################################################################################
 
+export type hierarchal_query_struct = {
+	query: string;
+	current_working_instance: Instance?;
+	root_instance: Instance?;
+	root: Instance?;
+	cwi: Instance?;
+	cwd: Instance?
+}
+
+hierarchal_query_struct = {}
+
+function hierarchal_query_struct.root_of(struct: hierarchal_query_struct): Instance?
+	return struct.root or struct.root_instance
+end
+
+function hierarchal_query_struct.cwd_of(struct: hierarchal_query_struct): Instance?
+	return struct.cwd or struct.current_working_instance or struct.cwi
+end
+
+module.hierarchal_query_struct = hierarchal_query_struct
+
+--######################################################################################################################################################################################################
+--######################################################################################################################################################################################################
+--######################################################################################################################################################################################################
+
 export type instance_path_parser = {
 	parser: parser;
 	current: Instance;
@@ -91,13 +116,6 @@ export type instance_path_parser = {
 	all: (self: instance_path_parser)->Instance?
 } & Iterator.simple<Instance>
 
-export type hierarchal_query_struct = {
-	query: string;
-	current_working_instance: Instance;
-	root_instance: Instance?;
-	root: Instance?;
-}
-
 local Dash = require('./@roblox>Dash')
 
 instance_path_parser = {}
@@ -105,11 +123,14 @@ instance_path_parser = {}
 function instance_path_parser.new(h_query: hierarchal_query_struct): instance_path_parser
 	local self: instance_path_parser = Object.simple.new(instance_path_parser)
 	local parser = parser.new(h_query.query)
-	local root = h_query.root or h_query.root_instance or game
+	local root = hierarchal_query_struct.root_of(h_query) or 
+		game -- h_query_fetch
 	
 	self.parser = parser
 	self.root = root
-	self.current = parser.is_absolute and root or h_query.current_working_instance or root
+	self.current = parser.is_absolute and root or
+		hierarchal_query_struct.cwd_of(h_query) or
+		root
 	
 	return self
 end
