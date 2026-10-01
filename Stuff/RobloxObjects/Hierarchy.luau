@@ -94,7 +94,8 @@ export type instance_path_parser = {
 export type hierarchal_query_struct = {
 	query: string;
 	current_working_instance: Instance;
-	root_instance: Instance?
+	root_instance: Instance?;
+	root: Instance?;
 }
 
 local Dash = require('./@roblox>Dash')
@@ -104,13 +105,11 @@ instance_path_parser = {}
 function instance_path_parser.new(h_query: hierarchal_query_struct): instance_path_parser
 	local self: instance_path_parser = Object.simple.new(instance_path_parser)
 	local parser = parser.new(h_query.query)
-	local root = h_query.root_instance or game
+	local root = h_query.root or h_query.root_instance or game
 	
 	self.parser = parser
 	self.root = root
 	self.current = parser.is_absolute and root or h_query.current_working_instance or root
-	
-	print(self)
 	
 	return self
 end
