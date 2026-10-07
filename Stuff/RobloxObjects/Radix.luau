@@ -3,6 +3,7 @@ local Map = require('./@CHL>Map')
 local Object = require('./Object')
 local Class = require('./Class')
 local Dash = require('./@roblox>Dash')
+local StringUtils = require('./@CHL>StringUtils')
 
 export type digits_map<A> = Map.simple<A, number>
 
@@ -52,7 +53,7 @@ function base.from.one_based_array<A>(map: digits_map<A>): object<A>
 end
 
 base.from.array = compose(Map.simple.flip_array, base.from.one_based_array) :: <A>(digits: {A}) -> object<A>
-base.from.chars = compose(string.split, base.from.array) :: (char_set: string) -> object<string>
+base.from.chars = compose(StringUtils.mandela_split, base.from.array) :: (char_set: string) -> object<string>
 
 --[[
 <--- increases by base
@@ -129,7 +130,7 @@ local binary = char_radix.new'01'
 
 function binary.format_sequence(self: char_radix, n: number, len: number?)
 	local result = ''
-	local seq = self:fromDecimal(n)
+	local seq = self:from_number(n)
 	
 	if len then
 		result ..= ('0'):rep(len - #seq)
@@ -144,7 +145,7 @@ local hexlower = char_radix.new'0123456789abcdef'
 
 function hexlower.format_sequence(self: char_radix, n: number, len: number?)
 	local result = ''
-	local seq = self:fromDecimal(n)
+	local seq = self:from_number(n)
 
 	if len then
 		result ..= ('0'):rep(len - #seq)
@@ -156,7 +157,7 @@ function hexlower.format_sequence(self: char_radix, n: number, len: number?)
 end
 
 local hexupper = char_radix.new'0123456789ABCDEF'
-hexupper.formatSequence = hexlower.formatSequence
+hexupper.format_sequence = hexlower.format_sequence
 
 local alphanumeric = char_radix.new'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
