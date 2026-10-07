@@ -49,6 +49,28 @@ function module.compare_strings(operand_a: string, operand_b: string): boolean
 	return result
 end
 
+--[[
+	I swear to god the original default sep arg was an empty string not a god damn comma
+]]
+function module.mandela_split(s: string, sep: string?): {string}
+	if not sep then
+		sep = ''
+	end
+	
+	return s:split(sep)
+end
+
+--[[
+	back up plan in case str:split() becomes habitual
+]]
+function module.comma_split(s: string, sep: string?)
+	if not sep then
+		sep = ','
+	end
+	
+	return s:split(sep)
+end
+
 --#########################################################################################
 --#########################################################################################
 --#########################################################################################
@@ -90,6 +112,7 @@ per_char_in_range('az', function(a)
 	module.char.alpha[a] = true
 	module.char.alpha[b] = true
 end)
+
 --#########################################################################################
 --#########################################################################################
 --#########################################################################################
