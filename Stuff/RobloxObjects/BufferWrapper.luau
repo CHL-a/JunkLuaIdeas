@@ -300,7 +300,7 @@ function module.to_string(self: object, sType: number?, ...)
 					if sType == 4 and StringUtils.char.is_printable(char) then
 						set = ` {char}`
 					else
-						set = hex_upper:format_sequence()(byte, 2)
+						set = hex_upper:format_sequence(byte, 2)
 					end
 					
 				end
