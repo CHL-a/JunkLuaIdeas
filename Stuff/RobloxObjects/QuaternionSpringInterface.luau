@@ -36,4 +36,8 @@ function module.get(): module
 	return require('./@daymxn>QuaternionSpring')
 end
 
+function module.new(): spring
+	return module.get().new()
+end
+
 return module
