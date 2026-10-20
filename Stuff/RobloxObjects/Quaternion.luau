@@ -496,7 +496,7 @@ function struct.self_normalize(self: struct): struct
 	end
 end
 
-function struct.is_unit(self: struct, epsilon: number?)
+function struct.is_unit(self: struct, epsilon: number?): boolean
 	epsilon = epsilon or module.epsilon
 	return math.abs(1 - struct.length(self)) < epsilon
 end
@@ -611,15 +611,38 @@ function struct.to_euler_vector(self: struct): Vector3
 	return axis * angle
 end
 
-function struct.de_implace(self: struct, ...) return table.clone(self), ... end
+function struct.exp_map_sym(self: struct, other: struct): struct
+	local sqrt_self = struct.pow(self, .5)
+	local exp_other = struct.exp(other)
+	local mul = struct.mul
+	
+	return mul(mul(sqrt_self, exp_other), sqrt_self)
+end
 
-struct.inverse = compose(struct.de_implace, struct.self_inverse) :: (struct) -> struct
-struct.exp = compose(struct.de_implace, struct.self_exp) :: (struct) -> struct
-struct.scalar_div = compose(struct.de_implace, struct.self_scalar_div) :: (struct, number) -> struct
-struct.normalize = compose(struct.de_implace, struct.self_normalize) :: (struct) -> struct
-struct.s_lerp = compose(struct.de_implace, struct.self_s_lerp) :: (struct, struct, number) -> struct
-struct.integrate = compose(struct.de_implace, struct.self_integrate) :: (struct, Vector3, number) -> struct
-struct.q_difference = compose(struct.de_implace, struct.self_q_difference) :: (struct, struct) -> struct
+function struct.log_map_sym(self: struct, other: struct): struct
+	local inv_sqrt_self = struct.pow(self, -1/2)
+	local mul = struct.mul
+	
+	return struct.self_log(mul(mul(inv_sqrt_self, other), inv_sqrt_self))
+end
+
+function struct.distance(self: struct, other: struct): number
+	return struct.length(struct.log_map(self, other)) * 2
+end
+
+function struct.non_implace(self: struct, ...) return table.clone(self), ... end
+
+struct.add = compose(struct.non_implace, struct.self_add) :: (struct, struct) -> struct
+struct.log_map = compose(struct.non_implace, struct.self_log_map) :: (struct, struct) -> struct
+struct.mul = compose(struct.non_implace, struct.self_mul) :: (struct, struct) -> struct
+struct.pow = compose(struct.non_implace, struct.self_pow) :: (struct, number) -> struct
+struct.inverse = compose(struct.non_implace, struct.self_inverse) :: (struct) -> struct
+struct.exp = compose(struct.non_implace, struct.self_exp) :: (struct) -> struct
+struct.scalar_div = compose(struct.non_implace, struct.self_scalar_div) :: (struct, number) -> struct
+struct.normalize = compose(struct.non_implace, struct.self_normalize) :: (struct) -> struct
+struct.s_lerp = compose(struct.non_implace, struct.self_s_lerp) :: (struct, struct, number) -> struct
+struct.integrate = compose(struct.non_implace, struct.self_integrate) :: (struct, Vector3, number) -> struct
+struct.q_difference = compose(struct.non_implace, struct.self_q_difference) :: (struct, struct) -> struct
 
 struct.identity = struct.new(0, 0, 0, 1)
 struct.zero = struct.new(0, 0, 0, 0)
@@ -627,6 +650,68 @@ struct.angles = struct.from_euler_angles_xyz
 struct.from_orientation = struct.from_euler_angles_yxz
 struct.unit = struct.normalize
 struct.magnitude = struct.length
+
+--#############################################################################################################################################################################
+--#############################################################################################################################################################################
+--#############################################################################################################################################################################
+
+local UnitTest = require('./@CHL>UnitTest')
+
+function struct.unit_test(describe: UnitTest.describe)
+	local q = struct.new(1, 2, 3, 4)
+	
+	describe('struct: Iq == qI', function(expect)
+		expect(struct.mul(q, struct.identity)).to_span_fields_over(q)
+		expect(struct.mul(struct.identity, q)).to_span_fields_over(q)
+	end)
+	
+	local q = struct.new(1, 2, 3, 4)
+	local zero = struct.new(0, 0, 0, 0)
+
+	describe('struct: q + (-q) == 0', function(expect)
+		expect(struct.add(q, struct.self_unary(table.clone(q))))
+			.to_span_fields_over(zero)
+	end)
+	
+	local a = struct.new(1, 2, 3, 4)
+	local b = struct.new(5, 6, 7, 8)
+	local c = struct.new(9, 10, 11, 12)
+
+	describe('struct: (ab)c == a(bc)', function(expect)
+		expect(
+			struct.mul(struct.mul(a, b), c)
+		).to_span_fields_over(
+			struct.mul(a, struct.mul(b, c))
+		)
+	end)
+	
+	local a = struct.new(1, 2, 3, 4)
+	local b = struct.new(5, 6, 7, 8)
+	local c = struct.new(9, 10, 11, 12)
+
+	describe('struct: (ab)c == a(bc)', function(expect)
+		expect(
+			struct.mul(struct.mul(a, b), c)
+		).to_span_fields_over(
+			struct.mul(a, struct.mul(b, c))
+		)
+	end)
+	
+	local a = struct.new(1, 2, 3, 4)
+	local b = struct.new(5, 6, 7, 8)
+
+	describe('struct: length(ab) == length(a) * length(b)', function(expect)
+		expect(struct.length(struct.mul(a, b))).to_be_around(struct.length_sqrd(a))
+	end)
+	
+	local q = struct.new(1, 2, 3, 4)
+	local inverse = struct.inverse(q)
+
+	describe('struct: qq^-1 == q^-1q == I', function(expect)
+		expect(struct.mul(q, inverse)).to_span_fields_around_over(struct.identity)
+		expect(struct.mul(inverse, q)).to_span_fields_around_over(struct.identity)
+	end)
+end
 
 --#############################################################################################################################################################################
 --#############################################################################################################################################################################
@@ -660,15 +745,15 @@ function object.clone(self: object): object
 	return object.from_struct(self:to_struct())
 end
 
-function object.de_implace(self: object, ...)
+function object.non_implace(self: object, ...)
 	return self:to_struct(), ...
 end
 
 object.from_cframe = compose(struct.from_cframe, object.from_struct) :: (CFrame) -> object
 
-object.s_lerp = compose(object.de_implace, struct.self_s_lerp, object.from_struct) :: (object, object, number) -> object
-object.integrate = compose(object.de_implace, struct.self_integrate, object.from_struct) :: (object, Vector3, number) -> object
-object.q_difference = compose(object.de_implace, struct.self_q_difference, object.from_struct) :: (object, object) -> object
+object.s_lerp = compose(object.non_implace, struct.self_s_lerp, object.from_struct) :: (object, object, number) -> object
+object.integrate = compose(object.non_implace, struct.self_integrate, object.from_struct) :: (object, Vector3, number) -> object
+object.q_difference = compose(object.non_implace, struct.self_q_difference, object.from_struct) :: (object, object) -> object
 object.to_euler_vector = struct.to_euler_vector
 object.to_cframe = struct.to_cframe
 
@@ -679,14 +764,15 @@ object.zero = object.from_struct(struct.zero)
 
 Class.make_proper_class(object, '@CHL>Quaternion')
 
-module.object = object
-
 --#############################################################################################################################################################################
 --#############################################################################################################################################################################
 --#############################################################################################################################################################################
-
 
 module.struct = struct
+module.object = object
 
+function module.unit_test(...)
+	struct.unit_test(...)
+end
 
 return module
