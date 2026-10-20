@@ -20,7 +20,7 @@ function from.roblox_pack_1(p: {number}, o: {number}): CFrame
 		from.degrees_orientation(unpack(o))
 end
 
-function flip(cf: CFrame, normal: Vector3)
+function module.flip(cf: CFrame, normal: Vector3)
 	local position = flip_v3(cf.Position, normal)
 	local look = flip_v3(cf.LookVector, normal)
 	local up = flip_v3(cf.UpVector, normal)
@@ -28,7 +28,21 @@ function flip(cf: CFrame, normal: Vector3)
 	return CFrame.lookAlong(position, look, up)
 end
 
+export type positionable = Attachment | BasePart | Model | ProximityPrompt
+
+function module.cframe_of(value: positionable): CFrame?
+	if value:IsA('Attachment') then
+		return value.WorldCFrame
+	elseif value:IsA('BasePart') then
+		return value.CFrame
+	elseif value:IsA('Model') then
+		local return_1 = value:GetBoundingBox()
+		return return_1
+	elseif value:IsA('ProximityPrompt') then
+		return module.cframe_of(value.Parent)
+	end
+end
+
 module.from = from
-module.flip = flip
 
 return module
