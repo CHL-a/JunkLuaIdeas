@@ -9,7 +9,8 @@ local unit_test = {}
 
 test = {}
 
-export type unit_testing_function = (typeof(unit_test.describe)) -> ()
+export type describe = typeof(unit_test.describe)
+export type unit_testing_function = (describe: describe) -> ()
 
 function test.func(f: unit_testing_function)
 	unit_test.id = unit_test.id or debug.traceback()
@@ -28,7 +29,7 @@ function test.library(lib)
 	end
 	
 	if unit_test_func then
-		unit_test_func()
+		test.func(unit_test_func)
 	end
 end
 
@@ -37,7 +38,7 @@ function test.module_script(module_script: ModuleScript)
 		return
 	end
 	
-	local module = require(module_script)
+	test.library(require(module_script))
 end
 
 function test.all_folders()
@@ -174,15 +175,50 @@ function unit_test.comparators.to_span_fields_over<T>(other: T)
 	unit_test.closure()
 end
 
+function fuzzy_equal(a: number, b: number, epsilon: number?)
+	local epsilon = epsilon or unit_test.epsilon
+	local half_range = math.abs(a - b)
+	
+	return half_range < epsilon
+end
+
+function unit_test.comparators.to_be_around<T>(other: T, precision: number?)
+	local comparison = unit_test.comparison
+	comparison.expected = other
+	
+	unit_test.comparison.does_pass = fuzzy_equal(comparison.got, comparison.expected, precision)
+	
+	unit_test.closure()
+end
+
+function unit_test.comparators.to_span_fields_around_over<T>(other: T, precision: number?)
+	local does_pass = true
+	local comparison = unit_test.comparison
+	
+	comparison.expected = other
+	
+	for i, v in other do
+		if fuzzy_equal(comparison.expected[i], v, precision) == false then
+			does_pass = false
+			break
+		end
+	end
+	
+	
+	unit_test.comparison.does_pass = does_pass
+	unit_test.closure()
+end
+
 unit_test.fails_only = true
+unit_test.epsilon = 0.000001
 
 module.unit_test = unit_test
+module.__chl_unit_test = false
 
 --###############################################################################################################################################################################
 --###############################################################################################################################################################################
 --###############################################################################################################################################################################
 
 module.test = test
-module.scope = {}
 
 return module
