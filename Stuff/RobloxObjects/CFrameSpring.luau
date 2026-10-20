@@ -9,11 +9,11 @@
 local Object = require('./Object')
 local Spring = require('./@CHL>Spring')
 local Dash = require('./@roblox>Dash')
-local Quaternion = require('./Quaternion')
-local QuaternionSpring = require('./QuaternionSpring')
+local Quaternion = require('./@CHL>Quaternion')
+local QuaternionSpring = require('./@CHL>QuaternionSpring')
 
-type quaternion = Quaternion.Quaternion
-type quaternion_spring = QuaternionSpring.QuaternionSpring
+type quaternion = Quaternion.object
+type quaternion_spring = QuaternionSpring.temporal
 type spring<T> = Spring.temporal<T>
 
 export type clock = ()->number
@@ -49,7 +49,7 @@ module = {}
 
 Dash.promise:await()
 
-q_from_cframe = Quaternion.fromCFrame
+q_from_cframe = Quaternion.object.from_cframe
 compose = Dash.compose
 pi = math.pi
 pi2 = pi * 2
@@ -61,10 +61,10 @@ function module.new(init: CFrame?, clock: clock?): object
 	local self: object = Object.simple.new(module)
 	
 	self.position_spring = Spring.temporal.new(i.Position, clock);
-	self.rotation_spring = QuaternionSpring.new(q_from_cframe(i), nil, nil, clock)
+	self.rotation_spring = QuaternionSpring.temporal.new(q_from_cframe(i), nil, nil, clock)
 	
-	self.rotation_spring.d = self.position_spring:get_damper()
-	self.rotation_spring.s = self.position_spring:get_speed()
+	self.rotation_spring:set_damper(self.position_spring:get_damper())
+	self.rotation_spring:set_speed(self.position_spring:get_speed())
 	
 	return self
 end
@@ -73,12 +73,12 @@ function module.default_clock() return workspace.DistributedGameTime end
 
 function module.impulse(self: object, position: Vector3, rotation: Vector3)
 	self.position_spring:impulse(position or Vector3.zero)
-	self.rotation_spring:Impulse(rotation or Vector3.zero)
+	self.rotation_spring:impulse(rotation or Vector3.zero)
 end
 
 function module.update(self: object, dt: number)
 	self.position_spring:update(dt)
-	self.rotation_spring:TimeSkip(dt)
+	self.rotation_spring:update(dt)
 end
 
 function module.set_target(self: object, value: CFrame, is_snapped: boolean?)
@@ -89,23 +89,21 @@ function module.set_target(self: object, value: CFrame, is_snapped: boolean?)
 	
 	if is_snapped then
 		local now = rotation.Clock()
-		rotation._position = q
-		rotation._velocity = Quaternion.zero
-		rotation._target = q;
-		rotation._time0 = now
+		rotation:set_velocity(Vector3.zero)
+		rotation:set_target(q)
+		rotation:set_position(q)
 	else
-		self.rotation_spring.t = q
+		rotation:set_target(q)
 	end
-	-- self.rotation_spring:SetTarget(q_from_cframe(value), is_snapped)
 end
 
 function module.get(self: object, i: string)
-	return self.position_spring:get(i:lower()), self.rotation_spring[i]
+	return self.position_spring:get(i:lower()), self.rotation_spring:get(i:lower())
 end
 
 function module.get_cframe_value_of(self: object, i: string)
 	local p: Vector3, r: quaternion = self:get(i)
-	return r:ToCFrame(p)
+	return r:to_cframe(p)
 end
 
 function get_pair_factory(i: string)
@@ -131,7 +129,7 @@ function module.set(self: object, i: string, positional_value, rotational_value)
 	end
 	
 	if rotational_value then
-		self.rotation_spring[i] = rotational_value
+		self.rotation_spring:set(i:lower(), rotational_value)
 	end
 end
 
