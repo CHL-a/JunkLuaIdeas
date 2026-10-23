@@ -317,6 +317,64 @@ module.iterator.char = c_iterator
 --#########################################################################################
 --#########################################################################################
 
+export type gfind_iterator = {
+	referral: string;
+	pattern: string;
+	start_at: number;
+	is_done: boolean;
+	
+	ahead: string;
+	
+} & simple_it<string>
+
+gfind_iterator = {}
+
+function gfind_iterator.new(s: string, pat: string): gfind_iterator
+	local self: gfind_iterator = Object.simple.new(gfind_iterator)
+	self.referral = s
+	self.pattern = pat
+	self.is_done = false
+	
+	local a, b = s:find(pat)
+	
+	if not a then
+		self.is_done = true
+	else
+		self.start_at = b + 1
+		self.ahead = s:sub(a, b)
+	end
+	
+	return self
+end
+
+function gfind_iterator.can_proceed(self: gfind_iterator)
+	return not self.is_done
+end
+
+function gfind_iterator.proceed(self: gfind_iterator)
+	if not self:can_proceed() then return;end
+	
+	local old = self.ahead
+	local a, b = self.referral:find(self.pattern, self.start_at)
+	
+	if not a then
+		self.is_done = true
+	else
+		self.start_at = b + 1
+		self.ahead = self.referral:sub(a, b)
+	end
+	
+	return old
+end
+
+Class.make_proper_class(gfind_iterator, '@CHL>StringUtils>Iterator>gfind')
+
+module.iterator.gfind = gfind_iterator
+
+--#########################################################################################
+--#########################################################################################
+--#########################################################################################
+
 local Consumer = require('./@CHL>Consumer')
 
 export type char_consumer = {
