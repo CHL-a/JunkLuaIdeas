@@ -115,7 +115,7 @@ end
 
 Instead.invoke = Class.abstractMethod
 
-Class.makeProperClass(Instead, '@CHL>HttpServiceWrapper>WebInstead')
+Class.make_proper_class(Instead, '@CHL>HttpServiceWrapper>WebInstead')
 
 module.instead = Instead
 
