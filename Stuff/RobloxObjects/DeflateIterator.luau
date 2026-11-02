@@ -6,6 +6,7 @@
 	Sources:
 	 * rfc1950: https://www.rfc-editor.org/info/rfc1950
 	 * rfc1951: https://www.rfc-editor.org/info/rfc1951
+	 * https://pyokagan.name/blog/2019-10-18-zlibinflate/
 	
 	Current explaination as of Nov 1st, 2026:
 	
