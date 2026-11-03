@@ -82,16 +82,22 @@ export type object<T> = {
 	last: node<T>;
 	size: number;
 	
-	get_forward_iterator: (self: object<T>) -> forward_iterator<T>;
-	get_backward_iterator: (self: object<T>) -> backward_iterator<T>;
+	is_empty: (self: object<T>) -> boolean;
+	
+	get_forward_iterator: (self: object<T>, at: number?) -> forward_iterator<T>;
+	get_backward_iterator: (self: object<T>, at: number?) -> backward_iterator<T>;
 	
 	node_at: (self: object<T>, index: number) -> node<T>;
 	node_insert: (self: object<T>, index: number, node: node<T>) -> ();
+	node_insert_last: (object<T>, node<T>) -> ();
 	node_remove: (self: object<T>, index: number) -> node<T>;
+	node_remove_last: (self: object<T>) -> node<T>;
 	
-	at: (self: object<T>, index: number, value: T) -> T;
+	at: (self: object<T>, index: number) -> T;
 	insert: (self: object<T>, index: number, value: T) -> ();
+	insert_last: (self: object<T>, value: T) -> ();
 	remove: (self: object<T>, index: number) -> T;
+	remove_last: (self: object<T>) -> T;
 	
 	clear: (self: object<T>) -> ();
 	destroy: (self: object<T>) -> (); -- non single cyclic objects requires an explicit destroy function otherwise memory leak
@@ -107,11 +113,11 @@ function module.new<T>(): object<T>
 	return self
 end
 
-function module.get_forward_iterator<T>(self: object<T>): forward_iterator<T>
+function module.get_forward_iterator<T>(self: object<T>, at: number?): forward_iterator<T>
 	return forward_iterator.new(self.first)
 end
 
-function module.get_backward_iterator<T>(self: object<T>): backward_iterator<T>
+function module.get_backward_iterator<T>(self: object<T>, at: number?): backward_iterator<T>
 	return backward_iterator.new(self.last)
 end
 
@@ -126,7 +132,7 @@ function module.node_at<T>(self: object<T>, index: number): node<T>
 	return forward_iterator.current
 end
 
-function module.node_insert<T>(self: object<T>, index: number, node: node<T>): node<T>
+function module.node_insert<T>(self: object<T>, index: number, node: node<T>)
 	if self.size == 0 then
 		self.first = node
 		self.last = node
@@ -204,6 +210,12 @@ function module.clear<T>(self: object<T>)
 	self.last = nil
 	self.size = 0
 end
+
+function module.node_insert_last<T>(self: object<T>, node: node<T>)self:node_insert(self.size + 1, node) end
+function module.node_remove_last<T>(self: object<T>)self:node_remove(self.size)end
+function module.insert_last<T>(self: object<T>, value: T)self:insert(self.size + 1, value)end
+function module.remove_last<T>(self: object<T>)return self:remove(self.size)end
+function module.is_empty<T>(self: object<T>)return self.size == 0 end
 
 function module.destroy(self)
 	self:clear()
