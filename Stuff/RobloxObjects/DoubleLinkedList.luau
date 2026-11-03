@@ -92,6 +92,9 @@ export type object<T> = {
 	at: (self: object<T>, index: number, value: T) -> T;
 	insert: (self: object<T>, index: number, value: T) -> ();
 	remove: (self: object<T>, index: number) -> T;
+	
+	clear: (self: object<T>) -> ();
+	destroy: (self: object<T>) -> (); -- non single cyclic objects requires an explicit destroy function otherwise memory leak
 }
 
 function module.new<T>(): object<T>
@@ -186,6 +189,24 @@ end
 function module.remove<T>(self: object<T>, index: number): T
 	local node = self:node_remove(index)
 	return node and node.value
+end
+
+function module.clear<T>(self: object<T>)
+	local forward = self:get_forward_iterator()
+	
+	while forward:can_proceed() do
+		local node = forward:proceed()
+		node.next = nil
+		node.prev = nil
+	end
+	
+	self.first = nil
+	self.last = nil
+	self.size = 0
+end
+
+function module.destroy(self)
+	self:clear()
 end
 
 Class.make_proper_class(module, '@CHL>DoubleLinkedList')
