@@ -122,14 +122,27 @@ function module.get_backward_iterator<T>(self: object<T>, at: number?): backward
 end
 
 function module.node_at<T>(self: object<T>, index: number): node<T>
-	local forward_iterator = self:get_forward_iterator()
-	
-	for i = 2, index do
-		if not forward_iterator:can_proceed() then return end
-		forward_iterator:proceed()
+	if index > 0 then
+		local forward_iterator = self:get_forward_iterator()
+		
+		for i = 2, index do
+			if not forward_iterator:can_proceed() then return end
+			forward_iterator:proceed()
+		end
+		
+		return forward_iterator.current
+	elseif index < 0 then
+		local backward_iterator = self:get_backward_iterator()
+		
+		index = -index
+		
+		for i = 2, index do
+			if not backward_iterator:can_proceed() then return end
+			backward_iterator:proceed()
+		end
+		
+		return backward_iterator.current
 	end
-	
-	return forward_iterator.current
 end
 
 function module.node_insert<T>(self: object<T>, index: number, node: node<T>)
