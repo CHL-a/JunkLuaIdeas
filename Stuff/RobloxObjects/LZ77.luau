@@ -166,4 +166,83 @@ module.compressor = compressor
 --########################################################################################################################################################################
 --########################################################################################################################################################################
 
+export type decompressor = {
+	iterator: Iterator.simple<compressor_struct>;
+	window_size: number;
+	preceding_window: dl_list<number>;
+	forward_iterator: DoubleLinkedList.forward_iterator<number>;
+	
+	populate_window: (self: decompressor) -> ();
+	destroy: (self: decompressor) -> ();
+} & Iterator.simple<number>
+
+decompressor = {}
+
+function decompressor.new(iterator: Iterator.simple<compressor_struct>, window_size: number?): decompressor
+	local self: decompressor = Object.simple.new(decompressor)
+	
+	self.iterator = iterator
+	self.window_size = window_size
+	self.preceding_window = DoubleLinkedList.new()
+	
+	return self
+end
+
+function decompressor.can_proceed(self: decompressor): boolean
+	return self.iterator:can_proceed() or self.forward_iterator and self.forward_iterator:can_proceed()
+end
+
+function decompressor.populate_window(self: decompressor): number
+	local iterator = self.iterator
+	
+	if not self.iterator:can_proceed() then return end
+	
+	local preceding_window = self.preceding_window
+	
+	while self.window_size and self.window_size < preceding_window.size do
+		preceding_window:remove(1)
+	end
+	
+	local struct = iterator:proceed()
+	
+	if struct.length ~= 0 then
+		local start_node = preceding_window:node_at(-struct.offset)
+		
+		local struct_forward = DoubleLinkedList.forward_iterator.new(start_node)
+		
+		for i = 1, struct.length do
+			preceding_window:insert_last(struct_forward:proceed().value)
+		end
+	end
+	
+	if struct.next then
+		preceding_window:insert_last(struct.next)
+	end
+end
+
+function decompressor.proceed(self: decompressor): number
+	if not self.forward_iterator then
+		self:populate_window()
+		self.forward_iterator = self.preceding_window:get_forward_iterator()
+	end
+	
+	if self.forward_iterator.current and not self.forward_iterator.current.next then
+		self:populate_window()
+	end
+	
+	return self.forward_iterator:proceed().value
+end
+
+function decompressor.destroy(self: decompressor)
+	self.preceding_window:destroy()
+end
+
+Class.make_proper_class(decompressor, '@CHL>LZ77>Decompressor')
+
+module.decompressor = decompressor
+
+--########################################################################################################################################################################
+--########################################################################################################################################################################
+--########################################################################################################################################################################
+
 return module
