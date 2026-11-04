@@ -3,11 +3,16 @@ local BufferWrapper = require('./@CHL>BufferWrapper')
 local Object = require('./Object')
 local Class = require('./Class')
 local Byte = require('./@CHL>Byte')
+local StringUtils = require('./@CHL>StringUtils')
+local Dash = require('./@roblox>Dash')
 
-export type byte_iterator = Iterator.simple<number> -- standard here is going to be unsigned
+export type byte_iterator = StringUtils.byte_iterator -- standard here is going to be unsigned
 
 local module = {}
 
+Dash.promise:await()
+
+compose = Dash.compose
 disguise = require('./LuaUTypes').disguise
 rshift = bit32.rshift
 lshift = bit32.lshift
@@ -21,6 +26,7 @@ byte_slice = Byte.slice
 
 type buff_w = BufferWrapper.object
 
+-- does read least significant bit first
 export type reader = {
 	iterator: byte_iterator;
 	buffer: buff_w;
@@ -28,8 +34,8 @@ export type reader = {
 	offset: number; -- [0, 7] but 8 in case of uninitialized
 	
 	can_read: (self: reader)-> boolean;
-	read_bits: (self: reader, number)->(number);--lower or equal to 8, 
-	--larger than 0
+	read_bits: (self: reader, number)->(number);--lower or equal to 8, --larger than 0
+	byte_align: (self: reader) -> ();
 	
 	get_bytes: (self: reader, amount: number)->{};
 	read_float: (self: reader, is_big_endian: boolean?) -> number;
@@ -44,12 +50,12 @@ export type reader = {
 	readf64: (self: reader, is_big_endian: boolean?) -> number;
 	readu64: (self: reader, is_big_endian: boolean?) -> number;
 	read_string: (self: reader, len: number) -> string;
-	
 }
 
 bor = bit32.bor
 
 Reader = {}
+Reader.from = {}
 
 function Reader.new(iterator: byte_iterator): reader
 	local self: reader = Object.simple.new(Reader)
@@ -65,6 +71,11 @@ function Reader.can_read(self: reader): boolean
 	return not not self.byte
 end
 
+function Reader.byte_align(self: reader)
+	while self.offset ~= 0 do
+		self:read_bits(1)
+	end
+end
 --[[
 	Reads bits_n bits from 1 to 8
 	-> [12345678]
@@ -151,8 +162,6 @@ function factory_buffer_use_read(b_index: string, length: number)
 		local buff = self.buffer
 		
 		for i = 1, length do
-			
-			
 			assert(self:can_read(), 'unable to handle case where iterator is empty')
 			buff:writeu8(i - 1, self:read_bits(8))
 		end
@@ -172,9 +181,91 @@ Reader.readf64 = factory_buffer_use_read('readf64', 8)
 Reader.read_double = factory_buffer_use_read('read_double', 8)
 Reader.readu64 = factory_buffer_use_read('readu64', 8)
 
+Reader.from.string = compose(StringUtils.iterator.byte.new, Reader.new) :: (string) -> reader
+
 Class.make_proper_class(Reader, '@CHL>BinaryStream>Reader')
 
 module.reader = Reader
+
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+export type msbit_reader = reader;
+
+msbit_reader = {}
+msbit_reader.from = {}
+
+function msbit_reader.new(iterator: byte_iterator)
+	local self: msbit_reader = Object.simple.new(msbit_reader)
+	
+	self.iterator = iterator
+	self.buffer = BufferWrapper.from.size(8)
+	self.byte = iterator:proceed()
+	self.offset = 0
+	
+	return self
+end
+
+--[[
+	Overly simplified version of reading bits.
+	
+	Reads bits from most sigificant (1) to least (8):
+	
+	 <-------  <-------
+	[87654321][FEDCBA09]
+]]
+function msbit_reader.read_bits(self: msbit_reader, bits_amount: number)
+	local byte, offset = self.byte, self.offset
+	
+	if bits_amount == 1 then
+		local result = band(rshift(byte, offset), 0x01)
+		
+		offset += 1
+		
+		if offset >= 8 then
+			byte = self.iterator:proceed()
+			offset = 0
+		end
+		
+		self.byte = byte
+		self.offset = offset
+		
+		return result
+	end
+	
+	local result = 0
+	
+	for i = 1, bits_amount do
+		local bit = self:read_bits(1)
+		
+		result = bor(result, lshift(bit, i - 1))
+	end
+	
+	return result
+end
+
+msbit_reader.byte_align = Reader.byte_align
+msbit_reader.can_read = Reader.can_read
+msbit_reader.get_bytes = Reader.get_bytes
+msbit_reader.read_string = Reader.read_string
+msbit_reader.readi8 = Reader.readi8
+msbit_reader.readu8 = Reader.readu8
+msbit_reader.readi16 = Reader.readi16
+msbit_reader.readu16 = Reader.readu16
+msbit_reader.readi32 = Reader.readi32
+msbit_reader.readu32 = Reader.readu32
+msbit_reader.readf32 = Reader.readf32
+msbit_reader.read_float = Reader.readf32
+msbit_reader.readf64 = Reader.readf64
+msbit_reader.read_double = Reader.readf64
+msbit_reader.readu64 = Reader.readu64
+
+msbit_reader.from.string = compose(StringUtils.iterator.byte.new, msbit_reader.new) :: (string) -> msbit_reader
+
+Class.make_proper_class(msbit_reader, '@CHL>BinaryStream>msbit_reader')
+
+module.msbit_reader = msbit_reader
 
 --#####################################################################################
 --#####################################################################################
@@ -315,7 +406,6 @@ Writer.write_float = factory_buffer_use_write('writef32', 4)
 Writer.writef64 = factory_buffer_use_write('writef64', 8)
 Writer.write_double = factory_buffer_use_write('write_double', 8)
 Writer.writeu64 = factory_buffer_use_write('writeu64', 8)
-
 
 module.writer = Writer
 
