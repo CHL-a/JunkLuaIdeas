@@ -17,8 +17,18 @@ is_client = game:GetService('RunService'):IsClient()
 
 module.middle = {}
 
-function module.middle.get_module_script(model: Model): ModuleScript
-	return disguise(model:FindFirstChildWhichIsA('ModuleScript'))
+function module.middle.get_module_script(arg): ModuleScript
+	if typeof(arg) == 'table' then
+		for _, child in arg do
+			if child:IsA('ModuleScript') and child.Name == 'MainModule' then
+				return child
+			end
+		end
+	elseif typeof(arg) == 'Instance' then
+		if arg:IsA('Model') then
+			return disguise(arg:FindFirstChildWhichIsA('ModuleScript'))
+		end
+	end
 end
 
 function module.middle.move_to_repo(instance: Instance)
