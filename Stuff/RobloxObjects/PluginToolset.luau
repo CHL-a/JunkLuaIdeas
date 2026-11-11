@@ -15,7 +15,7 @@ empty = LuaUTypes.empty
 disguise = LuaUTypes.disguise
 run_service = game:GetService('RunService')
 
-module.promised_plugin = Promise.new(empty) :: promise<Plugin | nil>
+module.promised_plugin = Promise.new(empty) :: promise<Plugin?>
 module.plugin = disguise()
 
 -- explicit set function, while this would've been a deprecated function, this function assists with a method of a deterministic method of finding
