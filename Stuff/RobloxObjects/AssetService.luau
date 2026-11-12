@@ -17,7 +17,7 @@ module.models = {}
 
 -- returns a new model instantiated from assetid
 module.load_asset_raw = Promise.promisify(function(asset_id)
-	local plugin = PluginToolset.get_plugin():expect()
+	local plugin = PluginToolset.promised_plugin:expect()
 	
 	if plugin then
 		return game:GetObjects(`rbxassetid://{asset_id}`)
