@@ -20,7 +20,7 @@ module.middle = {}
 function module.middle.get_module_script(arg): ModuleScript
 	if typeof(arg) == 'table' then
 		for _, child in arg do
-			if child:IsA('ModuleScript') and child.Name == 'MainModule' then
+			if child:IsA('ModuleScript') then
 				return child
 			end
 		end
