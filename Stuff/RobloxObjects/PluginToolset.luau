@@ -21,8 +21,6 @@ module.plugin = disguise()
 -- explicit set function, while this would've been a deprecated function, this function assists with a method of a deterministic method of finding
 -- plugin instead of a required explicit set
 function module.set_plugin(plugin: Plugin)
-	assert(plugin and plugin:IsA('Plugin'))
-	
 	module.plugin = plugin
 	module.promised_plugin:resolve(plugin)
 end
