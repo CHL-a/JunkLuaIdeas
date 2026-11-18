@@ -409,4 +409,77 @@ Writer.writeu64 = factory_buffer_use_write('writeu64', 8)
 
 module.writer = Writer
 
+--#####################################################################################
+--#####################################################################################
+--#####################################################################################
+
+export type msbit_writer = writer;
+
+msbit_writer = {}
+
+function msbit_writer.new(consumer: byte_consumer): writer
+	local self: writer = Object.simple.new(msbit_writer)
+	self.consumer = consumer or Consumer.print
+	self.buffer = BufferWrapper.from.size(8)
+	self.offset = 0
+	self.byte = 0
+
+	return self
+end
+
+--[[
+	Attempts to write bits_n bits from 1 to 8 using value, 
+	input: [87654321]
+	-->
+	object stashed byte: [87654321]
+	
+	Notes:
+	input bits are extracted 8 and before depending on bits_n, then placed from left to right on object stashed byte by 
+	shifting byte to the left
+]]
+function msbit_writer.write_bits(self: writer, value: number, bits_n: number)
+	if bits_n == 0 then
+		return;
+	end
+	
+	if bits_n == 1 then
+		local val_bit = band(value, 0x01)
+		
+		self.byte = bor(self.byte, lshift(val_bit, self.offset))
+		
+		self.offset += 1
+		
+		if self.offset >= 8 then
+			
+			self.consumer:consume(self.byte)
+			
+			self.offset = 0
+			self.byte = 0
+		end
+	else
+		for i = 1, bits_n do
+			self:write_bits(value, 1)
+			
+			value = rshift(value, 1)
+		end
+	end
+end
+
+msbit_writer.write_bytes = module.writer.write_bytes
+msbit_writer.write_string = module.writer.write_string
+msbit_writer.writei8 = module.writer.writei8
+msbit_writer.writeu8 = module.writer.writeu8
+msbit_writer.writei16 = module.writer.writei16
+msbit_writer.writeu16 = module.writer.writeu16
+msbit_writer.writei32 = module.writer.writei32
+msbit_writer.writeu32 = module.writer.writeu32
+msbit_writer.writef32 = module.writer.writef32
+msbit_writer.write_float = module.writer.write_float
+msbit_writer.writef64 = module.writer.writef64
+msbit_writer.write_double = module.writer.write_double
+
+Class.make_proper_class(msbit_writer, '@CHL>BinaryStream>msbit_writer')
+
+module.msbit_writer = msbit_writer
+
 return module
