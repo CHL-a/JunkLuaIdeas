@@ -212,6 +212,7 @@ export type module = {
 --// MAIN
 local module = {}
 local is_client = game:GetService('RunService'):IsClient()
+local is_server = game:GetService('RunService'):IsServer()
 
 module.asset_id = 15239197565
 
@@ -242,7 +243,7 @@ local present_module_script_check = script.Parent:FindFirstChild('Dash')
 
 if present_module_script_check then
 	module.module_script = Promise.resolve(present_module_script_check)
-elseif not is_client then
+elseif is_server then
 	module.module_script = AssetService.load_asset(module.asset_id)
 		:upon(LuaULibs.middle.get_module_script)
 		:tap(LuaULibs.middle.move_to_repo)
