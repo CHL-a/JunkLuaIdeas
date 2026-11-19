@@ -266,6 +266,10 @@ function b_iterator.proceed(self: byte_iterator)
 	return result
 end
 
+function b_iterator.get_string(self: byte_iterator)
+	
+end
+
 b_iterator.__iter = Iterator.simple.__iter
 Class.make_proper_class(b_iterator, '@CHL>StringUtils>Iterator>Byte')
 
@@ -423,6 +427,8 @@ end
 function b_consumer.get_string(self: byte_consumer)
 	return self.c_consumer.referral
 end
+
+b_consumer.dump = Consumer.dump
 
 Class.make_proper_class(b_consumer, '@CHL>StringUtils>Consumer>Byte')
 
