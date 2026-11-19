@@ -148,7 +148,7 @@ function Reader.read_string(self: reader, len: number)
 	local result = ''
 	
 	for i = 1, len do
-		if not self.iterator:can_proceed() then
+		if not self:can_read() then
 			break
 		end
 		result ..= string.char(self:read_bits(8))
