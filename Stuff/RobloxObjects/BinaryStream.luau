@@ -224,7 +224,11 @@ function msbit_reader.read_bits(self: msbit_reader, bits_amount: number)
 		offset += 1
 		
 		if offset >= 8 then
-			byte = self.iterator:proceed()
+			if self.iterator:can_proceed() then
+				byte = self.iterator:proceed()
+			else
+				byte = nil
+			end
 			offset = 0
 		end
 		
