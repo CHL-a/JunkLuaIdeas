@@ -107,6 +107,9 @@ function server_space()
 	local bindable = InstanceUtils.promise.impatient_wait_for_descendant(20, server_script_service, 'SoloDataStore', 'Gateway')
 	
 	bindable:upon(function(bindable_event: BindableEvent)
+		if not bindable_event:IsA('BindableEvent') then
+			error(`system interference: unknown class in solodatastore: \nexpected: ServerScriptService.SoloDataStore.Gateway (BindableEvent)\ngot: {bindable_event.ClassName}`)
+		end
 		bindable_event.Event:Connect(function(state)
 			DeadDrop.stash('__solo_datastore', state)
 		end)
