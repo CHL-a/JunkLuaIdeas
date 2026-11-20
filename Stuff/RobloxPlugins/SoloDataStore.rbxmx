@@ -85,7 +85,13 @@ function studio_space()
 			return
 		end
 		
-		local data = DeadDrop.to_medium(DeadDrop.retrieve('__solo_datastore'))
+		local data = DeadDrop.retrieve('__solo_datastore')
+		
+		if data == nil then
+			return;
+		end
+		
+		data = DeadDrop.to_medium(data)
 		
 		local folder = server_script_service:FindFirstChild('SoloDataStore')
 		
@@ -116,7 +122,7 @@ end]]></ProtectedString>
 				<bool name="Disabled">false</bool>
 				<Content name="LinkedSource"><null></null></Content>
 				<token name="RunContext">0</token>
-				<string name="ScriptGuid">{69DD5936-F830-45B8-BA52-E489FD6F5617}</string>
+				<string name="ScriptGuid">{AC7D06FE-10C6-402B-B63C-9B72A77592D1}</string>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 				<bool name="DefinesCapabilities">false</bool>
@@ -193,7 +199,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{E774F0FE-48BB-46F1-BA2B-6D46C9E32853}</string>
+					<string name="ScriptGuid">{E6F7C3F3-7ABC-428F-B75C-DD9D0E46B5DA}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -440,7 +446,7 @@ end
 
 return module :: typeof(module) & modified_module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{5D925634-CB4B-4F7A-BD00-B19F835C9655}</string>
+					<string name="ScriptGuid">{856B0A42-CE66-4D05-AD42-E8F5F43720C3}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -536,7 +542,7 @@ module.metamethods = {
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{B1F622D3-76C9-4288-80DC-B1C9CE4D79A2}</string>
+					<string name="ScriptGuid">{ACE35E1B-4213-4D37-A531-17C7D2973408}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -2532,7 +2538,7 @@ end
 
 return Promise
 ]]></ProtectedString>
-					<string name="ScriptGuid">{97501451-D776-42D7-B852-306CCEBC9F5D}</string>
+					<string name="ScriptGuid">{03F58875-2DA9-4E49-B6D4-8B6CE758C0C6}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -3152,7 +3158,7 @@ module.deserializer_0 = deserializer_0
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{6B73B43F-85ED-4745-AD27-5141D4C57CDF}</string>
+					<string name="ScriptGuid">{9D3C255F-402C-45FA-8BC5-F25E180A195D}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -3655,7 +3661,7 @@ module.msbit_writer = msbit_writer
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{B184DE2C-A4D9-4E4B-BF46-04FD0795EB86}</string>
+					<string name="ScriptGuid">{08E60BD7-3442-4944-8EC1-D10976AC7FF9}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -4358,7 +4364,7 @@ module.consumer = b_consumer
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{91C33DCA-8A03-4B37-9544-2DCACB75E4DF}</string>
+					<string name="ScriptGuid">{9E2FC116-B068-4DA4-AC41-F53E4B445050}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -4644,7 +4650,7 @@ module.promise = module.module_script
 
 return module :: typeof(module) & module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{103D189E-E3BA-4FE3-ACE1-57BA2CDDA286}</string>
+					<string name="ScriptGuid">{619E48F2-32AB-4A6F-8C85-87A83D9109A1}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -4741,7 +4747,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{C6FA26BF-F237-40D5-B48D-B29E5C6316D8}</string>
+					<string name="ScriptGuid">{426A93F2-691A-4EDE-91F1-6748F3CBA722}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -4995,7 +5001,7 @@ module.char_radix = char_radix
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{78B32F13-A582-4ABB-A377-6FDDA5B76853}</string>
+					<string name="ScriptGuid">{52AF6D14-9C78-4191-9BE2-7CE0CF66348D}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -5036,7 +5042,7 @@ export type dictionary<T> = simple<string, T>
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{A887BB60-501E-4EB2-AC7B-FD8D3A395AAB}</string>
+					<string name="ScriptGuid">{06318499-9382-4C12-95F8-98967958C7FC}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -5254,7 +5260,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{AFD8E70D-F444-438F-8B23-B8FA8DF48823}</string>
+					<string name="ScriptGuid">{E94BCB08-B2AB-42B9-96CA-00FE0BF20A55}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -5685,7 +5691,7 @@ end
 --########################################################################################
 return Class
 ]]></ProtectedString>
-					<string name="ScriptGuid">{34C6A0EE-79E8-4D19-9A12-940E0F4A49E4}</string>
+					<string name="ScriptGuid">{30BA1EF7-D954-4B33-BF9F-A66AF39D0B3A}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -5720,7 +5726,7 @@ module.Destroy = module.destroy
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{566C0AE1-7811-495A-81A6-6AFDFB0C98CE}</string>
+					<string name="ScriptGuid">{C72581CE-AD1F-45BA-B199-2A2A6A89D960}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -5858,7 +5864,7 @@ module.variants = variants
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{FE99C42B-DA41-4E0D-8D75-0832E5D39230}</string>
+					<string name="ScriptGuid">{DCDDA36F-05FF-4B33-9657-BC58499EE5C1}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -6313,7 +6319,7 @@ module.consumer.byte = b_consumer
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{4AE8AD96-60C1-41DD-9A31-19321123CEBA}</string>
+					<string name="ScriptGuid">{8398DF41-3B60-43E6-9B8B-F065AC3D13E2}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -6510,7 +6516,7 @@ module.array_set = array_set
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{B1395A7E-C447-4C97-9A93-885ED35E8231}</string>
+					<string name="ScriptGuid">{39325193-464B-4B8B-8A72-B9C3B3B59E3E}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -6546,7 +6552,7 @@ module.print = {consume=print; dump=module.dump} :: object<any>
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{269CC157-046F-44BC-A585-F0133F8EDF53}</string>
+					<string name="ScriptGuid">{4D5A49B3-DC3F-4D9D-AC9A-A27D9770E2C4}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -6636,7 +6642,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{2E7EA581-457F-4F6A-8D1A-E8586BE2DA0E}</string>
+					<string name="ScriptGuid">{BF94D18C-00E9-4468-AF2B-77FD7E2070D5}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -6699,7 +6705,7 @@ module.default_library = bit32
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{DB1561EF-1908-448F-8FA4-F0A8129925D4}</string>
+					<string name="ScriptGuid">{45C1BC6E-6699-461B-94D0-CF700AC30E33}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -6785,7 +6791,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{6256B0F6-7022-4C90-9A10-0D2A1F057550}</string>
+					<string name="ScriptGuid">{59D727CD-81D8-4BD9-9CAF-84637AF681CE}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -7021,7 +7027,7 @@ Class.make_proper_class(package, '@CHL>EventPackage')
 
 return package
 ]]></ProtectedString>
-					<string name="ScriptGuid">{77464A53-D43E-4E5B-A552-752B98665812}</string>
+					<string name="ScriptGuid">{04B4E404-8B25-4F59-9134-661FF6FF5A8B}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -7137,7 +7143,7 @@ Class.make_proper_class(module, '@CHL>LinkedStack')
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{350A12C2-2F2F-4E29-B204-1EF512B2CA5D}</string>
+					<string name="ScriptGuid">{1427CF43-3722-409B-A3E7-1A8C0782CDC1}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -7439,7 +7445,7 @@ module.tuple_queue = tuple_queue
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{2B39FBEE-167A-42C6-90BA-80984938ED12}</string>
+					<string name="ScriptGuid">{8257D225-B4C5-4EE6-B234-9F00BFC2435E}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -7646,7 +7652,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{E94381BF-0174-42C9-BCFE-5B7F0871B3D0}</string>
+					<string name="ScriptGuid">{52D44FFC-A251-4814-9F30-3709E5444A4B}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -7703,7 +7709,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{C0CE7F90-937F-45E6-8831-01B6A75C8CED}</string>
+					<string name="ScriptGuid">{A2B7CDBC-7E07-4C24-BBA0-F851330D50B8}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -8163,7 +8169,7 @@ module.all = All
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{ACDCA00B-E166-4232-9982-043E9400B2E3}</string>
+					<string name="ScriptGuid">{63600544-3A60-4126-829D-6F565581B7F6}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -8346,7 +8352,7 @@ function module.to_1d_array<A>(pages:pages<A>):{A}return module.imprint.to_1d_ar
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{ED013BA1-E86A-4A05-99F3-89EC62828835}</string>
+					<string name="ScriptGuid">{EF778E85-39E0-4722-9855-117D792F8AC8}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -8629,7 +8635,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{723A1C26-0658-4835-AE0E-EDBE9ED8AB93}</string>
+					<string name="ScriptGuid">{D9233083-C405-4748-90C3-B42DA8D18D6E}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -9323,7 +9329,7 @@ end
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{5D152BD4-C936-4110-A8B5-CF13F07ACE38}</string>
+					<string name="ScriptGuid">{19FA01F8-F2D8-4CB1-A0C5-FFA8DDD690AA}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -10105,7 +10111,7 @@ function NamedSignal.wrap<OtherSignal>(otherSignal: OtherSignal & RBXScriptSigna
 end
 
 return NamedSignal]]></ProtectedString>
-					<string name="ScriptGuid">{7FEB8D76-3913-4A14-BD67-0E9AEAD5D60F}</string>
+					<string name="ScriptGuid">{F474FD90-C745-44F4-83B2-3E624FB49EB5}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
@@ -10421,7 +10427,7 @@ export type WrapSignal<OtherSignal> = Signal<SignatureFromSignal<OtherSignal>>
 export type WrapConnection<OtherSignal> = Connection<SignatureFromSignal<OtherSignal>>
 
 return nil]]></ProtectedString>
-						<string name="ScriptGuid">{4DE11E10-0853-4E81-A1D0-1F2C40536340}</string>
+						<string name="ScriptGuid">{ADF32B1A-04F4-418E-A08A-D1709F835440}</string>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 						<bool name="DefinesCapabilities">false</bool>
@@ -10870,7 +10876,7 @@ dumpbutton:Clicked(function()
 end)
 
 gui.LayoutManager.RecallSave()]]></ProtectedString>
-						<string name="ScriptGuid">{F562A7E3-12BE-4EFF-9AA3-6A31D4EDEAC1}</string>
+						<string name="ScriptGuid">{473B726D-0B26-438E-92E9-A0A8B87BF526}</string>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 						<bool name="DefinesCapabilities">false</bool>
@@ -10914,7 +10920,7 @@ local function requireall(p,id)
     return library
 end
 return requireall]]></ProtectedString>
-							<string name="ScriptGuid">{4132081B-6254-443C-A016-8DAD9E9C736E}</string>
+							<string name="ScriptGuid">{313E8B86-6E8D-4AC5-8E2C-6CEEB9691BF7}</string>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 							<bool name="DefinesCapabilities">false</bool>
@@ -10986,7 +10992,7 @@ function BackgroundFrame.new(Arguments, Parent)
 end
 
 return BackgroundFrame]]></ProtectedString>
-									<string name="ScriptGuid">{05242604-5EE5-4A54-8D1D-8702466C66D6}</string>
+									<string name="ScriptGuid">{A4337EF8-C24E-4F84-9DCA-353D1023900D}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11019,7 +11025,7 @@ function GUIFrame:SetMain()
 end
 
 return GUIFrame]]></ProtectedString>
-									<string name="ScriptGuid">{2CF10007-CAF7-4363-9AC8-277272E8879A}</string>
+									<string name="ScriptGuid">{43DEEDC4-DBD9-42BE-BADC-AE3D813188E3}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11068,7 +11074,7 @@ function ListFrame.new(Arguments, Parent)
 end
 
 return ListFrame]]></ProtectedString>
-									<string name="ScriptGuid">{A5C3852B-630F-4081-9089-524FA028C57F}</string>
+									<string name="ScriptGuid">{8C013F66-EE73-48A8-A3CB-C917BC7492B6}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11208,7 +11214,7 @@ function Page.new(Arguments, Parent)
 end
 
 return Page]]></ProtectedString>
-									<string name="ScriptGuid">{F8E1C736-11C4-459F-82DF-40923C95B8F8}</string>
+									<string name="ScriptGuid">{197172F0-D5A3-4AD4-A799-3B6A93A2BC97}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11336,7 +11342,7 @@ function Widget.new(Arguments)
 end
 
 return Widget]]></ProtectedString>
-									<string name="ScriptGuid">{0E13E9F6-ECA8-457B-8926-ED2FBAE86573}</string>
+									<string name="ScriptGuid">{F939E91E-82EE-47DF-AA94-A62167B7E186}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11411,7 +11417,7 @@ function ScrollingFrame.new(Arguments, Parent)
 end
 
 return ScrollingFrame]]></ProtectedString>
-									<string name="ScriptGuid">{98B8A5B9-B5E1-4C7C-9481-F3AE46A30384}</string>
+									<string name="ScriptGuid">{E3C79C1D-A00F-4D8A-9C03-050DAB2FBE80}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11538,7 +11544,7 @@ function Section.new(Arguments, Parent)
 end
 
 return Section]]></ProtectedString>
-									<string name="ScriptGuid">{0472C683-9F31-4F7E-AA69-731ACCC7BAEC}</string>
+									<string name="ScriptGuid">{8200D969-7F81-4E92-80E8-EC5B7B28E7F7}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11702,7 +11708,7 @@ function TitlebarMenu.new(Arguments, Parent)
 end
 
 return TitlebarMenu]]></ProtectedString>
-									<string name="ScriptGuid">{2C32293C-99F7-447F-92BD-545D4EFA325C}</string>
+									<string name="ScriptGuid">{459BDC38-DC80-4BEC-B302-63066DA12D6A}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11730,7 +11736,7 @@ function GUIElement.new(Arguments, Parent)
 end
 
 return GUIElement]]></ProtectedString>
-								<string name="ScriptGuid">{ABB30821-76F0-418F-A123-3FDF5C685845}</string>
+								<string name="ScriptGuid">{E2E2DE69-7056-43FE-BA4B-2F7B23D7E94A}</string>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 								<bool name="DefinesCapabilities">false</bool>
@@ -11777,7 +11783,7 @@ GV.PluginObject.Unloading:Connect(function()
 end)
 
 return m]]></ProtectedString>
-									<string name="ScriptGuid">{C1FC0DFF-8C9C-4ACC-A73A-BA7280596CC3}</string>
+									<string name="ScriptGuid">{391B3CF3-8DD1-429A-A486-399BA49C8FA6}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -11812,7 +11818,7 @@ function m.AddInput(Frame)
 end
 
 return m]]></ProtectedString>
-									<string name="ScriptGuid">{6F53E212-28C9-4BCC-A2F3-FDFF9D84488C}</string>
+									<string name="ScriptGuid">{471703E7-C5AD-42E4-AB92-0DE06311750C}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -12035,7 +12041,7 @@ EventManager.AddConnection(InputService.InputBegan, InputBegan)
 EventManager.AddConnection(InputService.InputEnded, InputEnded)
 
 return m]]></ProtectedString>
-									<string name="ScriptGuid">{C4C665A5-33FD-41DE-A94C-D93495036C25}</string>
+									<string name="ScriptGuid">{53834AD9-B9D7-4522-AA49-4C0522017DB8}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -12126,7 +12132,7 @@ GV.PluginObject.Unloading:Connect(function()
 end)
 
 return m]]></ProtectedString>
-									<string name="ScriptGuid">{601A2CBD-6E50-4E39-9CC5-B6B990D26CF6}</string>
+									<string name="ScriptGuid">{89FAA465-B256-4641-A1FB-01C3E6F17A9A}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -12200,7 +12206,7 @@ GV.PluginObject.Unloading:Connect(function()
 end)
 
 return m]]></ProtectedString>
-									<string name="ScriptGuid">{CB2C507A-C06D-4BAF-B491-CDF675C875B9}</string>
+									<string name="ScriptGuid">{EC14752E-10C7-4783-A2E3-0EA046F6F50E}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -12350,7 +12356,7 @@ function m.TableToColor3(table)
 end
 
 return m]]></ProtectedString>
-									<string name="ScriptGuid">{EEC2D5F7-3A10-4F60-814D-D6A47AD458EB}</string>
+									<string name="ScriptGuid">{0B1D3918-2553-489B-A0F8-4EE2E21BA598}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -12525,7 +12531,7 @@ function Button.new(Arguments, Parent)
 end
 
 return Button]]></ProtectedString>
-									<string name="ScriptGuid">{78907F3D-14BC-406F-9E7C-D42C760C01E4}</string>
+									<string name="ScriptGuid">{5665590E-C9C8-438D-A4CB-A955D8DB166C}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -12635,7 +12641,7 @@ function Checkbox.new(Arguments, Parent)
 end
 
 return Checkbox]]></ProtectedString>
-									<string name="ScriptGuid">{1B8F44EB-01B1-4BE5-8433-3719BE4D6581}</string>
+									<string name="ScriptGuid">{10006611-16DF-49E2-913D-D1FC4A1ED467}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -12763,7 +12769,7 @@ function ColorInput.new(Arguments, Parent)
 end
 
 return ColorInput]]></ProtectedString>
-									<string name="ScriptGuid">{D82B7623-A912-464E-9C9C-7EC58E524F1D}</string>
+									<string name="ScriptGuid">{E9F65523-1A22-4A0F-9D0C-A49C36BAA99E}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -12810,7 +12816,7 @@ end
 
 
 return GUIObject]]></ProtectedString>
-									<string name="ScriptGuid">{1C6FC999-D6ED-4917-AA71-EF807DD832BE}</string>
+									<string name="ScriptGuid">{5675E471-BE10-4519-BF17-AD4AC17E8A22}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13201,7 +13207,7 @@ function InputField.new(Arguments, Parent)
 end
 
 return InputField]]></ProtectedString>
-									<string name="ScriptGuid">{D8A83B51-1B76-426A-B70A-968A7FAF7086}</string>
+									<string name="ScriptGuid">{D313CD5B-8FED-4432-A2B7-4C53D138AEC1}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13249,7 +13255,7 @@ function InstanceInputField.new(Arguments, Parent)
 end
 
 return InstanceInputField]]></ProtectedString>
-									<string name="ScriptGuid">{80C6A445-8993-4202-AF7C-00038ACE2715}</string>
+									<string name="ScriptGuid">{7FC517DB-DDA4-4772-946E-57523F9C13DA}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13385,7 +13391,7 @@ function KeybindInputField.new(Arguments, Parent)
 end
 
 return KeybindInputField]]></ProtectedString>
-									<string name="ScriptGuid">{D966026B-CF97-4ABF-82F8-4AD1F305D877}</string>
+									<string name="ScriptGuid">{A0104236-F87D-4AD5-92E7-21E2D0157ABE}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13488,7 +13494,7 @@ function LabeledObject.new(Arguments, Parent)
 end
 
 return LabeledObject]]></ProtectedString>
-									<string name="ScriptGuid">{8F26A926-EAF2-43A6-B88B-98F5EA19D251}</string>
+									<string name="ScriptGuid">{AB4C3D79-D92E-4376-9C20-C8B1A8D1AE97}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13518,7 +13524,7 @@ function temp.new(Arguments, Parent)
 end
 
 return temp]]></ProtectedString>
-									<string name="ScriptGuid">{5A25E5EE-9D04-444C-81CD-013D7BE6A93E}</string>
+									<string name="ScriptGuid">{F0331EC0-EEA7-467A-AE9A-750CFBC0B093}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13586,7 +13592,7 @@ function ProgressBar.new(Arguments, Parent)
 end
 
 return ProgressBar]]></ProtectedString>
-									<string name="ScriptGuid">{3E398FE2-1CCC-4E2E-AFBB-2B0C9E027044}</string>
+									<string name="ScriptGuid">{CE8528ED-D816-47B0-A319-77E681896C11}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13722,7 +13728,7 @@ function Slider.new(Arguments, Parent)
 end
 
 return Slider]]></ProtectedString>
-									<string name="ScriptGuid">{5EB86B60-7C38-4FD9-9D1A-B874C601A3BF}</string>
+									<string name="ScriptGuid">{B74A80C6-5C53-41D2-AC51-8F35F0A66549}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13778,7 +13784,7 @@ function Textbox.new(Arguments, Parent)
 end
 
 return Textbox]]></ProtectedString>
-									<string name="ScriptGuid">{E85FC5C5-5526-457A-ACC0-363EA322FF86}</string>
+									<string name="ScriptGuid">{AA467833-8A5C-4B1F-B128-A6C85B49FB77}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13891,7 +13897,7 @@ function TitlebarButton.new(Arguments)
 end
 
 return TitlebarButton]]></ProtectedString>
-									<string name="ScriptGuid">{D79F8BF5-31CF-4373-A5F7-02B974805220}</string>
+									<string name="ScriptGuid">{CE79ABAE-3CF6-4C0E-9450-DC0C003499B4}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -13986,7 +13992,7 @@ function ToggleableButton.new(Arguments, Parent)
 end
 
 return ToggleableButton]]></ProtectedString>
-									<string name="ScriptGuid">{9CAD64EE-1F01-49C0-A386-E1E59EC43375}</string>
+									<string name="ScriptGuid">{062927F7-004B-4C0E-9FD3-A891EFC01D6A}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -14290,7 +14296,7 @@ function ViewButton.new()
 end
 
 return ViewButton]]></ProtectedString>
-									<string name="ScriptGuid">{12880D9B-A79D-4286-87BC-43CF9BB0CB21}</string>
+									<string name="ScriptGuid">{B08EFBE3-2C67-48EA-9C96-40F44141765B}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -14313,7 +14319,7 @@ m.PromptsDir = m.LibraryDir.Prompts
 m.MiscDir = m.LibraryDir.Misc
 
 return m]]></ProtectedString>
-								<string name="ScriptGuid">{82FB2E7B-EEEC-4D6D-8D1B-BA001E0A0B48}</string>
+								<string name="ScriptGuid">{CB461E80-712F-4BB6-9561-3CB0D19793E2}</string>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 								<bool name="DefinesCapabilities">false</bool>
@@ -14608,7 +14614,7 @@ function ColorPrompt.new(Arguments)
 end
 
 return ColorPrompt]]></ProtectedString>
-									<string name="ScriptGuid">{D3B907F0-B623-45F8-819F-33F3ED53221E}</string>
+									<string name="ScriptGuid">{ED842CA4-B34B-4DAF-9DA9-53DA8E85E30A}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -14652,7 +14658,7 @@ function InputPrompt.new(Arguments)
 end
 
 return InputPrompt]]></ProtectedString>
-									<string name="ScriptGuid">{E3A2B043-A7E7-420D-82E2-2F8FDC352D33}</string>
+									<string name="ScriptGuid">{D5A819A4-6403-470F-8264-7FF08D9A5909}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -14724,7 +14730,7 @@ function Prompt.new(Arguments)
 end
 
 return Prompt]]></ProtectedString>
-									<string name="ScriptGuid">{BD125347-5DDF-4841-8584-BFB6FE6DC3E7}</string>
+									<string name="ScriptGuid">{A47AA65D-8EAC-4970-A93F-4058847EE4AE}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -14837,7 +14843,7 @@ function TextPrompt.new(Arguments)
 end
 
 return TextPrompt]]></ProtectedString>
-									<string name="ScriptGuid">{C9DD3B7F-4273-4ED5-B966-B949F9F74726}</string>
+									<string name="ScriptGuid">{2E4CD6AC-0EDD-4446-ACFA-8547F87BA8BC}</string>
 									<BinaryString name="AttributesSerialize"></BinaryString>
 									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 									<bool name="DefinesCapabilities">false</bool>
@@ -14869,7 +14875,7 @@ function temp.new()
 end
 
 return temp]]></ProtectedString>
-								<string name="ScriptGuid">{699552BD-99F9-41C4-98A6-5D36F03FA3D7}</string>
+								<string name="ScriptGuid">{38C603FC-5E02-4123-A1CC-3385B048C554}</string>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 								<bool name="DefinesCapabilities">false</bool>
@@ -15056,7 +15062,7 @@ module.promise = promise_lib
 
 return module
 ]]></ProtectedString>
-					<string name="ScriptGuid">{09F7867F-E247-4DFD-816A-85D95D9E6522}</string>
+					<string name="ScriptGuid">{63FAA0AB-BF38-4269-94B8-C3654CDCFAC1}</string>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
