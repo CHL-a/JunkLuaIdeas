@@ -20,7 +20,9 @@ bindable = module.find_bindable()
 module.data = nil
 
 if bindable then
-	module.data = PluginDeadDrop.from_medium(module.find_folder():GetAttribute('data')) or {}
+	local data_string = module.find_folder():GetAttribute('data')
+	
+	module.data = data_string and PluginDeadDrop.from_medium(data_string) or {}
 	
 	game:BindToClose(function(reason)
 		if not module.data then
