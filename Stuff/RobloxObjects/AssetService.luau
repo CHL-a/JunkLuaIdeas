@@ -28,7 +28,8 @@ module.load_asset_raw = Promise.promisify(function(asset)
 	
 	result.asset = asset
 	
-	if typeof(asset) == 'string' and plugin then
+	if typeof(asset) == 'string' then
+		assert(plugin, `Plugin permissions are required to load asset {asset}`)
 		return game:GetObjects(`rbxasset://{asset}`)
 	end
 	
@@ -37,7 +38,6 @@ module.load_asset_raw = Promise.promisify(function(asset)
 	end
 	
 	return module.service:LoadAssetAsync(asset):GetChildren()
-	
 end)::(asset_id: number) -> promise<{Instance}>
 
 -- returns a new model instantiated from assetid or a cached model if it hit
