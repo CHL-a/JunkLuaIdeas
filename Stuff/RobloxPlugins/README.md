@@ -11,3 +11,7 @@
 2. Install `@CHL>SoloDataStore`
 
 Api for this is similar to `DataStoreService`.
+
+## QuickAssetImporter Api
+1. Install system
+2. Install `@CHL>PluginAssetImporter`
