@@ -245,6 +245,7 @@ if present_module_script_check then
 	module.module_script = Promise.resolve(present_module_script_check)
 elseif is_server then
 	module.module_script = AssetService.load_asset(module.asset_id)
+		:upon(function(struct)return struct.instances end)
 		:upon(LuaULibs.middle.get_module_script)
 		:tap(LuaULibs.middle.move_to_repo)
 else
