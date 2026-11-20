@@ -26,7 +26,6 @@ module.structs = {}
 module.load_asset_raw = Promise.promisify(function(asset)
 	local plugin = PluginToolset.promised_plugin:expect()
 	
-	result.asset = asset
 	
 	if typeof(asset) == 'string' then
 		assert(plugin, `Plugin permissions are required to load asset {asset}`)
@@ -49,23 +48,24 @@ function module.load_asset(asset: any): promise<result_struct>
 	end
 	
 	local result = module.load_asset_raw(asset)
-		:append_args(asset)
-		:upon(function(array, asset)
+		:upon(function(instances)
 			return {
-				asset = asset;
+				instances = instances;
 				success = true;
-				instances = array;
-			} :: result_struct
-		end)
-		:catch(function(err, ...): ...any
+			}
+		end, function(err)
 			return {
-				asset = asset;
-				success = false;
 				message = tostring(err);
-			} :: result_struct
+				success = false;
+			}
+		end)
+		:append_args(asset)
+		:upon(function(struct: result_struct, asset)
+			struct.asset = asset
+			return struct
 		end)
 	
-	promised_models[asset] = result
+	promised_structs[asset] = result
 	
 	return result
 end
