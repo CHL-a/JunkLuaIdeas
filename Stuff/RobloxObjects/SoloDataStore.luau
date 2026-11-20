@@ -114,7 +114,7 @@ function service.GetOrderedDataStore(self:service, s)
 end
 --]]
 
-Class.make_proper_class(service, '@CHL>FakeDataStore>Service')
+Class.make_proper_class(service, '@CHL>SoloDatastore>Service')
 
 module.singleton = service.new() :: service
 module.service = service
