@@ -1,3 +1,4 @@
+-- plugin api from: https://github.com/CHL-a/JunkLuaIdeas/blob/main/Stuff/RobloxPlugins/QuickAssetImporter2.rbxmx
 local module = {}
 local InstanceUtils = require('@game/ReplicatedStorage/Objects/@CHL>InstanceUtils')
 local Promise = require('@game/ReplicatedStorage/Objects/@CHL>Promise')
