@@ -1,3 +1,5 @@
+-- api for plugin: https://github.com/CHL-a/JunkLuaIdeas/blob/main/Stuff/RobloxPlugins/SoloDataStore.rbxmx
+
 local module = {}
 local Promise = require('@game/ReplicatedStorage/Objects/@CHL>Promise')
 local LuaUTypes = require('@game/ReplicatedStorage/Objects/LuaUTypes')
