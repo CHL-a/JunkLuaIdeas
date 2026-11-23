@@ -43,7 +43,7 @@ export type studio_struct = {
 }
 
 function dominions.studio.get(class: string): studio_struct
-	if not PluginToolset.is_plugin_space():expect() then
+	if not PluginToolset.promised_plugin:expect() then
 		warn('attempted to fetch studio icon outside of plugin space')
 		return
 	end
