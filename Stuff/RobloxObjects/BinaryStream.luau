@@ -275,12 +275,14 @@ module.msbit_reader = msbit_reader
 --#####################################################################################
 --#####################################################################################
 
-local Consumer = require('./@CHL>Consumer')
+--local Consumer = require('./@CHL>Consumer')
+local Queue = require('./@CHL>LinkedQueue')
 
-type byte_consumer = Consumer.object<number>
+type queue<T> = Queue.object<T>
+--type byte_consumer = Consumer.object<number>
 
 export type writer = {
-	consumer: byte_consumer;
+	queue: queue<number>;
 	buffer: buff_w;
 	byte: number;
 	offset: number; -- [0, 8] -- 8 indicates next
@@ -303,13 +305,13 @@ export type writer = {
 	write_float: (self: writer, value: number, is_big_endian: boolean?) -> ();
 	write_double: (self: writer, is_big_endian: boolean?) -> ();
 	write_ushort: (self: writer, value: number, is_big_endian: boolean?) -> ();
-}
+} & byte_iterator
 
 Writer = {}
 
-function Writer.new(consumer: byte_consumer): writer
+function Writer.new(queue: queue<number>?): writer
 	local self: writer = Object.simple.new(Writer)
-	self.consumer = consumer or Consumer.print
+	self.queue = queue or Queue.default.new()
 	self.buffer = BufferWrapper.from.size(8)
 	self.offset = 0
 	self.byte = 0
@@ -330,7 +332,7 @@ end
 function Writer.write_bits(self: writer, value: number, bits_n: number)
 	local offset = self.offset
 	local byte = self.byte
-	local consumer = self.consumer
+	local queue = self.queue
 	local new_offset = bits_n + offset
 	local did_change_byte = new_offset >= 8
 	
@@ -345,14 +347,14 @@ function Writer.write_bits(self: writer, value: number, bits_n: number)
 			local value_lshifted = rshift(value, bits_n - bits_filling)
 			local consumed_byte = bor(lshift(byte, bits_filling), value_lshifted)
 			
-			consumer:consume(consumed_byte)
+			queue:enqueue(consumed_byte)
 		end
 		
 		-- direct consuming bytes
 		while new_offset >= 8 do
 			new_offset -= 8
 			local current_byte = byte_clamp(rshift(value, new_offset))
-			consumer:consume(current_byte)
+			queue:enqueue(current_byte)
 		end
 		
 		byte = 0
@@ -369,6 +371,14 @@ function Writer.write_bits(self: writer, value: number, bits_n: number)
 	
 	self.byte = byte
 	self.offset = new_offset
+end
+
+function Writer.can_proceed(self: writer): boolean
+	return not self.queue:is_empty()
+end
+
+function Writer.proceed(self: writer): boolean
+	return self.queue:dequeue()
 end
 
 function Writer.write_bytes(self: writer, ...: number)
@@ -421,9 +431,9 @@ export type msbit_writer = writer;
 
 msbit_writer = {}
 
-function msbit_writer.new(consumer: byte_consumer): writer
+function msbit_writer.new(queue: queue<number>?): writer
 	local self: writer = Object.simple.new(msbit_writer)
-	self.consumer = consumer or Consumer.print
+	self.queue = queue or Queue.default.new()
 	self.buffer = BufferWrapper.from.size(8)
 	self.offset = 0
 	self.byte = 0
@@ -455,7 +465,7 @@ function msbit_writer.write_bits(self: writer, value: number, bits_n: number)
 		
 		if self.offset >= 8 then
 			
-			self.consumer:consume(self.byte)
+			self.queue:enqueue(self.byte)
 			
 			self.offset = 0
 			self.byte = 0
