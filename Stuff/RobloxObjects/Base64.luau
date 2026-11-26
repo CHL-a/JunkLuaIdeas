@@ -180,7 +180,17 @@ function encoder_iterator.proceed(self: encoder_iterator)
 	local padding = self.padding
 	local con = self.consumer
 	
-	local b_0, b_1, b_2 = it:proceed(), it:proceed(), it:proceed()
+	local b_0, b_1, b_2;
+	
+	b_0 = it:proceed()
+	if it:can_proceed() then
+		b_1 = it:proceed()
+	end
+	
+	if it:can_proceed() then
+		b_2 = it:proceed()
+	end
+	
 	local struct = {
 		alphabet = alphabet,
 		padding = padding,
