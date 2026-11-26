@@ -299,6 +299,62 @@ module.length_value_map = length_value_map
 --############################################################################################################################################################################
 --############################################################################################################################################################################
 
+local Stack = require('./@CHL>LinkedStack')
+
+export type base_code_struct<T> = {
+	symbol: T;
+	bit_length: number;
+	code: number;
+}
+
+type to_huffman_table_struct<T> = {
+	node: node<T>;
+	bit_length: number;
+	code: number;
+}
+
+function module.to_huffman_table<T>(root: node<T>): {base_code_struct<T>}
+	local stack: Stack.object<to_huffman_table_struct<T>> = Stack.new()
+	local result = {}
+	
+	stack:push({
+		node = root;
+		bit_length = 0;
+		code = 0;
+	})
+	
+	while not stack:is_empty() do
+		local current = stack:pop()
+		
+		if current.node.has_value then
+			table.insert(result, {
+				symbol = current.node.value;
+				bit_length = current.bit_length;
+				code = current.code;
+			})
+		else
+			stack:push({
+				node = current.node.bit_1;
+				bit_length = current.bit_length + 1;
+				code = lshift(current.code, 1) + 1;
+			})
+			
+			stack:push({
+				node = current.node.bit_0;
+				bit_length = current.bit_length + 1;
+				code = lshift(current.code, 1);
+			})
+		end
+	end
+	
+	return result
+	
+end
+
+--############################################################################################################################################################################
+--############################################################################################################################################################################
+--############################################################################################################################################################################
+
 --[[
 	Section: Canonical Huffman codes:
 	
@@ -319,10 +375,8 @@ module.length_value_map = length_value_map
 	 * canonical_code is deemed to be the code that is produced after the decompression algorithm is ran
 ]]
 export type code_struct<T> = {
-	symbol: T,
-	bit_length: number;
 	canonical_code: number;
-}
+} & base_code_struct<T>
 
 lshift = bit32.lshift
 canonical = {}
@@ -357,6 +411,31 @@ function canonical.decompress<T>(code_length_array: {code_struct<T>})
 				current.canonical_code = lshift(current.canonical_code, 1)
 			end
 		end
+	end
+end
+
+function canonical.compress<T>(base_code_struct_array: {base_code_struct<T>})
+	table.sort(base_code_struct_array, function(a, b)
+		return a.bit_length < b.bit_length or (a.bit_length == b.bit_length and a.symbol < b.symbol)
+	end)
+	
+	for i, v in base_code_struct_array do
+		local code
+		
+		if i == 1 then
+			code = 0
+		else
+			local previous = base_code_struct_array[i - 1]
+			
+			code = previous.canonical_code + 1
+			
+			for j = previous.bit_length + 1, v.bit_length do
+				code = lshift(code, 1)
+			end
+		end
+		
+		v.canonical_code = code
+		v.code = code
 	end
 end
 
