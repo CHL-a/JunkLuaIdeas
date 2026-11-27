@@ -143,6 +143,7 @@ array_3d_iterator = {}
 
 function array_3d_iterator.new<T>(array_3d: array_3d<T>): array_3d_iterator<T>
 	local self: array_3d_iterator<T> = Object.simple.new(array_3d_iterator)
+	assert(array_3d, 'missing array_3d')
 	
 	self.array_3d = array_3d
 	self.x = 1
@@ -158,6 +159,10 @@ end
 
 function array_3d_iterator.proceed<T>(self: array_3d_iterator<T>): T
 	local x = self.x
+	if not self.array_3d then
+		print(self)
+		print(debug.traceback())
+	end
 	local array_2d = self.array_3d[x]
 	local result = array_2d[self.y][self.z]
 	
@@ -209,8 +214,21 @@ function struct_0.new(region_3: Region3, materials: array_3d<Enum.Material>, occ
 	return {
 		region_3 = region_3,
 		materials = materials,
-		occupancy = occupancy
-	}
+		occupancies = occupancy
+	} :: struct_0
+end
+
+function struct_0.from_region_on_terrain(region_3: Region3, terrain: Terrain?): struct_0
+	terrain = terrain or workspace.Terrain
+	local materials, occupancy = terrain:ReadVoxels(region_3, 4)
+	
+	return struct_0.new(region_3, materials, occupancy)
+end
+
+function struct_0.write_to_terrain(self: struct_0, terrain: Terrain?)
+	terrain = terrain or workspace.Terrain
+	
+	terrain:WriteVoxels(self.region_3, 4, self.materials, self.occupancies)
 end
 
 function struct_0.destroy(struct_0)
@@ -265,6 +283,8 @@ export type reader = BinaryStream.msbit_reader
 export type writer = BinaryStream.msbit_writer
 type queue<T> = Queue.object<T>
 
+type byte_iterator = iterator<number>
+
 export type serializer_0 = {
 	struct: struct_0;
 	queue: queue<number>;
@@ -274,7 +294,9 @@ export type serializer_0 = {
 	closed: boolean;
 	
 	write_huffman_code: (self: serializer_0, code: number, bits: number) -> ();
-} & iterator<number>
+	reset: (self: serializer_0) -> ();
+	header_write: (self: serializer_0) -> ();
+} & byte_iterator
 
 serializer_0 = {}
 band = bit32.band
@@ -287,7 +309,21 @@ function serializer_0.new(struct: struct_0): serializer_0
 	self.queue = Queue.default.new()
 	self.writer = BinaryStream.msbit_writer.new(self.queue)
 	
+	return self
+end
+
+function serializer_0.can_proceed(self: serializer_0): boolean
+	return not self.queue:is_empty() or
+		not self.closed
+		--not self.materials_iterator or 
+		--self.materials_iterator:can_proceed() or 
+		--not self.occupancy_iterator or 
+		--self.occupancy_iterator:can_proceed()
+end
+
+function serializer_0.header_write(self: serializer_0)
 	local writer = self.writer
+	local struct = self.struct
 	
 	writer:writeu32(0) -- version
 	
@@ -308,17 +344,14 @@ function serializer_0.new(struct: struct_0): serializer_0
 	writer:writeu32(size.X)
 	writer:writeu32(size.Y)
 	writer:writeu32(size.Z)
-	
-	return self
 end
 
-function serializer_0.can_proceed(self: serializer_0): boolean
-	return not self.queue:is_empty() or
-		not self.closed
-		--not self.materials_iterator or 
-		--self.materials_iterator:can_proceed() or 
-		--not self.occupancy_iterator or 
-		--self.occupancy_iterator:can_proceed()
+function serializer_0.reset(self: serializer_0)
+	self.materials_iterator = nil
+	self.occupancy_iterator = nil
+	self.current = nil
+	self.map = nil
+	self.closed = false
 end
 
 function serializer_0.proceed(self: serializer_0): number
@@ -412,7 +445,6 @@ function serializer_0.proceed(self: serializer_0): number
 	if not occupancy_iterator then
 		if self.current then
 			local struct = self.map[self.current.Value]
-			
 			writer:writeu8(1)
 			writer:write_bits(struct.code, struct.bit_length)
 		end
@@ -522,6 +554,8 @@ export type deserializer_0 = {
 	
 	all: (self: deserializer_0)->();
 	read_huffman_code: (self: deserializer_0)->(Enum.Material);
+	reset: (self: deserializer_0)->();
+	read_header: (self: deserializer_0)->();
 } & iterator<any>
 
 local Dash = require('./@roblox>Dash')
@@ -539,7 +573,6 @@ function deserializer_0.new(reader: reader): deserializer_0
 	self.reader = reader
 	self.queue = Queue.default.new()
 	
-	assert(reader:readu32() == 0, 'Unsupported version')
 	
 	return self
 end
@@ -548,11 +581,22 @@ function deserializer_0.can_proceed(self: deserializer_0)
 	return not self.closed
 end
 
+function deserializer_0.read_header(self: deserializer_0)
+	assert(self.reader:readu32() == 0, 'Unsupported version')
+end
+
+function deserializer_0.reset(self: deserializer_0)
+	self.closed = false
+	self.result = {}
+	self.voxel_spanning_size = nil
+	self.material_codes = nil
+end
+
 function deserializer_0.read_huffman_code(self: deserializer_0)
 	local reader = self.reader
-	local code = reader:read_bits(1)
+	local code = 0 -- reader:read_bits(1)
 	local structs = self.material_codes
-	local bit_length = 1
+	local bit_length = 0
 	
 	for _, struct in structs do
 		while bit_length ~= struct.bit_length do
@@ -667,7 +711,6 @@ function deserializer_0.proceed(self: deserializer_0)
 		if test then
 			print('at cap')
 			print(result, element, queue)
-			
 		end
 		
 		array_3d.insert(result.occupancies, element)
@@ -682,7 +725,7 @@ function deserializer_0.proceed(self: deserializer_0)
 			
 			if occupancy == 0 and amount == 0 then
 				self.closed = true
-				print('met')
+				reader:byte_align()
 				return nil
 			end
 			
@@ -700,7 +743,7 @@ function deserializer_0.proceed(self: deserializer_0)
 	end
 end
 
-deserializer_0.from.byte_iterator = compose(BinaryStream.msbit_reader.new, deserializer_0.new) :: (iterator<number>) -> deserializer_0
+deserializer_0.from.byte_iterator = compose(BinaryStream.msbit_reader.new, deserializer_0.new) :: (byte_iterator) -> deserializer_0
 
 Class.make_proper_class(deserializer_0, '@CHL>TerrainFormat>deserializer_0')
 
@@ -709,5 +752,133 @@ struct_0.deserializer = deserializer_0
 --########################################################################################################################################################################################
 --########################################################################################################################################################################################
 --########################################################################################################################################################################################
+
+--[[
+	in this approach, we attempt to serialize multiple structs into binary data as a length based array, in this case, we'll assume the formatting is deemed to be the following:
+	
+	u32 as the version
+	u16 as the struct count
+	rest of the data as the structs
+]]
+
+export type collection_serializer_0 = {
+	collection: {struct_0};
+	serializer: serializer_0;
+	current: number;
+} & byte_iterator
+
+collection_serializer_0 = {}
+
+function collection_serializer_0.new(collection: {struct_0}): collection_serializer_0
+	local self: collection_serializer_0 = Object.simple.new(collection_serializer_0)
+	
+	self.collection = collection
+	self.current = 1
+	self.serializer = serializer_0.new(collection[1])
+	
+	self.serializer.writer:writeu32(0)
+	self.serializer.writer:writeu16(#collection)
+	self.serializer:header_write()
+	
+	return self
+end
+
+function collection_serializer_0.can_proceed(self: collection_serializer_0): number
+	return 
+		self.serializer:can_proceed() or 
+		self.collection[self.current]
+end
+
+function collection_serializer_0.proceed(self: collection_serializer_0): number
+	local serializer = self.serializer
+	
+	if not serializer.struct then
+		serializer.struct = self.collection[self.current]
+		serializer:header_write()
+	end
+	
+	local result = serializer:proceed()
+	
+	if not serializer:can_proceed() then
+		self.current += 1
+		serializer.struct = nil
+		serializer:reset()
+		
+		if self.current > #self.collection then
+			serializer.closed = true
+		end
+	end
+	
+	return result
+end
+
+Class.make_proper_class(collection_serializer_0, '@CHL>TerrainFormat>collection_serializer_0')
+
+struct_0.collection_serializer = collection_serializer_0
+
+--########################################################################################################################################################################################
+--########################################################################################################################################################################################
+--########################################################################################################################################################################################
+
+export type collection_deserializer_0 = {
+	collection: {struct_0};
+	deserializer: deserializer_0;
+	length: number;
+	current: number;
+} & iterator<any>
+
+collection_deserializer_0 = {}
+
+function collection_deserializer_0.new(deserializer: deserializer_0): collection_deserializer_0
+	local self: collection_deserializer_0 = Object.simple.new(collection_deserializer_0)
+	
+	assert(deserializer.reader:readu32() == 0)
+	
+	self.deserializer = deserializer
+	self.collection = {}
+	self.length = deserializer.reader:readu16()
+	self.current = 1
+	
+	print(self)
+	
+	deserializer:read_header()
+	
+	return self
+end
+
+function collection_deserializer_0.can_proceed(self: collection_deserializer_0): boolean
+	return 
+		self.deserializer:can_proceed() or 
+		not self.collection[self.length]
+end
+
+function collection_deserializer_0.proceed(self: collection_deserializer_0): any
+	if not self:can_proceed() then
+		return nil
+	end
+	
+	local deserializer = self.deserializer
+	
+	local result = deserializer:proceed()
+	
+	if not deserializer:can_proceed() then
+		self.collection[self.current] = deserializer.result
+		self.current += 1
+		
+		if self:can_proceed() then
+			deserializer:reset()
+			deserializer:read_header()
+		end
+	end
+	
+	return result
+end
+
+collection_deserializer_0.from_reader = compose(deserializer_0.new, collection_deserializer_0.new) :: (reader) -> collection_deserializer_0
+collection_deserializer_0.from_byte_iterator = compose(deserializer_0.from.byte_iterator, collection_deserializer_0.new) :: (reader) -> collection_deserializer_0
+
+Class.make_proper_class(collection_deserializer_0, '@CHL>Terrain>collection_deserializer_0')
+
+struct_0.collection_deserializer = collection_deserializer_0
 
 return module
